@@ -1,6 +1,12 @@
-python-telegram-bot[rate-limiter]
+beautifulsoup4
+fake_useragent
 openai
-PyYAML
-pymongo
-aiohttp
+pycryptodome
+pydantic
 pydub
+pymongo
+python-telegram-bot[rate-limiter]
+PyYAML
+Requests
+retrying
+tls_client
