@@ -8,7 +8,8 @@ ENV PIP_NO_CACHE_DIR=off
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 ENV PIP_DEFAULT_TIMEOUT=100
 
-RUN install_packages python3 python3-pip ffmpeg
+RUN install_packages python3 python3-pip
+#RUN install_packages ffmpeg
 WORKDIR /
 ADD . /
 COPY config/api.example.yml config/api.yml
