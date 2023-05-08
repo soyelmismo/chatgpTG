@@ -317,7 +317,7 @@ async def voice_message_handle(update: Update, context: CallbackContext):
         #voice_mp3_path = tmp_dir / "voice.mp3"
         #pydub.AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
         # transcribe
-        transcribed_text = await openai_utils.transcribe_audio(str(voice_ogg_path))
+        transcribed_text = await openai_utils.transcribe_audio(voice_ogg_path)
         if transcribed_text is None:
             transcribed_text = ""
 
