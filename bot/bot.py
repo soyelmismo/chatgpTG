@@ -6,7 +6,7 @@ import html
 import json
 import tempfile
 import math
-import pydub
+#import pydub
 from pathlib import Path
 from datetime import datetime
 import openai
@@ -314,8 +314,8 @@ async def voice_message_handle(update: Update, context: CallbackContext):
         voice_file = await context.bot.get_file(voice.file_id)
         await voice_file.download_to_drive(voice_ogg_path)
         # convert to mp3
-        voice_mp3_path = tmp_dir / "voice.mp3"
-        pydub.AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
+        #voice_mp3_path = tmp_dir / "voice.mp3"
+        #pydub.AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
         # transcribe
         transcribed_text = await openai_utils.transcribe_audio(str(voice_ogg_path))
         if transcribed_text is None:

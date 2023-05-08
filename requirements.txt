@@ -1,5 +1,5 @@
 openai
-pydub
+#pydub
 pymongo
 python-telegram-bot[rate-limiter]
 PyYAML
