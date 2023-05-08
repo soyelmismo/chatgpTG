@@ -1,7 +1,7 @@
 import config
 import openai
 import database
-#from apis.gpt4free import you
+from apis.gpt4free import you
 from apis.opengpt import chatbase
 
 
@@ -32,14 +32,14 @@ class ChatGPT:
                 messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
                 if api == "chatbase":
                     r = chatbase.GetAnswer(messages=messages, model=self.model)
-                # elif api == "you":
-                #     print("envió a you")
-                #     r = you.Completion.create(
-                #         prompt=messages,
-                #         chat=dialog_messages,
-                #         detailed=False,
-                #         include_links=True, )
-                #     r = dict(r)
+                elif api == "you":
+                    print("envió a you")
+                    r = you.Completion.create(
+                        prompt=messages,
+                        chat=dialog_messages,
+                        detailed=False,
+                        include_links=True, )
+                    r = dict(r)
                 else:
                     if (self.model in config.model["available_model"]):
                         if self.model != "text-davinci-003":
@@ -63,14 +63,14 @@ class ChatGPT:
                     if "API rate limit exceeded" in answer:
                         answer = "Se alcanzó el límite de API. Inténtalo luego!"
                     yield "not_finished", answer
-                # if api == "you":
-                #     print("recibió response")
-                #     answer += r["text"]
-                #     if len(r["links"]) >= 1:
-                #         answer += "\n\nLinks: \n"
-                #         for link in r["links"]:
-                #             answer += f"\n- <a href='{link['url']}'>{link['name']}</a>" 
-                #     yield "not_finished", answer
+                if api == "you":
+                    print("recibió response")
+                    answer += r["text"]
+                    if len(r["links"]) >= 1:
+                        answer += "\n\nLinks: \n"
+                        for link in r["links"]:
+                            answer += f"\n- <a href='{link['url']}'>{link['name']}</a>" 
+                    yield "not_finished", answer
                 elif self.model != "text-davinci-003":
                         async for r_item in r:
                             delta = r_item.choices[0].delta

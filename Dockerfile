@@ -1,4 +1,4 @@
-FROM alpine:edge
+FROM bitnami/minideb:latest
 
 ENV PYTHONFAULTHANDLER=1
 ENV PYTHONUNBUFFERED=1
@@ -8,8 +8,7 @@ ENV PIP_NO_CACHE_DIR=off
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 ENV PIP_DEFAULT_TIMEOUT=100
 
-RUN apk add --no-cache python3 py3-pip openssl
-RUN apk add --no-cache ffmpeg
+RUN install_packages python3 python3-pip ffmpeg
 WORKDIR /
 ADD . /
 COPY config/api.example.yml config/api.yml
