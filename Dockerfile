@@ -8,7 +8,7 @@ ENV PIP_NO_CACHE_DIR=off
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 ENV PIP_DEFAULT_TIMEOUT=100
 
-RUN apk add --no-cache python3 py3-pip openssl gcompat
+RUN apk add --no-cache python3 py3-pip openssl
 RUN apk add --no-cache ffmpeg
 WORKDIR /
 ADD . /
