@@ -7,3 +7,4 @@ requests
 retrying
 tls_client
 fake_useragent
+pydantic
