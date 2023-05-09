@@ -84,13 +84,12 @@ async def reboot(update, context):
         await update.message.reply_text("Reiniciando...")
         subprocess.Popen(['reboot'])
 
-
-async def obtener_vivas(update, context):
-    vivas = estadosapi()
-    await update.message.reply_text(vivas)
-
-# Ejemplo de uso
-apis_vivas = obtener_vivas()
+apis_vivas = []
+def obtener_vivas():
+    print("Se ejecutó chequeo de APIs")
+    global apis_vivas
+    apis_vivas = estadosapi()
+    print(apis_vivas)
 
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
@@ -123,7 +122,7 @@ async def register_user_if_not_exists(update: Update, context: CallbackContext, 
         db.set_user_attribute(user.id, "current_model", config.model["available_model"][0])
         
     if db.get_user_attribute(user.id, "current_api") is None:
-        db.set_user_attribute(user.id, "current_api", apis_vivas)
+        db.set_user_attribute(user.id, "current_api", apis_vivas[0])
 
 async def is_bot_mentioned(update: Update, context: CallbackContext):
      try:
@@ -435,7 +434,7 @@ async def get_menu(update: Update, user_id: int, menu_type: str):
     menu_type_dict = getattr(config, menu_type)
     api_antigua = db.get_user_attribute(user_id, 'current_api')
     if api_antigua not in apis_vivas:
-        db.set_user_attribute(user_id, "current_api", apis_vivas)
+        db.set_user_attribute(user_id, "current_api", apis_vivas[0])
         await send_reply(update, f'Tu API actual "{api_antigua}" no está disponible. Por lo que se ha cambiado automáticamente a "{menu_type_dict["info"][db.get_user_attribute(user_id, "current_api")]["name"]}".')
         pass
     modelos_disponibles = config.api["info"][db.get_user_attribute(user_id, "current_api")]["available_model"]
@@ -651,6 +650,7 @@ async def post_init(application: Application):
     ])
 
 def run_bot() -> None:
+    obtener_vivas()
     application = (
         ApplicationBuilder()
         .token(config.telegram_token)
