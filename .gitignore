@@ -139,6 +139,7 @@ docker-compose.yml
 
 bot/apis/OpenGPTtt/
 
+.vscode
 
 mongodb/
 bot/test.py

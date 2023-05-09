@@ -6,14 +6,6 @@ from apis.opengpt import chatbase
 
 
 db = database.Database()
-
-OPENAI_COMPLETION_OPTIONS = {
-    "max_tokens": 2048,
-    "temperature": 1,
-    "top_p": 1,
-    "frequency_penalty": 0,
-    "presence_penalty": 0,
-}
    
 class ChatGPT:
     def __init__(self, model="gpt-3.5-turbo"):
@@ -42,16 +34,16 @@ class ChatGPT:
                 else:
                     if (self.model in config.model["available_model"]):
                         if self.model != "text-davinci-003":
-                            OPENAI_COMPLETION_OPTIONS["messages"] = messages
-                            OPENAI_COMPLETION_OPTIONS["model"] = self.model
+                            config.completion_options["messages"] = messages
+                            config.completion_options["model"] = self.model
                         else:
                             prompt = self._generate_prompt(message, dialog_messages, chat_mode)
-                            OPENAI_COMPLETION_OPTIONS["prompt"] = prompt
-                            OPENAI_COMPLETION_OPTIONS["engine"] = self.model
+                            config.completion_options["prompt"] = prompt
+                            config.completion_options["engine"] = self.model
                         
                         r = await openai.ChatCompletion.acreate(
                             stream=True,
-                            **OPENAI_COMPLETION_OPTIONS
+                            **config.completion_options
                         )
                     else:
                         raise ValueError(f"Modelo desconocido: {self.model}")

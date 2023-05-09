@@ -23,6 +23,10 @@ with open(config_dir / "chat_mode.yml", 'r') as f:
 with open(config_dir / "model.yml", 'r') as f:
     model = yaml.safe_load(f)
 
+#completion_options
+with open('openai_completion_options.yml', 'r') as f:
+    completion_options = yaml.safe_load(f)
+
 # files
 help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"
 
