@@ -15,5 +15,6 @@ ADD . /
 COPY config/api.example.yml config/api.yml
 COPY config/chat_mode.example.yml config/chat_mode.yml
 COPY config/model.example.yml config/model.yml
+COPY config/openai_completion_options.example.yml config/openai_completion_options.yml
 RUN pip3 install -r requirements.txt
 CMD ["python3", "bot/bot.py"]
