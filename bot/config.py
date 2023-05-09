@@ -24,7 +24,7 @@ with open(config_dir / "model.yml", 'r') as f:
     model = yaml.safe_load(f)
 
 #completion_options
-with open('openai_completion_options.yml', 'r') as f:
+with open(config_dir / 'openai_completion_options.yml', 'r') as f:
     completion_options = yaml.safe_load(f)
 
 # files
