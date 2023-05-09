@@ -650,62 +650,68 @@ async def post_init(application: Application):
     ])
 
 def run_bot() -> None:
-    obtener_vivas()
-    application = (
-        ApplicationBuilder()
-        .token(config.telegram_token)
-        .concurrent_updates(True)
-        .rate_limiter(AIORateLimiter(max_retries=5))
-        .post_init(post_init)
-        .build()
-    )
+    while True:
+        try:    
+            obtener_vivas()
+            application = (
+                ApplicationBuilder()
+                .token(config.telegram_token)
+                .concurrent_updates(True)
+                .rate_limiter(AIORateLimiter(max_retries=5))
+                .post_init(post_init)
+                .build()
+            )
 
-    # add handlers
+            # add handlers
 
-    if config.user_whitelist:
-        usernames = []
-        user_ids = []
-        for user in config.user_whitelist.split(','):
-            user = user.strip()
-            if user.isnumeric():
-                user_ids.append(int(user))
+            if config.user_whitelist:
+                usernames = []
+                user_ids = []
+                for user in config.user_whitelist.split(','):
+                    user = user.strip()
+                    if user.isnumeric():
+                        user_ids.append(int(user))
+                    else:
+                        usernames.append(user)
+                    user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
             else:
-                usernames.append(user)
-            user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
-    else:
-        user_filter = filters.ALL
+                user_filter = filters.ALL
 
-    application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
-    application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
-    application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
+            application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
+            application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
+            application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
 
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
-    application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
-    application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
-    application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
+            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
+            application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
+            application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
+            application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
 
-    application.add_handler(MessageHandler(filters.VOICE & user_filter, voice_message_handle))
+            application.add_handler(MessageHandler(filters.VOICE & user_filter, voice_message_handle))
 
-    application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
-    application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
-    application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-    
-    application.add_handler(CommandHandler('reboot', reboot, filters=user_filter))
-    application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
+            application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
+            application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
+            application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
+            
+            application.add_handler(CommandHandler('reboot', reboot, filters=user_filter))
+            application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
 
 
-    application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
-    application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
+            application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
 
-    application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
-    application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
+            application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
 
-    application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
-    application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
-    application.add_error_handler(error_handle)
+            application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
+            application.add_error_handler(error_handle)
 
-    # start the bot
-    application.run_polling()
+            # start the bot
+            application.run_polling()
+        except Exception as e:
+            print(f"Error: {e}. Intentando reconectar en 5 segundos...")
+            time.sleep(10)
+
 
 if __name__ == "__main__":
     run_bot()
@@ -716,4 +722,4 @@ schedule.every().hour.do(estadosapi)
 # Mantener en ejecución el programador
 while True:
     schedule.run_pending()
-    time.sleep(1)
+    time.sleep(60)
