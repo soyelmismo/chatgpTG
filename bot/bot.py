@@ -33,6 +33,10 @@ from telegram.constants import ParseMode, ChatAction
 import config
 import database
 import openai_utils
+
+from apistatus import estadosapi
+import schedule
+import time
 # setup
 
 db = database.Database()
@@ -80,6 +84,14 @@ async def reboot(update, context):
         await update.message.reply_text("Reiniciando...")
         subprocess.Popen(['reboot'])
 
+
+async def obtener_vivas(update, context):
+    vivas = estadosapi()
+    await update.message.reply_text(vivas)
+
+# Ejemplo de uso
+apis_vivas = obtener_vivas()
+
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
         yield text[i:i + chunk_size]
@@ -111,7 +123,7 @@ async def register_user_if_not_exists(update: Update, context: CallbackContext, 
         db.set_user_attribute(user.id, "current_model", config.model["available_model"][0])
         
     if db.get_user_attribute(user.id, "current_api") is None:
-        db.set_user_attribute(user.id, "current_api", config.api["available_api"][0])
+        db.set_user_attribute(user.id, "current_api", apis_vivas)
 
 async def is_bot_mentioned(update: Update, context: CallbackContext):
      try:
@@ -378,7 +390,7 @@ async def new_dialog_handle(update: Update, context: CallbackContext, user=None)
 
     
     # Verificar si hay valores inválidos en el usuario
-    if (mododechat_actual not in config.chat_mode["available_chat_mode"] or api_actual not in config.api["available_api"] or modelo_actual not in config.model["available_model"]):
+    if (mododechat_actual not in config.chat_mode["available_chat_mode"] or api_actual not in apis_vivas or modelo_actual not in config.model["available_model"]):
         db.reset_user_attribute(user_id)
         await update.message.reply_text(update, "Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.")
 
@@ -421,10 +433,9 @@ async def cancel_handle(update: Update, context: CallbackContext):
 
 async def get_menu(update: Update, user_id: int, menu_type: str):
     menu_type_dict = getattr(config, menu_type)
-    apis_disponibles = config.api["available_api"]
     api_antigua = db.get_user_attribute(user_id, 'current_api')
-    if api_antigua not in apis_disponibles:
-        db.set_user_attribute(user_id, "current_api", apis_disponibles[0])
+    if api_antigua not in apis_vivas:
+        db.set_user_attribute(user_id, "current_api", apis_vivas)
         await send_reply(update, f'Tu API actual "{api_antigua}" no está disponible. Por lo que se ha cambiado automáticamente a "{menu_type_dict["info"][db.get_user_attribute(user_id, "current_api")]["name"]}".')
         pass
     modelos_disponibles = config.api["info"][db.get_user_attribute(user_id, "current_api")]["available_model"]
@@ -434,6 +445,8 @@ async def get_menu(update: Update, user_id: int, menu_type: str):
         pass
     if menu_type == "model":
         item_keys = modelos_disponibles
+    elif menu_type == "api":
+        item_keys = apis_vivas
     else:
         item_keys = menu_type_dict[f"available_{menu_type}"]
         
@@ -678,6 +691,8 @@ def run_bot() -> None:
     application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
     
     application.add_handler(CommandHandler('reboot', reboot, filters=user_filter))
+    application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
+
 
     application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
     application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
@@ -694,3 +709,11 @@ def run_bot() -> None:
 
 if __name__ == "__main__":
     run_bot()
+
+# Programa la tarea para ejecutar cada hora
+schedule.every().hour.do(estadosapi)
+
+# Mantener en ejecución el programador
+while True:
+    schedule.run_pending()
+    time.sleep(1)

@@ -25,7 +25,6 @@ class ChatGPT:
         api_info = config.api["info"].get(api, {})
         openai.api_key = str(api_info.get("key", ""))
         openai.api_base=str(config.api["info"][api].get("url"))
-        n_dialog_messages_before = len(dialog_messages)
         answer = None
         while answer is None:
             try:
