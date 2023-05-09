@@ -717,7 +717,7 @@ if __name__ == "__main__":
     run_bot()
 
 # Programa la tarea para ejecutar cada hora
-schedule.every().hour.do(estadosapi)
+schedule.every().hour.do(obtener_vivas)
 
 # Mantener en ejecución el programador
 while True:
