@@ -707,11 +707,16 @@ def run_bot() -> None:
 
             # Programa la tarea para ejecutar cada hora
             schedule.every(1).hour.do(obtener_vivas)
-            # Mantener en ejecución el programador
+            schedule.run_all()
+
             while True:
+                # Ejecuta las tareas programadas
                 schedule.run_pending()
-                # start the bot
+
+                # Inicia el bot
                 application.run_polling()
+
+                # Espera 1 segundo antes de la próxima iteración
                 time.sleep(1)
         except Exception as e:
             print(f"Error: {e}. Intentando reconectar en 5 segundos...")
