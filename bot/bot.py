@@ -652,7 +652,6 @@ async def post_init(application: Application):
 def run_bot() -> None:
     while True:
         try:    
-            obtener_vivas()
             application = (
                 ApplicationBuilder()
                 .token(config.telegram_token)
@@ -706,8 +705,14 @@ def run_bot() -> None:
             application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
             application.add_error_handler(error_handle)
 
-            # start the bot
-            application.run_polling()
+            # Programa la tarea para ejecutar cada hora
+            schedule.every(1).hour.do(obtener_vivas)
+            # Mantener en ejecución el programador
+            while True:
+                schedule.run_pending()
+                # start the bot
+                application.run_polling()
+                time.sleep(1)
         except Exception as e:
             print(f"Error: {e}. Intentando reconectar en 5 segundos...")
             time.sleep(10)
@@ -715,11 +720,3 @@ def run_bot() -> None:
 
 if __name__ == "__main__":
     run_bot()
-
-# Programa la tarea para ejecutar cada hora
-schedule.every().hour.do(obtener_vivas)
-
-# Mantener en ejecución el programador
-while True:
-    schedule.run_pending()
-    time.sleep(60)
