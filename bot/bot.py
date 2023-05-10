@@ -1,4 +1,4 @@
-import subprocess
+import os
 import logging
 import asyncio
 import traceback
@@ -82,7 +82,7 @@ async def reboot(update, context):
     if user.id in sudo_user_list or user.username in sudo_user_list:
         print(sudo_user_list)
         await update.message.reply_text("Reiniciando...")
-        subprocess.Popen(['reboot'])
+        os.system('reboot')
 
 apis_vivas = []
 def obtener_vivas():
@@ -90,6 +90,11 @@ def obtener_vivas():
     global apis_vivas
     apis_vivas = estadosapi()
     print(apis_vivas)
+
+async def run_schedule():
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(1)
 
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
@@ -640,6 +645,9 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
         await context.bot.send_message("Algún error en el gestor de errores")
 
 async def post_init(application: Application):
+    asyncio.create_task(run_schedule())
+    schedule.every().hour.at(":00").do(obtener_vivas)
+    obtener_vivas()
     await application.bot.set_my_commands([
         BotCommand("/new", "Iniciar un nuevo diálogo"),
         BotCommand("/chat_mode", "Cambia el modo de asistente"),
@@ -705,22 +713,11 @@ def run_bot() -> None:
             application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
             application.add_error_handler(error_handle)
 
-            # Programa la tarea para ejecutar cada hora
-            schedule.every(1).hour.do(obtener_vivas)
-            schedule.run_all()
+            application.run_polling()
 
-            while True:
-                # Ejecuta las tareas programadas
-                schedule.run_pending()
-
-                # Inicia el bot
-                application.run_polling()
-
-                # Espera 1 segundo antes de la próxima iteración
-                time.sleep(1)
         except Exception as e:
             print(f"Error: {e}. Intentando reconectar en 5 segundos...")
-            time.sleep(10)
+            time.sleep(5)
 
 
 if __name__ == "__main__":
