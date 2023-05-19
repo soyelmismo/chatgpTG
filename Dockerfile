@@ -9,11 +9,13 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 ENV PIP_DEFAULT_TIMEOUT=100
 
 RUN install_packages python3 python3-pip
-#RUN install_packages ffmpeg
+RUN install_packages ffmpeg
 WORKDIR /
 ADD . /
 COPY config/api.example.yml config/api.yml
 COPY config/chat_mode.example.yml config/chat_mode.yml
 COPY config/model.example.yml config/model.yml
+COPY config/max_tokens.example.yml config/max_tokens.yml
+COPY config/openai_completion_options.example.yml config/openai_completion_options.yml
 RUN pip3 install -r requirements.txt
 CMD ["python3", "bot/bot.py"]

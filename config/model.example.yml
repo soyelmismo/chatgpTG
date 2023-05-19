@@ -1,4 +1,4 @@
-available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003"]
+available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "g4f-you", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"]
 # debes declarar los modelos en el apartado de acá arriba
 info:
   gpt-3.5-turbo:
@@ -12,6 +12,30 @@ info:
   text-davinci-003:
     name: GPT-3
     description: es un modelo obsoleto. De hecho, <b>no hay razón para usarlo</b>, ya que es más caro y más lento que ChatGPT, pero alrededor del mismo nivel de inteligencia.
+
+  g4f-you:
+    name: You
+    description: You.com
+
+  g4f-ails:
+    name: Ails
+    description: ai.ls
+
+  g4f-bing:
+    name: Bing
+    description: bing.com/chat
+
+  g4f-chatgpt:
+    name: Openai
+    description: chat.openai.com
+
+  g4f-phind:
+    name: Phind
+    description: phind.com
+
+  g4f-yqcloud:
+    name: Yqcloud
+    description: chat9.yqcloud.top
 
   dalle-2:
     type: image

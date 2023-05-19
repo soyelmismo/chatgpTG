@@ -17,5 +17,7 @@ services:
       - SUDO_USERS=69959, ejemplo1,ejemplo2
       - new_dialog_timeout=7200
       - return_n_generated_images=4
+      - GPT4FREE_BING_U_COOKIE=LOOOOOOOOONGGGGGCOOOKIEEEEE882738319271$$$$
+      - GPT4FREE_CHATGPT_SESSION_TOKEN=LOOOOOOOOONGGGGGCOOOKIEEEEE882738319271$$$$
 #opcionalmente    volumes:
 #      - /ruta-fuera-del-docker/mi-configuracion:/config

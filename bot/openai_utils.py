@@ -1,19 +1,12 @@
 import config
 import openai
 import database
-from apis.gpt4free import you
+from apis.gpt4free import g4f
 from apis.opengpt import chatbase
+from apis.gpt4free.foraneo import you
 
 
 db = database.Database()
-
-OPENAI_COMPLETION_OPTIONS = {
-    "max_tokens": 2048,
-    "temperature": 1,
-    "top_p": 1,
-    "frequency_penalty": 0,
-    "presence_penalty": 0,
-}
    
 class ChatGPT:
     def __init__(self, model="gpt-3.5-turbo"):
@@ -22,18 +15,22 @@ class ChatGPT:
 
     async def send_message(self, message, user_id, dialog_messages=[], chat_mode="assistant"):
         api = db.get_user_attribute(user_id, "current_api")
+        current_max_tokens = db.get_user_attribute(user_id, "current_max_tokens")
         api_info = config.api["info"].get(api, {})
         openai.api_key = str(api_info.get("key", ""))
         openai.api_base=str(config.api["info"][api].get("url"))
-        n_dialog_messages_before = len(dialog_messages)
         answer = None
         while answer is None:
             try:
                 messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
                 if api == "chatbase":
                     r = chatbase.GetAnswer(messages=messages, model=self.model)
+                elif api == "g4f":
+                    provider_name = config.model['info'][self.model]['name']
+                    provider = getattr(g4f.Providers, provider_name)
+                    # streamed completion
+                    r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
                 elif api == "you":
-                    print("envió a you")
                     r = you.Completion.create(
                         prompt=messages,
                         chat=dialog_messages,
@@ -41,18 +38,19 @@ class ChatGPT:
                         include_links=True, )
                     r = dict(r)
                 else:
+                    config.completion_options["max_tokens"] = int(config.max_tokens["info"][current_max_tokens]["name"])
                     if (self.model in config.model["available_model"]):
                         if self.model != "text-davinci-003":
-                            OPENAI_COMPLETION_OPTIONS["messages"] = messages
-                            OPENAI_COMPLETION_OPTIONS["model"] = self.model
+                            config.completion_options["messages"] = messages
+                            config.completion_options["model"] = self.model
                         else:
                             prompt = self._generate_prompt(message, dialog_messages, chat_mode)
-                            OPENAI_COMPLETION_OPTIONS["prompt"] = prompt
-                            OPENAI_COMPLETION_OPTIONS["engine"] = self.model
+                            config.completion_options["prompt"] = prompt
+                            config.completion_options["engine"] = self.model
                         
                         r = await openai.ChatCompletion.acreate(
                             stream=True,
-                            **OPENAI_COMPLETION_OPTIONS
+                            **config.completion_options
                         )
                     else:
                         raise ValueError(f"Modelo desconocido: {self.model}")
@@ -63,8 +61,11 @@ class ChatGPT:
                     if "API rate limit exceeded" in answer:
                         answer = "Se alcanzó el límite de API. Inténtalo luego!"
                     yield "not_finished", answer
+                if api == "g4f":
+                    for c in r:
+                        answer += c
+                        yield "not_finished", answer
                 if api == "you":
-                    print("recibió response")
                     answer += r["text"]
                     if len(r["links"]) >= 1:
                         answer += "\n\nLinks: \n"
@@ -119,7 +120,11 @@ class ChatGPT:
         answer = answer.strip()
         return answer
 
-async def transcribe_audio(audio_file):
+async def transcribe_audio(user_id, audio_file):
+    api = db.get_user_attribute(user_id, "current_api")
+    api_info = config.api["info"].get(api, {})
+    openai.api_key = str(api_info.get("key", ""))
+    openai.api_base=str(config.api["info"][api].get("url"))
     r = await openai.Audio.atranscribe("whisper-1", audio_file)
     return r["text"]
 

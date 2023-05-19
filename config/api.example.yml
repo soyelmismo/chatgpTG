@@ -1,4 +1,4 @@
-available_api: ["openai", "you", "chatbase"]
+available_api: ["openai", "you", "chatbase", "g4f"]
 available_imagen: ["openai"]
 # debes declarar los api en el apartado de acá arriba
 info:
@@ -22,6 +22,13 @@ info:
     url: youchat
     key: youkey
     available_model: ["gpt-3.5-turbo", "gpt-4"]
+
+  g4f:
+    name: GPT4Free
+    description: API de APIs.
+    url: http://127.0.0.1:1337
+    key: ""
+    available_model: ["g4f-you", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"]
   # otra_api:
   #   name: Otra
   #   description: Test.

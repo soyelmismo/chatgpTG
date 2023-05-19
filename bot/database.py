@@ -43,6 +43,7 @@ class Database:
             "current_chat_mode": config.chat_mode["available_chat_mode"][1],
             "current_model": config.model["available_model"][0],
             "current_api": config.api["available_api"][0],
+            "current_max_tokens": config.max_tokens["available_max_tokens"][0]
 
         }
 
@@ -60,7 +61,8 @@ class Database:
             "start_time": datetime.now(),
             "model": self.get_user_attribute(user_id, "current_model"),
             "api": self.get_user_attribute(user_id, "current_api"),
-            "messages": []
+            "messages": [],
+            "max_tokens": self.get_user_attribute(user_id, "current_max_tokens")
         }
 
         # add new dialog
@@ -90,11 +92,13 @@ class Database:
         initial_chat_mode = config.chat_mode["available_chat_mode"][1]
         initial_model = config.model["available_model"][0]
         initial_api = config.api["available_api"][0]
+        initial_max_tokens = config.max_tokens["available_max_tokens"][0]
 
         # Actualizar los valores en la base de datos
         self.set_user_attribute(user_id, 'current_chat_mode', initial_chat_mode)
         self.set_user_attribute(user_id, 'current_model', initial_model)
         self.set_user_attribute(user_id, 'current_api', initial_api)
+        self.set_user_attribute(user_id, 'current_max_tokens', initial_max_tokens)
 
         
     def set_user_attribute(self, user_id: int, key: str, value: Any):

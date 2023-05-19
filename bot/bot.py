@@ -1,4 +1,4 @@
-import subprocess
+import os
 import logging
 import asyncio
 import traceback
@@ -6,7 +6,7 @@ import html
 import json
 import tempfile
 import math
-import pydub
+from pydub import AudioSegment
 from pathlib import Path
 from datetime import datetime
 import openai
@@ -33,6 +33,10 @@ from telegram.constants import ParseMode, ChatAction
 import config
 import database
 import openai_utils
+
+from apistatus import estadosapi
+import schedule
+import time
 # setup
 
 db = database.Database()
@@ -46,7 +50,8 @@ HELP_MESSAGE = """Comandos:
 ⚪ /retry - Regenera la última respuesta del bot.
 ⚪ /new - Iniciar nuevo diálogo.
 ⚪ /chat_mode - Seleccionar el modo de conversación.
-⚪ /model - Mostrar configuración.
+⚪ /model - Mostrar configuración de API.
+⚪ /max_tokens - Configura los tokens máximos.
 ⚪ /api - Mostrar APIs.
 ⚪ /help – Mostrar este mensaje de nuevo.
 
@@ -78,7 +83,19 @@ async def reboot(update, context):
     if user.id in sudo_user_list or user.username in sudo_user_list:
         print(sudo_user_list)
         await update.message.reply_text("Reiniciando...")
-        subprocess.Popen(['reboot'])
+        os.system('reboot')
+
+apis_vivas = []
+def obtener_vivas():
+    print("Se ejecutó chequeo de APIs")
+    global apis_vivas
+    apis_vivas = estadosapi()
+    print(apis_vivas)
+
+async def run_schedule():
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(1)
 
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
@@ -111,7 +128,11 @@ async def register_user_if_not_exists(update: Update, context: CallbackContext, 
         db.set_user_attribute(user.id, "current_model", config.model["available_model"][0])
         
     if db.get_user_attribute(user.id, "current_api") is None:
-        db.set_user_attribute(user.id, "current_api", config.api["available_api"][0])
+        db.set_user_attribute(user.id, "current_api", apis_vivas[0])
+        
+    if db.get_user_attribute(user.id, "current_max_tokens") is None:
+        db.set_user_attribute(user.id, "current_max_tokens", config.max_tokens["available_max_tokens"][0])
+        
 
 async def is_bot_mentioned(update: Update, context: CallbackContext):
      try:
@@ -300,7 +321,7 @@ async def voice_message_handle(update: Update, context: CallbackContext):
         return
 
     await register_user_if_not_exists(update, context, update.message.from_user)
-    #if await is_previous_message_not_answered_yet(update, context): return
+    if await is_previous_message_not_answered_yet(update, context): return
 
     user_id = update.message.from_user.id
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
@@ -313,13 +334,57 @@ async def voice_message_handle(update: Update, context: CallbackContext):
         # download
         voice_file = await context.bot.get_file(voice.file_id)
         await voice_file.download_to_drive(voice_ogg_path)
+
         # convert to mp3
         voice_mp3_path = tmp_dir / "voice.mp3"
-        pydub.AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
+        AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
+
         # transcribe
-        transcribed_text = await openai_utils.transcribe_audio(str(voice_ogg_path))
-        if transcribed_text is None:
-            transcribed_text = ""
+        with open(voice_mp3_path, "rb") as f:
+            transcribed_text = await openai_utils.transcribe_audio(user_id, f)
+
+            if transcribed_text is None:
+                 transcribed_text = ""
+
+    text = f"🎤: <i>{transcribed_text}</i>"
+    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+
+    await message_handle(update, context, message=transcribed_text)
+    
+async def audio_message_handle(update: Update, context: CallbackContext):
+    # check if bot was mentioned (for group chats)
+    if not await is_bot_mentioned(update, context):
+        return
+
+    await register_user_if_not_exists(update, context, update.message.from_user)
+    #if await is_previous_message_not_answered_yet(update, context): return
+
+    user_id = update.message.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+    
+    audio = update.message.audio
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # Crea la ruta para el archivo de audio original
+        audio_path = os.path.join(tmp_dir, f'{audio.file_id}.{audio.mime_type.split("/")[-1]}')
+
+        # Obtener el objeto File como una corutina
+        file = audio.get_file()
+        # Esperar a que la corutina se complete y devuelva el resultado
+        file = await file
+        # Llamar al método download_to_drive del objeto File
+        await file.download_to_drive(custom_path=audio_path)
+
+        # Convierte el archivo de audio a formato mp3 utilizando pydub
+        audio_mp3 = AudioSegment.from_file(audio_path, format=audio.mime_type.split("/")[-1])
+        mp3_file_path = os.path.join(tmp_dir, f'{audio.file_id}.mp3')
+        audio_mp3.export(mp3_file_path, format='mp3')
+        
+        # transcribe
+        with open(mp3_file_path, "rb") as f:
+            transcribed_text = await openai_utils.transcribe_audio(user_id, f)
+
+            if transcribed_text is None:
+                transcribed_text = ""
 
     text = f"🎤: <i>{transcribed_text}</i>"
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -378,7 +443,7 @@ async def new_dialog_handle(update: Update, context: CallbackContext, user=None)
 
     
     # Verificar si hay valores inválidos en el usuario
-    if (mododechat_actual not in config.chat_mode["available_chat_mode"] or api_actual not in config.api["available_api"] or modelo_actual not in config.model["available_model"]):
+    if (mododechat_actual not in config.chat_mode["available_chat_mode"] or api_actual not in apis_vivas or modelo_actual not in config.model["available_model"]):
         db.reset_user_attribute(user_id)
         await update.message.reply_text(update, "Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.")
 
@@ -421,10 +486,9 @@ async def cancel_handle(update: Update, context: CallbackContext):
 
 async def get_menu(update: Update, user_id: int, menu_type: str):
     menu_type_dict = getattr(config, menu_type)
-    apis_disponibles = config.api["available_api"]
     api_antigua = db.get_user_attribute(user_id, 'current_api')
-    if api_antigua not in apis_disponibles:
-        db.set_user_attribute(user_id, "current_api", apis_disponibles[0])
+    if api_antigua not in apis_vivas:
+        db.set_user_attribute(user_id, "current_api", apis_vivas[0])
         await send_reply(update, f'Tu API actual "{api_antigua}" no está disponible. Por lo que se ha cambiado automáticamente a "{menu_type_dict["info"][db.get_user_attribute(user_id, "current_api")]["name"]}".')
         pass
     modelos_disponibles = config.api["info"][db.get_user_attribute(user_id, "current_api")]["available_model"]
@@ -434,12 +498,14 @@ async def get_menu(update: Update, user_id: int, menu_type: str):
         pass
     if menu_type == "model":
         item_keys = modelos_disponibles
+    elif menu_type == "api":
+        item_keys = apis_vivas
     else:
         item_keys = menu_type_dict[f"available_{menu_type}"]
         
     current_key = db.get_user_attribute(user_id, f"current_{menu_type}")
-    
-    text = "<b>Actual:</b>\n\n" + menu_type_dict["info"][current_key]["name"] + ", " + menu_type_dict["info"][current_key]["description"] + "\n\n<b>Selecciona un " + f"{menu_type}" + " disponible</b>:"
+
+    text = "<b>Actual:</b>\n\n" + str(menu_type_dict["info"][current_key]["name"]) + ", " + menu_type_dict["info"][current_key]["description"] + "\n\n<b>Selecciona un " + f"{menu_type}" + " disponible</b>:"
 
     num_cols = 2
     num_rows = math.ceil(len(item_keys) / num_cols)
@@ -597,6 +663,49 @@ async def set_api_handle(update: Update, context: CallbackContext):
         if str(e).startswith("El mensaje no se modifica"):
             pass
 
+async def max_tokens_handle(update: Update, context: CallbackContext):
+    await register_user_if_not_exists(update, context, update.message.from_user)
+    #if await is_previous_message_not_answered_yet(update, context): return
+
+    user_id = update.message.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = await get_menu(update, user_id, "max_tokens")
+    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def max_tokens_callback_handle(update: Update, context: CallbackContext):
+    await register_user_if_not_exists(update.callback_query, context, update.callback_query.from_user)
+    #if await is_previous_message_not_answered_yet(update.callback_query, context): return
+
+    user_id = update.callback_query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    query = update.callback_query
+    await query.answer()
+
+    text, reply_markup = await get_menu(update, user_id, "max_tokens")
+    try:
+        await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except telegram.error.BadRequest as e:
+        if str(e).startswith("El mensaje no se modifica"):
+            pass
+
+async def set_max_tokens_handle(update: Update, context: CallbackContext):
+    await register_user_if_not_exists(update.callback_query, context, update.callback_query.from_user)
+    user_id = update.callback_query.from_user.id
+    query = update.callback_query
+    await query.answer()
+
+    _, max_tokens = query.data.split("|")
+    db.set_user_attribute(user_id, "current_max_tokens", max_tokens)
+    
+    text, reply_markup = await get_menu(update, user_id, "max_tokens")
+    try:
+        await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except telegram.error.BadRequest as e:
+        if str(e).startswith("El mensaje no se modifica"):
+            pass
+            
 async def edited_message_handle(update: Update, context: CallbackContext):
     if update.edited_message.chat.type == "private":
         text = "🥲 Lamentablemente, no es posible <b>editar mensajes</b>."
@@ -628,69 +737,86 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
         await context.bot.send_message("Algún error en el gestor de errores")
 
 async def post_init(application: Application):
+    asyncio.create_task(run_schedule())
+    schedule.every().hour.at(":00").do(obtener_vivas)
+    obtener_vivas()
     await application.bot.set_my_commands([
         BotCommand("/new", "Iniciar un nuevo diálogo"),
         BotCommand("/chat_mode", "Cambia el modo de asistente"),
         BotCommand("/retry", "Re-generar respuesta para la consulta anterior"),
-        BotCommand("/model", "Mostrar ajustes"),
+        BotCommand("/model", "Mostrar modelos de API"),
         BotCommand("/api", "Mostrar APIs"),
+        BotCommand("/max_tokens", "Cambiar límite de tokens"),
         BotCommand("/help", "Ver mensaje de ayuda"),
     ])
 
 def run_bot() -> None:
-    application = (
-        ApplicationBuilder()
-        .token(config.telegram_token)
-        .concurrent_updates(True)
-        .rate_limiter(AIORateLimiter(max_retries=5))
-        .post_init(post_init)
-        .build()
-    )
+    while True:
+        try:    
+            application = (
+                ApplicationBuilder()
+                .token(config.telegram_token)
+                .concurrent_updates(True)
+                .rate_limiter(AIORateLimiter(max_retries=5))
+                .post_init(post_init)
+                .build()
+            )
 
-    # add handlers
+            # add handlers
 
-    if config.user_whitelist:
-        usernames = []
-        user_ids = []
-        for user in config.user_whitelist.split(','):
-            user = user.strip()
-            if user.isnumeric():
-                user_ids.append(int(user))
+            if config.user_whitelist:
+                usernames = []
+                user_ids = []
+                for user in config.user_whitelist.split(','):
+                    user = user.strip()
+                    if user.isnumeric():
+                        user_ids.append(int(user))
+                    else:
+                        usernames.append(user)
+                    user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
             else:
-                usernames.append(user)
-            user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
-    else:
-        user_filter = filters.ALL
+                user_filter = filters.ALL
 
-    application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
-    application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
-    application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
+            application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
+            application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
+            application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
 
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
-    application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
-    application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
-    application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
+            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
+            application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
+            application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
+            application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
 
-    application.add_handler(MessageHandler(filters.VOICE & user_filter, voice_message_handle))
+            application.add_handler(MessageHandler(filters.AUDIO & user_filter, audio_message_handle))
+            application.add_handler(MessageHandler(filters.VOICE & user_filter, voice_message_handle))
 
-    application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
-    application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
-    application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-    
-    application.add_handler(CommandHandler('reboot', reboot, filters=user_filter))
+            application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
+            application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
+            application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
+            application.add_handler(CommandHandler("max_tokens", max_tokens_handle, filters=user_filter))
+            
+            application.add_handler(CommandHandler('reboot', reboot, filters=user_filter))
+            application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
 
-    application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
-    application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
 
-    application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
-    application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
+            application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
 
-    application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
-    application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
-    application.add_error_handler(error_handle)
+            application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
 
-    # start the bot
-    application.run_polling()
+            application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
+            
+            application.add_handler(CallbackQueryHandler(max_tokens_callback_handle, pattern="^get_menu"))
+            application.add_handler(CallbackQueryHandler(set_max_tokens_handle, pattern="^set_max_tokens"))
+            application.add_error_handler(error_handle)
+
+            application.run_polling()
+
+        except Exception as e:
+            print(f"Error: {e}. Intentando reconectar en 5 segundos...")
+            time.sleep(5)
+
 
 if __name__ == "__main__":
     run_bot()

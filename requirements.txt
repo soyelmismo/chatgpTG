@@ -4,7 +4,10 @@ pymongo
 python-telegram-bot[rate-limiter]
 PyYAML
 requests
-retrying
+schedule
+curl_cffi
+websockets
 tls_client
+retrying
 fake_useragent
 pydantic

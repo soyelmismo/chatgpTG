@@ -132,13 +132,15 @@ dmypy.json
 config/api.yml
 config/chat_mode.yml
 config/model.yml
+config/openai_completion_options.yml
 bot/config_dev.py
 docker-compose.dev.yml
 
 docker-compose.yml
 
 bot/apis/OpenGPTtt/
-
+config/max_tokens.yml
+.vscode
 
 mongodb/
 bot/test.py
