@@ -2,7 +2,7 @@ import requests
 from apis.opengpt import chatbase
 from apis.gpt4free import g4f
 from apis.gpt4free.foraneo import you
-import config_dev as config
+import config
 
 def estadosapi():
     vivas = []
