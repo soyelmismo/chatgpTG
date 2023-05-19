@@ -54,6 +54,7 @@ class ChatGPT:
                         )
                     else:
                         raise ValueError(f"Modelo desconocido: {self.model}")
+                #procesamiento d r
                 answer = ""
                 if api == "chatbase":
                     answer = r
@@ -61,11 +62,11 @@ class ChatGPT:
                     if "API rate limit exceeded" in answer:
                         answer = "Se alcanzó el límite de API. Inténtalo luego!"
                     yield "not_finished", answer
-                if api == "g4f":
+                elif api == "g4f":
                     for c in r:
                         answer += c
                         yield "not_finished", answer
-                if api == "you":
+                elif api == "you":
                     answer += r["text"]
                     if len(r["links"]) >= 1:
                         answer += "\n\nLinks: \n"
