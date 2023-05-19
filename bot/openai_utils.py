@@ -49,7 +49,7 @@ class ChatGPT:
                             config.completion_options["prompt"] = prompt
                             config.completion_options["engine"] = self.model
                             fn = openai.Completion.create
-                        r = fn(
+                        r = await fn(
                             stream=True,
                             **config.completion_options
                         )
@@ -75,13 +75,13 @@ class ChatGPT:
                             answer += f"\n- <a href='{link['url']}'>{link['name']}</a>" 
                     yield "not_finished", answer
                 elif self.model != "text-davinci-003":
-                    for r_item in r:
+                    async for r_item in r:
                         delta = r_item.choices[0].delta
                         if "content" in delta:
                             answer += delta.content
                             yield "not_finished", answer
                 else:
-                    for r_item in r:
+                    async for r_item in r:
                         answer += r_item.choices[0].text
                         yield "not_finished", answer
                 answer = self._postprocess_answer(answer)
