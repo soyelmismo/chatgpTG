@@ -15,7 +15,7 @@ def _create_completion(model: str, messages: list, **kwargs):
     }
 
     json_data = {
-        'prompt': 'always respond in english | %s' % messages[-1]['content'],
+        'prompt': 'internacional | %s' % messages[-1]['content'],
         'userId': f'#/chat/{int(time.time() * 1000)}',
         'network': True,
         'apikey': '',

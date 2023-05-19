@@ -63,8 +63,8 @@ class ChatGPT:
                         answer = "Se alcanzó el límite de API. Inténtalo luego!"
                     yield "not_finished", answer
                 elif api == "g4f":
-                    for c in r:
-                        answer += c
+                    for chunk in r:
+                        answer += chunk
                         yield "not_finished", answer
                 elif api == "you":
                     answer += r["text"]
@@ -74,11 +74,11 @@ class ChatGPT:
                             answer += f"\n- <a href='{link['url']}'>{link['name']}</a>" 
                     yield "not_finished", answer
                 elif self.model != "text-davinci-003":
-                        async for r_item in r:
-                            delta = r_item.choices[0].delta
-                            if "content" in delta:
-                                answer += delta.content
-                                yield "not_finished", answer
+                    async for r_item in r:
+                        delta = r_item.choices[0].delta
+                        if "content" in delta:
+                            answer += delta.content
+                            yield "not_finished", answer
                 else:
                     async for r_item in r:
                         answer += r_item.choices[0].text
