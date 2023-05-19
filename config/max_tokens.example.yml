@@ -23,14 +23,14 @@ info:
     description: apto para textos largos
     
   token2048:
-    name: 2048
+    name: 2047
     description: avaricia
     
   token4096:
-    name: 4096
+    name: 4095
     description: a exprimir a los modelos.
     
   token8192:
-    name: 8192
+    name: 8191
     description: da lo que se pueda!
     

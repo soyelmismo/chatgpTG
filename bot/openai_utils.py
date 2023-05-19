@@ -49,7 +49,7 @@ class ChatGPT:
                             config.completion_options["prompt"] = prompt
                             config.completion_options["engine"] = self.model
                             fn = openai.Completion.create
-                        r = await fn(
+                        r = fn(
                             stream=True,
                             **config.completion_options
                         )
@@ -75,19 +75,19 @@ class ChatGPT:
                             answer += f"\n- <a href='{link['url']}'>{link['name']}</a>" 
                     yield "not_finished", answer
                 elif self.model != "text-davinci-003":
-                    async for r_item in r:
+                    for r_item in r:
                         delta = r_item.choices[0].delta
                         if "content" in delta:
                             answer += delta.content
                             yield "not_finished", answer
                 else:
-                    async for r_item in r:
+                    for r_item in r:
                         answer += r_item.choices[0].text
                         yield "not_finished", answer
                 answer = self._postprocess_answer(answer)
             except openai.error.InvalidRequestError as e:  # too many tokens
                 if len(dialog_messages) == 0:
-                    raise ValueError("Mensajes de diálogo se reduce a cero, pero todavía tiene demasiados tokens para hacer la finalización") from e
+                    raise ValueError("Error: O no hay mensajes de diálogo, o seleccionaste un valor maximo de tokens exageradísimo.") from e
                 # forget first message in dialog_messages
                 dialog_messages = dialog_messages[1:]
         yield "finished", answer
