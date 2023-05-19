@@ -35,7 +35,6 @@ class ChatCompletion:
                 model = Utils.convert[model]
             
             engine = model.best_site if not provider else provider
-            print(provider)
             return (engine._create_completion(model.name, messages, **kwargs)
                     if stream else ''.join(engine._create_completion(model.name, messages, **kwargs)))
 

@@ -123,6 +123,5 @@ class Completion:
     def __make_request(client: Session, params: dict) -> Response:
         response = client.get(f'https://you.com/api/streamingSearch', params=params)
         if 'youChatToken' not in response.text:
-            print('retry')
             raise RequestException('Unable to get the response from server')
         return response

@@ -31,9 +31,7 @@ def estadosapi():
                 if recorrido == "chatbase":
                     response = chatbase.GetAnswer(messages="say pong")
                 elif recorrido == "g4f":
-                    provider_name = "Phind"
-                    provider = getattr(g4f.Providers, provider_name)
-                    response = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages={"role": "user", "content": "say pong"})
+                    pass
                 elif recorrido == "you":
                     response = you.Completion.create(
                         prompt="say pong",
@@ -51,11 +49,9 @@ def estadosapi():
                     else:
                         num_errores += 1
                 elif isinstance(response, dict):
-                    if recorrido == "g4f" or recorrido == "you":
-                        #if porque los mamaverga filtran la ip en el mensaje
-                        if "API rate limit exceeded" in response:
-                            print("límite de API en chatbase!")
-                        vivas.append(recorrido)
+                    if recorrido == "you":
+                        if response["text"]:
+                            vivas.append(recorrido)
                     else:
                         num_errores += 1
                 elif response.status_code == 200:
@@ -66,5 +62,5 @@ def estadosapi():
                 num_errores += 1
     else:
         vivas = config.api["available_api"]
-    print(f"Conexión exitosa con {len(vivas)}, malas: {num_errores}")
+    print(f"Conexión exitosa con {len(vivas)}, malas: {num_errores}, total: {len(config.api['available_api'])}")
     return vivas
