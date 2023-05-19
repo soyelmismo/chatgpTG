@@ -2,7 +2,7 @@ import requests
 from apis.opengpt import chatbase
 from apis.gpt4free import g4f
 from apis.gpt4free.foraneo import you
-import config
+import config_dev as config
 
 def estadosapi():
     vivas = []
@@ -31,10 +31,9 @@ def estadosapi():
                 if recorrido == "chatbase":
                     response = chatbase.GetAnswer(messages="say pong")
                 elif recorrido == "g4f":
-                    provider_name = "Ails"
+                    provider_name = "Phind"
                     provider = getattr(g4f.Providers, provider_name)
-                    # streamed completion
-                    response = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages="say pong", stream=True)
+                    response = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages={"role": "user", "content": "say pong"})
                 elif recorrido == "you":
                     response = you.Completion.create(
                         prompt="say pong",
@@ -44,7 +43,15 @@ def estadosapi():
                 else:
                     response = requests.post(f'{url}/chat/completions', headers=headers, json=json_data, timeout=10)
                 if isinstance(response, str):
-                    if recorrido == "chatbase" or recorrido == "g4f" or recorrido == "you":
+                    if recorrido == "chatbase":
+                        #if porque los mamaverga filtran la ip en el mensaje
+                        if "API rate limit exceeded" in response:
+                            print("límite de API en chatbase!")
+                        vivas.append(recorrido)
+                    else:
+                        num_errores += 1
+                elif isinstance(response, dict):
+                    if recorrido == "g4f" or recorrido == "you":
                         #if porque los mamaverga filtran la ip en el mensaje
                         if "API rate limit exceeded" in response:
                             print("límite de API en chatbase!")
