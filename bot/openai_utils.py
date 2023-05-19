@@ -43,12 +43,13 @@ class ChatGPT:
                         if self.model != "text-davinci-003":
                             config.completion_options["messages"] = messages
                             config.completion_options["model"] = self.model
+                            fn = openai.Completion.create
                         else:
                             prompt = self._generate_prompt(message, dialog_messages, chat_mode)
                             config.completion_options["prompt"] = prompt
                             config.completion_options["engine"] = self.model
-                        
-                        r = await openai.ChatCompletion.acreate(
+                            fn = openai.ChatCompletion.create
+                        r = await fn(
                             stream=True,
                             **config.completion_options
                         )
