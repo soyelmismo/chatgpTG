@@ -1,7 +1,7 @@
 import requests
-import apis.opengpt.chatbase as chatbase
-import apis.gpt4free as g4f
-import apis.gpt4free.foraneo.you as you
+from apis.opengpt import chatbase
+from apis.gpt4free import g4f
+from apis.gpt4free.foraneo import you
 import config
 
 def estadosapi():
