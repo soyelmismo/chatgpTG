@@ -12,8 +12,11 @@ class ChatGPT:
     def __init__(self, model="gpt-3.5-turbo"):
         assert model in config.model["available_model"], f"Unknown model: {model}"
         self.model = model
+        self.diccionario = {}
 
     async def send_message(self, message, user_id, dialog_messages=[], chat_mode="assistant"):
+        self.diccionario.clear()
+        self.diccionario.update(config.completion_options)
         api = db.get_user_attribute(user_id, "current_api")
         current_max_tokens = db.get_user_attribute(user_id, "current_max_tokens")
         api_info = config.api["info"].get(api, {})
@@ -38,20 +41,20 @@ class ChatGPT:
                         include_links=True, )
                     r = dict(r)
                 else:
-                    config.completion_options["max_tokens"] = int(config.max_tokens["info"][current_max_tokens]["name"])
+                    self.diccionario["max_tokens"] = int(config.max_tokens["info"][current_max_tokens]["name"])
                     if (self.model in config.model["available_model"]):
                         if self.model != "text-davinci-003":
-                            config.completion_options["messages"] = messages
-                            config.completion_options["model"] = self.model
+                            self.diccionario["messages"] = messages
+                            self.diccionario["model"] = self.model
                             fn = openai.ChatCompletion.acreate
                         else:
                             prompt = self._generate_prompt(message, dialog_messages, chat_mode)
-                            config.completion_options["prompt"] = prompt
-                            config.completion_options["engine"] = self.model
+                            self.diccionario["prompt"] = prompt
+                            self.diccionario["engine"] = self.model
                             fn = openai.Completion.acreate
                         r = await fn(
                             stream=True,
-                            **config.completion_options
+                            **self.diccionario
                         )
                     else:
                         raise ValueError(f"Modelo desconocido: {self.model}")
@@ -87,31 +90,31 @@ class ChatGPT:
                 answer = self._postprocess_answer(answer)
             except openai.error.InvalidRequestError as e:  # too many tokens
                 if len(dialog_messages) == 0:
-                    raise ValueError("Error: O no hay mensajes de diálogo, o seleccionaste un valor maximo de tokens exageradísimo.") from e
+                    raise ValueError(f'Error: O no hay mensajes de diálogo, o seleccionaste un valor maximo de tokens exageradísimo: {e}') from e
                 # forget first message in dialog_messages
                 dialog_messages = dialog_messages[1:]
         yield "finished", answer
 
     def _generate_prompt(self, message, dialog_messages, chat_mode):
-        prompt = f'system_message({config.chat_mode["info"][chat_mode]["prompt_start"]})'
+        prompt = f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'
         prompt += "\n\n"
 
         # add chat context
         if len(dialog_messages) > 0:
-            #prompt += "Chat:\n"
+            prompt += "Chat:\n"
             for dialog_message in dialog_messages:
-                prompt += f"User: {dialog_message['user']}\n"
+                prompt += f"Usuario: {dialog_message['user']}\n"
                 prompt += f'{chat_mode}: {dialog_message["bot"]}\n'
 
         # current message
-        prompt += f"User: {message}\n"
-        prompt += f'{chat_mode}'
+        prompt += f"Usuario: {message}\n"
+        prompt += f'{chat_mode}:'
 
         return prompt
 
     def _generate_prompt_messages(self, message, dialog_messages, chat_mode):
         prompt = config.chat_mode["info"][chat_mode]["prompt_start"]
-        messages = [{"role": "system", "content": f'{chat_mode} {prompt}'}]
+        messages = [{"role": "system", "content": f'tu contexto es el siguiente... eres: {chat_mode} {prompt}'}]
         for dialog_message in dialog_messages:
             messages.append({"role": "user", "content": dialog_message["user"]})
             messages.append({"role": "assistant", "content": dialog_message["bot"]})
