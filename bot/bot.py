@@ -795,7 +795,6 @@ def run_bot() -> None:
             application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
             application.add_handler(CommandHandler("max_tokens", max_tokens_handle, filters=user_filter))
             
-            application.add_handler(CommandHandler('reboot', reboot, filters=user_filter))
             application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
 
 
