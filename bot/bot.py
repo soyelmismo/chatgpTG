@@ -37,7 +37,11 @@ import openai_utils
 from apistatus import estadosapi
 import schedule
 import time
+import signal
+import sys
 # setup
+
+running = True
 
 db = database.Database()
 
@@ -70,20 +74,6 @@ Instrucciones (ver <b>vídeo</b> más abajo)
 To get a reply from the bot in the chat – @ <b>tag</b> it or <b>reply</b> to its message.
 Por ejemplo: "{bot_username} escribe un poema sobre Telegram"
 """
-async def reboot(update, context):
-    sudo_user_list = []
-    for user in config.sudo_users.split(','):
-        user = user.strip()
-        if user.isnumeric():
-            sudo_user_list.append(int(user))
-        else:
-            sudo_user_list.append(user)
-
-    user = update.message.from_user
-    if user.id in sudo_user_list or user.username in sudo_user_list:
-        print(sudo_user_list)
-        await update.message.reply_text("Reiniciando...")
-        os.system('reboot')
 
 apis_vivas = []
 def obtener_vivas():
@@ -750,8 +740,19 @@ async def post_init(application: Application):
         BotCommand("/help", "Ver mensaje de ayuda"),
     ])
 
+def signal_handler(sig, frame):
+    global running
+    if sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+        print("Señal de interrupción recibida. Cerrando el bot...")
+        running = False
+        sys.exit(0)
+
 def run_bot() -> None:
-    while True:
+    global running
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGHUP, signal_handler)
+    while running:
         try:    
             application = (
                 ApplicationBuilder()
@@ -814,9 +815,10 @@ def run_bot() -> None:
             application.run_polling()
 
         except Exception as e:
-            print(f"Error: {e}. Intentando reconectar en 5 segundos...")
-            time.sleep(5)
-
+            if not running:
+                break
+            print(f"Error: {e}. Intentando reconectar en 3 segundos...")
+            time.sleep(3)
 
 if __name__ == "__main__":
     run_bot()

@@ -5,7 +5,6 @@ import yaml
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 telegram_token = env['TELEGRAM_TOKEN'][0]
-sudo_users = env.get('SUDO_USERS', [])
 user_whitelist = env.get('USER_WHITELIST', [])
 new_dialog_timeout = int(env['new_dialog_timeout'][0])
 n_images = int(env['return_n_generated_images'][0])
