@@ -1,6 +1,7 @@
 import config
 import openai
 import database
+import tiktoken
 from apis.gpt4free import g4f
 from apis.opengpt import chatbase
 from apis.gpt4free.foraneo import you
@@ -25,7 +26,22 @@ class ChatGPT:
         answer = None
         while answer is None:
             try:
+                self.diccionario["max_tokens"] = int(config.max_tokens["info"][current_max_tokens]["name"])
                 messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
+                token_count = self.__count_tokens(messages)
+                exceeded_max_tokens = token_count > self.diccionario["max_tokens"]
+                
+                if exceeded_max_tokens:
+                    print(f'Chat history for chat ID {user_id} is too long. Summarising...')
+                    try:
+                        dialog_messages.clear()
+                        dialog_messages = await self.__summarise(messages[:-1])
+                        print(f'Resumen: {dialog_messages}')
+                        messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
+                    except Exception as e:
+                        print(f'Error while summarising chat history: {str(e)}. Popping elements instead...')
+                        dialog_messages = dialog_messages[1:]
+                
                 if api == "chatbase":
                     r = chatbase.GetAnswer(messages=messages, model=self.model)
                 elif api == "g4f":
@@ -41,7 +57,6 @@ class ChatGPT:
                         include_links=True, )
                     r = dict(r)
                 else:
-                    self.diccionario["max_tokens"] = int(config.max_tokens["info"][current_max_tokens]["name"])
                     if (self.model in config.model["available_model"]):
                         if self.model != "text-davinci-003":
                             self.diccionario["messages"] = messages
@@ -95,6 +110,56 @@ class ChatGPT:
                 dialog_messages = dialog_messages[1:]
         yield "finished", answer
 
+    async def __summarise(self, dialog_messages) -> str:
+        """
+        Summarises the conversation history.
+        :param conversation: The conversation history
+        :return: The summary
+        """
+        messages = [
+            {"role": "assistant", "content": "Resume esta conversación en 700 caracteres o menos"},
+            {"role": "user", "content": str(dialog_messages)}
+        ]
+        response = await openai.ChatCompletion.acreate(
+            model=self.config['model'],
+            messages=messages,
+            temperature=0.4
+        )
+        return response.choices[0]['message']['content']
+
+    def __count_tokens(self, messages) -> int:
+        """
+        Counts the number of tokens required to send the given messages.
+        :param messages: the messages to send
+        :return: the number of tokens required
+        """
+        model = self.config['model']
+        try:
+            encoding = tiktoken.encoding_for_model(model)
+        except KeyError:
+            encoding = tiktoken.get_encoding("gpt-3.5-turbo")
+
+        if model in config.model["gpt3_token_counter"]:
+            tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+            tokens_per_name = -1  # if there's a name, the role is omitted
+        elif model in config.model["claude_token_counter"]:
+            tokens_per_message = 3
+            tokens_per_name = 1
+        elif model in config.model["gpt4_token_counter"]:
+            tokens_per_message = 3
+            tokens_per_name = 1
+        else:
+            raise NotImplementedError(f"""num_tokens_from_messages() is not implemented for model {model}.""")
+        num_tokens = 0
+        for message in messages:
+            num_tokens += tokens_per_message
+            for key, value in message.items():
+                num_tokens += len(encoding.encode(value))
+                if key == "name":
+                    num_tokens += tokens_per_name
+        num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
+        return num_tokens
+    
     def _generate_prompt(self, message, dialog_messages, chat_mode):
         prompt = f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'
         prompt += "\n\n"

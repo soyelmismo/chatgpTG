@@ -248,7 +248,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
                 answer = gen_answer[:4096]  # telegram message limit                                     
                                                                                                         
                 # update only when 100 new symbols are ready                                             
-                if abs(len(answer) - len(prev_answer)) < 75 and status != "finished":                    
+                if abs(len(answer) - len(prev_answer)) < 50 and status != "finished":                    
                     continue                                                                             
                 try:                                                                                     
                     await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat_id, message_id=placeholder_message.message_id, parse_mode=parse_mode)                                
@@ -257,7 +257,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
                         continue                                                                         
                     else:                                                                                
                         await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat_id, message_id=placeholder_message.message_id)                                                       
-                await asyncio.sleep(0.5)  # wait a bit to avoid flooding                                 
+                await asyncio.sleep(0.02)  # wait a bit to avoid flooding                                 
                                                                                                         
                 prev_answer = answer
             # update user data
@@ -285,7 +285,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
         try:
             await task
         except asyncio.CancelledError:
-            await update.message.reply_text("✅ Canceled", parse_mode=ParseMode.HTML)
+            await update.message.reply_text("✅ Cancelado.", parse_mode=ParseMode.HTML)
         else:
             pass
         finally:
@@ -549,7 +549,6 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
     mode = query.data.split("|")[1]
 
     db.set_user_attribute(user_id, "current_chat_mode", mode)
-    await new_dialog_handle(update, context)
     text, reply_markup = await get_menu(update, user_id, "chat_mode")
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
@@ -593,7 +592,6 @@ async def set_model_handle(update: Update, context: CallbackContext):
 
     _, model = query.data.split("|")
     db.set_user_attribute(user_id, "current_model", model)
-    await new_dialog_handle(update, context)
 
     text, reply_markup = await get_menu(update, user_id, "model")
     try:
@@ -643,8 +641,6 @@ async def set_api_handle(update: Update, context: CallbackContext):
     if current_dialog is not None:
         await query.message.reply_text("Por favor, termina tu conversación actual antes de iniciar una nueva.")
         return
-
-    await new_dialog_handle(update, context)
 
     text, reply_markup = await get_menu(update, user_id, "api")
     try:
@@ -768,13 +764,13 @@ def run_bot() -> None:
             if config.user_whitelist:
                 usernames = []
                 user_ids = []
-                for user in config.user_whitelist.split(','):
+                for user in config.user_whitelist:
                     user = user.strip()
                     if user.isnumeric():
                         user_ids.append(int(user))
                     else:
                         usernames.append(user)
-                    user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
+                user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
             else:
                 user_filter = filters.ALL
 
