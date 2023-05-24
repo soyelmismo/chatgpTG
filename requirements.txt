@@ -1,5 +1,4 @@
 openai
-tiktoken
 pydub
 pymongo
 python-telegram-bot[rate-limiter]
