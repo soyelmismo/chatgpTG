@@ -55,7 +55,6 @@ HELP_MESSAGE = """Comandos:
 ⚪ /new - Iniciar nuevo diálogo.
 ⚪ /chat_mode - Seleccionar el modo de conversación.
 ⚪ /model - Mostrar configuración de API.
-⚪ /max_tokens - Configura los tokens máximos.
 ⚪ /api - Mostrar APIs.
 ⚪ /help – Mostrar este mensaje de nuevo.
 
@@ -119,10 +118,7 @@ async def register_user_if_not_exists(update: Update, context: CallbackContext, 
         
     if db.get_user_attribute(user.id, "current_api") is None:
         db.set_user_attribute(user.id, "current_api", apis_vivas[0])
-        
-    if db.get_user_attribute(user.id, "current_max_tokens") is None:
-        db.set_user_attribute(user.id, "current_max_tokens", config.max_tokens["available_max_tokens"][0])
-        
+
 
 async def is_bot_mentioned(update: Update, context: CallbackContext):
      try:
@@ -649,49 +645,6 @@ async def set_api_handle(update: Update, context: CallbackContext):
         if str(e).startswith("El mensaje no se modifica"):
             pass
 
-async def max_tokens_handle(update: Update, context: CallbackContext):
-    await register_user_if_not_exists(update, context, update.message.from_user)
-    #if await is_previous_message_not_answered_yet(update, context): return
-
-    user_id = update.message.from_user.id
-    db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
-    text, reply_markup = await get_menu(update, user_id, "max_tokens")
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    
-async def max_tokens_callback_handle(update: Update, context: CallbackContext):
-    await register_user_if_not_exists(update.callback_query, context, update.callback_query.from_user)
-    #if await is_previous_message_not_answered_yet(update.callback_query, context): return
-
-    user_id = update.callback_query.from_user.id
-    db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
-    query = update.callback_query
-    await query.answer()
-
-    text, reply_markup = await get_menu(update, user_id, "max_tokens")
-    try:
-        await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except telegram.error.BadRequest as e:
-        if str(e).startswith("El mensaje no se modifica"):
-            pass
-
-async def set_max_tokens_handle(update: Update, context: CallbackContext):
-    await register_user_if_not_exists(update.callback_query, context, update.callback_query.from_user)
-    user_id = update.callback_query.from_user.id
-    query = update.callback_query
-    await query.answer()
-
-    _, max_tokens = query.data.split("|")
-    db.set_user_attribute(user_id, "current_max_tokens", max_tokens)
-    
-    text, reply_markup = await get_menu(update, user_id, "max_tokens")
-    try:
-        await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except telegram.error.BadRequest as e:
-        if str(e).startswith("El mensaje no se modifica"):
-            pass
-            
 async def edited_message_handle(update: Update, context: CallbackContext):
     if update.edited_message.chat.type == "private":
         text = "🥲 Lamentablemente, no es posible <b>editar mensajes</b>."
@@ -732,7 +685,6 @@ async def post_init(application: Application):
         BotCommand("/retry", "Re-generar respuesta para la consulta anterior"),
         BotCommand("/model", "Mostrar modelos de API"),
         BotCommand("/api", "Mostrar APIs"),
-        BotCommand("/max_tokens", "Cambiar límite de tokens"),
         BotCommand("/help", "Ver mensaje de ayuda"),
     ])
 
@@ -789,7 +741,6 @@ def run_bot() -> None:
             application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
             application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
             application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-            application.add_handler(CommandHandler("max_tokens", max_tokens_handle, filters=user_filter))
             
             application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
 
@@ -802,9 +753,6 @@ def run_bot() -> None:
 
             application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
             application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
-            
-            application.add_handler(CallbackQueryHandler(max_tokens_callback_handle, pattern="^get_menu"))
-            application.add_handler(CallbackQueryHandler(set_max_tokens_handle, pattern="^set_max_tokens"))
             application.add_error_handler(error_handle)
 
             application.run_polling()

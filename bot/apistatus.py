@@ -6,7 +6,7 @@ import config
 def estadosapi():
     vivas = []
     num_errores = 0
-    test=False
+    test=True
     if test != True:
         for recorrido in config.api["available_api"]:
             url = config.api["info"][recorrido]["url"]

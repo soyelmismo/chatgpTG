@@ -30,9 +30,5 @@ with open(config_dir / "model.yml", 'r') as f:
 with open(config_dir / "openai_completion_options.yml", 'r') as f:
     completion_options = yaml.safe_load(f)
 
-# tokens
-with open(config_dir / "max_tokens.yml", 'r') as f:
-    max_tokens = yaml.safe_load(f)
-
 # set file paths
 help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"

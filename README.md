@@ -40,7 +40,6 @@
 - /chat_mode - Seleccionar el modo de conversación.
 - /model - Mostrar modelos IA.
 - /api - Mostrar APIs.
-- /max_tokens - Cambiar tokens máximos.
 - /help – Mostrar este mensaje de nuevo.
 
 ## Setup

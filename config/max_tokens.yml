@@ -1,3 +1,6 @@
+available_max_tokens: ["token64", "token128", "token256", "token512", "token1024", "token2048", "token4096", "token8192"]
+
+
 info:
   token64:
     name: 64
