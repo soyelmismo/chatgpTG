@@ -133,23 +133,22 @@ class ChatGPT:
         :param messages: the messages to send
         :return: the number of tokens required
         """
-        model = self.config['model']
         try:
-            encoding = tiktoken.encoding_for_model(model)
+            encoding = tiktoken.encoding_for_model(self.model)
         except KeyError:
             encoding = tiktoken.get_encoding("gpt-3.5-turbo")
 
-        if model in config.model["gpt3_token_counter"]:
+        if self.model in config.model["gpt3_token_counter"]:
             tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
             tokens_per_name = -1  # if there's a name, the role is omitted
-        elif model in config.model["claude_token_counter"]:
+        elif self.model in config.model["claude_token_counter"]:
             tokens_per_message = 3
             tokens_per_name = 1
-        elif model in config.model["gpt4_token_counter"]:
+        elif self.model in config.model["gpt4_token_counter"]:
             tokens_per_message = 3
             tokens_per_name = 1
         else:
-            raise NotImplementedError(f"""num_tokens_from_messages() is not implemented for model {model}.""")
+            raise NotImplementedError(f"""num_tokens_from_messages() is not implemented for model {self.model}.""")
         num_tokens = 0
         for message in messages:
             num_tokens += tokens_per_message
