@@ -41,7 +41,6 @@ class ChatGPT:
                     r = dict(r)
                 else:
                     if (self.model in config.model["available_model"]):
-                        self.diccionario["max_tokens"] = int(2048)
                         if self.model != "text-davinci-003":
                             self.diccionario["messages"] = messages
                             self.diccionario["model"] = self.model
