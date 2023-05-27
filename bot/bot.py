@@ -1,4 +1,3 @@
-import os
 import logging
 import asyncio
 import traceback
@@ -26,7 +25,7 @@ from telegram.ext import (
     AIORateLimiter,
     filters
 )
-from telegram.constants import ParseMode, ChatAction, ChatType
+from telegram.constants import ParseMode, ChatAction
 import config
 import database
 import openai_utils
@@ -97,10 +96,10 @@ async def user_check(update: Update, context: CallbackContext, user=None):
             user = update.callback_query.from_user
         else:
             await update.message.reply_text(f"Ocurrió un error gestionando un nuevo diálogo.")
-    await register_user_if_not_exists(update, context, user)
+    await register_user_if_not_exists(update, user)
     return user
         
-async def register_user_if_not_exists(update: Update, context: CallbackContext, user=None):
+async def register_user_if_not_exists(update: Update, user=None):
     if not db.check_if_user_exists(user.id):
         db.add_new_user(
             user.id,
@@ -124,89 +123,88 @@ async def register_user_if_not_exists(update: Update, context: CallbackContext, 
         db.set_user_attribute(user.id, "current_api", apis_vivas[0])
 
 
-async def is_bot_mentioned(update: Update, context: CallbackContext):
-     try:
-         message = update.message
+async def is_bot_mentioned(context: CallbackContext, raw_msg=None):
+    try:
+        if raw_msg.chat.type == "private":
+            return True
 
-         if message.chat.type == "private":
-             return True
-
-         if message.text is not None and ("@" + context.bot.username) in message.text:
-             return True
-
-         if message.reply_to_message is not None:
-             if message.reply_to_message.from_user.id == context.bot.id:
-                 return True
-     except:
-         return True
-     else:
-         return False
+        if raw_msg.text is not None and ("@" + context.bot.username) in raw_msg.text:
+            return True
+        
+        if raw_msg.reply_to_message is not None:
+            if raw_msg.reply_to_message.from_user.id == context.bot.id:
+                return True
+    except:
+        return True
+    else:
+        return False
 
 async def start_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     await new_dialog_handle(update, context)
-
     reply_text = "Hola! Soy <b>ChatGPT</b> bot implementado con la API de OpenAI.🤖\n\n"
     reply_text += HELP_MESSAGE
-
     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
 
 async def help_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     await update.message.reply_text(HELP_MESSAGE, parse_mode=ParseMode.HTML)
 
-async def help_group_chat_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
-    
+async def help_group_chat_handle(update: Update, context: CallbackContext):    
     text = HELP_GROUP_CHAT_MESSAGE.format(bot_username="@" + context.bot.username)
-
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     await update.message.reply_video(config.help_group_chat_video_path)
 
 async def retry_handle(update: Update, context: CallbackContext):
     user = await user_check(update, context)
-    
     dialog_messages = db.get_dialog_messages(user.id, dialog_id=None)
     if len(dialog_messages) == 0:
         await update.message.reply_text("No hay mensaje para reintentar 🤷‍♂️")
         return
-
     last_dialog_message = dialog_messages.pop()
     db.set_dialog_messages(user.id, dialog_messages, dialog_id=None)  # last message was removed from the context
     db.set_user_attribute(user.id, "last_interaction", datetime.now())
-    await message_handle(update, context, message=last_dialog_message["user"])
+    await message_handle(update, context, _message=last_dialog_message["user"])
 
-async def message_handle(update: Update, context: CallbackContext, message=None):
+async def check_message(update: Update, context: CallbackContext, _message=None):
+    raw_msg = _message or update.effective_message
+    if isinstance(raw_msg, str):
+        _message = raw_msg
+        raw_msg = update.effective_chat
+    elif hasattr(raw_msg, 'text'):
+        _message = raw_msg.text
+    else:
+        _message = _message
+    return raw_msg, _message
+
+async def message_handle(update: Update, context: CallbackContext, _message=None):
     user = await user_check(update, context)
     chat_mode = db.get_user_attribute(user.id, "current_chat_mode")
     current_model = db.get_user_attribute(user.id, "current_model")
     dialog_messages = db.get_dialog_messages(user.id, dialog_id=None)
-    # check if bot was mentioned (for groups)
-    if not await is_bot_mentioned(update, context):
-        return
-    # new dialog timeout
-    raw_msg = message or update.message or update.callback_query.message
-    _message = raw_msg.text
-    try:
-        if raw_msg.entities:
-            urls = []
-            _message = raw_msg.text
-            
-            entities = raw_msg.parse_entities()
-            for entity in raw_msg.entities:
-                if entity.type == 'url':
-                    url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
-                    if "http://" in url_add or "https://" in url_add:
-                        urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-                        _message[:entity.offset] + _message[entity.offset+entity.length:]
-                    else:
-                        pass
-            if urls:
-                await url_handle(update, context, urls)
-                return
-    except AttributeError:
-        pass
-        
+
+    if _message:
+        raw_msg = _message
+    else:
+        raw_msg, _message = await check_message(update, context, _message)
+        # check if bot was mentioned (for groups)
+        if not await is_bot_mentioned(context, raw_msg):
+            return
+        try:
+            if raw_msg.entities:
+                urls = []
+                for entity in raw_msg.entities:
+                    if entity.type == 'url':
+                        url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
+                        if "http://" in url_add or "https://" in url_add:
+                            urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
+                            _message[:entity.offset] + _message[entity.offset+entity.length:]
+                        else:
+                            pass
+                if urls:
+                    await url_handle(update, context, urls)
+                    return
+        except AttributeError:
+            pass
+
     if (datetime.now() - db.get_user_attribute(user.id, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask == "True":
             await ask_timeout_handle(update, context, _message)
@@ -217,20 +215,20 @@ async def message_handle(update: Update, context: CallbackContext, message=None)
 
     chat = None
     #remove bot mention (in group chats)
-    if raw_msg != None:
-        if raw_msg.chat.type != "private":
+    if raw_msg is not None:
+        if isinstance(raw_msg, str):
+            chat_type = "private"
+        else:
+            chat_type = raw_msg.chat.type
+        if chat_type != "private":
             _message = _message.replace("@" + context.bot.username, "").strip()
             chat = raw_msg.chat
 
     if await is_previous_message_not_answered_yet(update, context): return
-    if chat_mode == "artist":
-        await generate_image_handle(update, context, message=_message)
-        return
-        
+
     async with user_semaphores[user.id]:
         task = asyncio.create_task(message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model, user))
         user_tasks[user.id] = task
-    
         try:
             await task
         except asyncio.CancelledError:
@@ -240,7 +238,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None)
         finally:
             if user.id in user_tasks:
                 del user_tasks[user.id]
-        
+
 async def message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model, user):
     # in case of CancelledError
     try:
@@ -276,20 +274,18 @@ async def message_handle_fn(update, context, _message, chat, dialog_messages, ch
                                                                                                     
             prev_answer = answer
         # update user data
+        db.set_user_attribute(user.id, "last_interaction", datetime.now())
+        if chat_mode == "imagen":
+            await generate_image_handle(update, context, _message=answer)
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         await add_dialog_message(update, context, new_dialog_message)
-        db.set_user_attribute(user.id, "last_interaction", datetime.now())
-        
+
     except Exception as e:
         error_text = f"Error: {e}"
         logger.error(error_text)
         await update.effective_chat.send_message(error_text)
         return
-    if chat_mode == "imagen":
-        await generate_image_handle(update, context, message=answer)
-        return
-    
-                
+
 async def add_dialog_message(update: Update, context: CallbackContext, new_dialog_message):
     user = await user_check(update, context)
     db.set_dialog_messages(
@@ -353,11 +349,7 @@ async def url_handle(update, context, urls):
 
 async def document_handle(update: Update, context: CallbackContext):
     user = await user_check(update, context)
-    # check if bot was mentioned (for group chats)
-    if not await is_bot_mentioned(update, context):
-        return
     if await is_previous_message_not_answered_yet(update, context): return
-    
     document = update.message.document
     file_size_mb = document.file_size / (1024 * 1024)
     if file_size_mb <= config.file_max_size:
@@ -368,7 +360,6 @@ async def document_handle(update: Update, context: CallbackContext):
             # download
             doc_file = await context.bot.get_file(document.file_id)
             await doc_file.download_to_drive(doc_path)
-            
             if "pdf" in ext:
                 pdf_file = open(doc_path, 'rb')
                 import PyPDF2
@@ -402,9 +393,6 @@ async def document_handle(update: Update, context: CallbackContext):
  
 async def transcribe_message_handle(update: Update, context: CallbackContext):
     user = await user_check(update, context)
-    # check if bot was mentioned (for group chats) 
-    if not await is_bot_mentioned(update, context): 
-        return
     if await is_previous_message_not_answered_yet(update, context): return
     # Procesar sea voz o audio         
     if update.message.voice:
@@ -420,33 +408,32 @@ async def transcribe_message_handle(update: Update, context: CallbackContext):
             import mimetypes
             ext = mimetypes.guess_extension(ext)
             doc_path = tmp_dir / Path("tempaudio" + ext)
-    
+
             # download
             voice_file = await context.bot.get_file(audio.file_id)
             await voice_file.download_to_drive(doc_path)
-    
+
             # convert to mp3
             mp3_file_path = tmp_dir / "voice.mp3"
             from pydub import AudioSegment
             AudioSegment.from_file(doc_path).export(mp3_file_path, format="mp3")
-            
-            
+
             # Transcribir
             with open(mp3_file_path, "rb") as f:
                 transcribed_text = await openai_utils.transcribe_audio(user.id, f)  
-                
+
         # Enviar respuesta            
-        text = f"🎤: {transcribed_text}"
+        text = f"🎤 {transcribed_text}"
         db.set_user_attribute(user.id, "last_interaction", datetime.now())
     else:
         text = f'💀 El archivo de audio sobrepasa el limite de {config.audio_max_size} megas!'
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
-    await message_handle(update, context, message=transcribed_text)
+    await message_handle(update, context, _message=transcribed_text)
 
-async def generate_image_handle(update: Update, context: CallbackContext, message=None):
+async def generate_image_handle(update: Update, context: CallbackContext, _message=None):
     user = await user_check(update, context)
-    if message:
-        prompt = message
+    if _message:
+        prompt = _message
     else:
         if not context.args:
             await update.message.reply_text("Debes escribir algo después del comando /img", parse_mode=ParseMode.HTML)
@@ -456,38 +443,30 @@ async def generate_image_handle(update: Update, context: CallbackContext, messag
     if prompt == None:
         await update.message.reply_text("No se detectó texto para generar las imágenes 😔", parse_mode=ParseMode.HTML)
         return
-        
-    await update.message.chat.send_action(action="upload_photo")
     import openai
+    await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
     try:
         image_urls = await openai_utils.generate_images(prompt, user.id)
     except openai.error.APIError as e:
-        if "inappropriate content" in str(e):
+        if "Request has inappropriate content!" in str(e):
             text = "🥲 Tu solicitud <b>no cumple</b> con las políticas de uso de OpenAI.</b> ¿Qué has escrito ahí, eh?"
-            await update.message.reply_text(text, parse_mode=ParseMode.HTML)
-            return
         else:
-            raise
+            text = "🥲 Ha ocurrido <b>un error</b> al procesar tu solicitud. Por favor, intenta de nuevo más tarde."
+        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        return
+    image_group=[]
+    document_group=[]
+    await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
+    for i, image_url in enumerate(image_urls):
+        image = InputMediaPhoto(image_url)
+        image_group.append(image)
+        document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
+        document_group.append(document)
+    await update.message.reply_media_group(image_group)
+    await update.message.reply_media_group(document_group)
     db.set_user_attribute(user.id, "last_interaction", datetime.now())
-    media_group=[]
-    for i, image_url in enumerate(image_urls):
-        media = InputMediaPhoto(image_url)
-        media_group.append(media)
-    await update.message.chat.send_action(action="upload_photo")
-    await update.message.reply_media_group(media_group)
-    
-    media_group=[]
-    for i, image_url in enumerate(image_urls):
-        media = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
-        media_group.append(media)
 
-    await update.message.chat.send_action(action="upload_document")
-    await update.message.reply_media_group(media_group)
-    
-    
 async def ask_timeout_handle(update: Update, context: CallbackContext, _message):
-    user = await user_check(update, context)
-
     keyboard = [[
         InlineKeyboardButton("✅", callback_data=f"new_dialog|true"),
         InlineKeyboardButton("❎", callback_data=f"new_dialog|false"),
@@ -499,12 +478,10 @@ async def ask_timeout_handle(update: Update, context: CallbackContext, _message)
 
     await update.effective_chat.send_message(f"Tiempo sin hablarte! ¿Iniciamos nueva conversación?", reply_markup=reply_markup)
 
-
 async def answer_timeout_handle(update: Update, context: CallbackContext):
     user = await user_check(update, context)
     query = update.callback_query
     await query.answer()
-
     new_dialog = query.data.split("|")[1]
     dialog_messages = db.get_dialog_messages(user.id, dialog_id=None)
     if len(dialog_messages) == 0:
@@ -513,30 +490,26 @@ async def answer_timeout_handle(update: Update, context: CallbackContext):
         return
     elif 'bot' in dialog_messages[-1]: # already answered, do nothing
         return
+    await query.message.delete()
     if new_dialog == "true":
         last_dialog_message = dialog_messages.pop()
         await new_dialog_handle(update, context)
-        await message_handle(update, context, message=last_dialog_message["user"])
+        await message_handle(update, context, _message=last_dialog_message["user"])
     else:
         await retry_handle(update, context)
-        
+
 async def new_dialog_handle(update: Update, context: CallbackContext, user=None):
     user = await user_check(update, context)
-    
     api_actual = db.get_user_attribute(user.id, 'current_api')
     modelo_actual = db.get_user_attribute(user.id, 'current_model')
     mododechat_actual=db.get_user_attribute(user.id, 'current_chat_mode')
-
-    
     # Verificar si hay valores inválidos en el usuario
     if (mododechat_actual not in config.chat_mode["available_chat_mode"] or api_actual not in apis_vivas or modelo_actual not in config.model["available_model"]):
         db.reset_user_attribute(user.id)
         await update.effective_chat.send_message("Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.")
-
     modelos_disponibles=config.api["info"][api_actual]["available_model"]
     apisconimagen=config.api["available_imagen"]
     api_actual_name=config.api["info"][api_actual]["name"]
-    
     # Verificar si el modelo actual es válido en la API actual
     if modelo_actual not in modelos_disponibles:
         db.set_user_attribute(user.id, "current_model", modelos_disponibles[0])
@@ -549,7 +522,6 @@ async def new_dialog_handle(update: Update, context: CallbackContext, user=None)
 
 async def cancel_handle(update: Update, context: CallbackContext):
     user = await user_check(update, context)
-
     if user.id in user_tasks:
         db.set_user_attribute(user.id, "last_interaction", datetime.now())
         task = user_tasks[user.id]
@@ -576,11 +548,8 @@ async def get_menu(update: Update, context: CallbackContext, menu_type: str):
         item_keys = apis_vivas
     else:
         item_keys = menu_type_dict[f"available_{menu_type}"]
-        
     current_key = db.get_user_attribute(user.id, f"current_{menu_type}")
-
     text = "<b>Actual:</b>\n\n" + str(menu_type_dict["info"][current_key]["name"]) + ", " + menu_type_dict["info"][current_key]["description"] + "\n\n<b>Selecciona un " + f"{menu_type}" + " disponible</b>:"
-
     num_cols = 2
     import math
     num_rows = math.ceil(len(item_keys) / num_cols)
@@ -594,7 +563,6 @@ async def get_menu(update: Update, context: CallbackContext, menu_type: str):
             for i in range(num_rows)
         ]
     )
-
     return text, reply_markup
 
 async def chat_mode_handle(update: Update, context: CallbackContext):
@@ -629,12 +597,10 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
             pass
 
 async def model_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     text, reply_markup = await get_menu(update, context, "model")
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 async def model_callback_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     query = update.callback_query
     await query.answer()
     text, reply_markup = await get_menu(update, context, "model")
@@ -659,11 +625,9 @@ async def set_model_handle(update: Update, context: CallbackContext):
             pass
 
 async def api_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     text, reply_markup = await get_menu(update, context, "api")
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 async def api_callback_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     query = update.callback_query
     await query.answer()
     text, reply_markup = await get_menu(update, context, "api")
@@ -729,7 +693,7 @@ async def post_init(application: Application):
         BotCommand("/help", "Ver mensaje de ayuda"),
     ])
 
-def signal_handler(sig, frame):
+def signal_handler(sig):
     global running
     if sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         print("Señal de interrupción recibida. Cerrando el bot...")
@@ -747,13 +711,11 @@ def run_bot() -> None:
                 ApplicationBuilder()
                 .token(config.telegram_token)
                 .concurrent_updates(True)
-                .rate_limiter(AIORateLimiter(max_retries=5))
+                .rate_limiter(AIORateLimiter(max_retries=8))
                 .post_init(post_init)
                 .build()
             )
-
             # add handlers
-
             if config.user_whitelist:
                 usernames = []
                 user_ids = []
@@ -767,43 +729,35 @@ def run_bot() -> None:
             else:
                 user_filter = filters.ALL
 
+            docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
+            application.add_handler(MessageHandler(docfilter & user_filter, document_handle))
+            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
+            application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_handle))
+            application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_handle))
+            application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_handle))
+            
             application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
             application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
             application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
-
-            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
             application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
             application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
             application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
-            application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
-
-            application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_handle))
-            application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_handle))
-            
-            application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_handle))
-            
-            docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
-            application.add_handler(MessageHandler(docfilter & user_filter, document_handle))
-
             application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
             application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
             application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
             application.add_handler(CommandHandler("img", generate_image_handle, filters=user_filter))
-            
             application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
 
+            application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
             application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
             application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
-
             application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
             application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
-
             application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
             application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
+
             application.add_error_handler(error_handle)
-
             application.run_polling()
-
         except Exception as e:
             if not running:
                 break
