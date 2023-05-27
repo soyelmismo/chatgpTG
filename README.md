@@ -3,6 +3,7 @@
 ## Nueva actualización:
 - Soporte de lectura de archivos de texto, PDF y de enlaces.
 - Se reemplazó el modo "👩‍🎨 Artista básico" con el comando /img.
+- <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/112/commits/d54809aeb89a1921f6cfdffc00a4d1ee4744c8d2" alt="Dialog_ask">Preguntar si iniciar nueva conversación si lleva tiempo sin chatear</a> (TIMEOUT_ASK y DIALOG_TIMEOUT en docker-compose.yml)
 - Si la api actual del usuario no soporta voz o imagen, se usará una api predefinida.
 - <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/188" alt="AutoDel">Borrar historiales antiguos al usar /new.</a>
 - La transcripción de mensajes de voz ahora también funciona para archivos de audio.

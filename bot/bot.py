@@ -217,17 +217,10 @@ async def message_handle(update: Update, context: CallbackContext, message=None)
 
     chat = None
     #remove bot mention (in group chats)
-    if update.message != None:
-        if update.message.chat.type != "private":
+    if raw_msg != None:
+        if raw_msg.chat.type != "private":
             _message = _message.replace("@" + context.bot.username, "").strip()
-            chat = update.message.chat
-    elif update.callback_query != None:
-        if update.callback_query.message.chat.type != "private":
-            _message = _message.replace("@" + context.bot.username, "").strip()
-            chat = update.callback_query.message.chat
-    else:
-        print("no se obtuvo update")
-        
+            chat = raw_msg.chat
 
     if await is_previous_message_not_answered_yet(update, context): return
     if chat_mode == "artist":
