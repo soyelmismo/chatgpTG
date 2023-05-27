@@ -201,7 +201,6 @@ async def message_handle(update: Update, context: CallbackContext, _message=None
                             pass
                 if urls:
                     await url_handle(update, context, urls)
-                    return
         except AttributeError:
             pass
 
