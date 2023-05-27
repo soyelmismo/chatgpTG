@@ -123,11 +123,11 @@ class ChatGPT:
         url_texts = []
         for dialog_message in dialog_messages:
             if "documento" in dialog_message:
-                documento_texts.append(f'{dialog_message["documento"]}')
+                documento_texts.append(f'{dialog_message["documento"]}\n')
             if "url" in dialog_message:
-                url_texts.append(f'{dialog_message["url"]}')
+                url_texts.append(f'{dialog_message["url"]}\n')
         if documento_texts or url_texts:
-           messages = [{"role": "system", "content": f'contexto([Archivos: [{documento_texts}], Enlaces: [{url_texts}], Mensaje: [{prompt}]]'}]
+           messages = [{"role": "system", "content": f'Archivos: [{documento_texts}]\nEnlaces: [{url_texts}]\nMensaje: [{prompt}]]'}]
         else:
            # Mantener el mensaje system original 
            messages = [{"role": "system", "content": f'{prompt}'}]
@@ -137,8 +137,8 @@ class ChatGPT:
             if "bot" in dialog_message:
                 messages.append({"role": "assistant", "content": dialog_message["bot"]})
         messages.append({"role": "user", "content": message})
-
         return messages
+
     def _postprocess_answer(self, answer):
         answer = answer.strip()
         return answer

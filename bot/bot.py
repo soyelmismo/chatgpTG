@@ -328,7 +328,7 @@ async def url_handle(update, context, urls):
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
-            if len(response.content) > config.url_max_size:
+            if len(response.content) > config.url_max_size * (1024 * 1024):
                 raise Exception("URL response muy grande")
             soup = BeautifulSoup(response.content, "html.parser")
             body_tag = soup.body
