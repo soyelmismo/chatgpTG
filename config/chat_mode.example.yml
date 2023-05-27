@@ -1,4 +1,4 @@
-available_chat_mode: ["nada", "assistant", "code_assistant", "spanish", "math", "historian", "chemistry", "artist", "psychologist", "rick_sanchez", "sql_assistant", "text_improver", "elon_musk", "english_tutor", "startup_idea_generator", "motivator", "money_maker", "travel_guide", "accountant", "movie_expert"]
+available_chat_mode: ["nada", "assistant", "code_assistant", "spanish", "math", "historian", "chemistry", "psychologist", "rick_sanchez", "sql_assistant", "text_improver", "elon_musk", "english_tutor", "startup_idea_generator", "motivator", "money_maker", "travel_guide", "accountant", "movie_expert"]
 # debes declarar los chat_mode en el apartado de acá arriba
 info:
   nada:
@@ -64,10 +64,6 @@ info:
 
       Mi objetivo es proporcionar una experiencia útil y agradable mientras se aprende sobre la síntesis de compuestos químicos y los procesos involucrados en la investigación científica. ¡Estoy listo cuando tú lo estés!
     parse_mode: html
-  artist:
-    name: 👩‍🎨 Artista básico
-    description: de forma manual.
-    welcome_message: 👩‍🎨 Hola, soy <b>pintor</b>. Dibujaré todo lo que me escribas (e.g. <i>Un Elefante Guerrero Psíquico Ancestral</i>)
   psychologist:
     name: 🧠 Psicólogo
     description: ayuda emocional y orientación psicológica.

@@ -99,23 +99,43 @@ class ChatGPT:
 
         # add chat context
         if len(dialog_messages) > 0:
-            prompt += "Chat:\n"
+            prompt += "Log:\n"
             for dialog_message in dialog_messages:
-                prompt += f"Usuario: {dialog_message['user']}\n"
-                prompt += f'{chat_mode}: {dialog_message["bot"]}\n'
+                if "documento" in dialog_message:
+                    prompt += f'doc[{dialog_message["documento"]}]'
+                if "url" in dialog_message:
+                    prompt += f'url[{dialog_message["url"]}]'
+                if "user" in dialog_message:
+                    prompt += f"In: {dialog_message['user']}\n"
+                if "bot" in dialog_message:
+                    prompt += f'Out: {dialog_message["bot"]}\n'
 
         # current message
-        prompt += f"Usuario: {message}\n"
-        prompt += f'{chat_mode}:'
+        prompt += f"In: {message}\n"
+        prompt += f'Out:'
 
         return prompt
 
     def _generate_prompt_messages(self, message, dialog_messages, chat_mode):
-        prompt = config.chat_mode["info"][chat_mode]["prompt_start"]
-        messages = [{"role": "system", "content": f'tu contexto es el siguiente... eres: {chat_mode} {prompt}'}]
+        prompt = config.chat_mode["info"][chat_mode]["prompt_start"]        
+        messages = [{"role": "system", "content": f'{prompt}'}]
+        documento_texts = []
+        url_texts = []
         for dialog_message in dialog_messages:
-            messages.append({"role": "user", "content": dialog_message["user"]})
-            messages.append({"role": "assistant", "content": dialog_message["bot"]})
+            if "documento" in dialog_message:
+                documento_texts.append(f'{dialog_message["documento"]}')
+            if "url" in dialog_message:
+                url_texts.append(f'{dialog_message["url"]}')
+        if documento_texts or url_texts:
+           messages = [{"role": "system", "content": f'contexto([Archivos: [{documento_texts}], Enlaces: [{url_texts}], Mensaje: [{prompt}]]'}]
+        else:
+           # Mantener el mensaje system original 
+           messages = [{"role": "system", "content": f'{prompt}'}]
+        for dialog_message in dialog_messages:
+            if "user" in dialog_message:
+                messages.append({"role": "user", "content": dialog_message["user"]})
+            if "bot" in dialog_message:
+                messages.append({"role": "assistant", "content": dialog_message["bot"]})
         messages.append({"role": "user", "content": message})
 
         return messages
@@ -124,22 +144,26 @@ class ChatGPT:
         return answer
 
 async def transcribe_audio(user_id, audio_file):
-    api = db.get_user_attribute(user_id, "current_api")
-    api_info = config.api["info"].get(api, {})
-    openai.api_key = str(api_info.get("key", ""))
-    openai.api_base=str(config.api["info"][api].get("url"))
+    available = config.api["available_transcript"]
+    apin = db.get_user_attribute(user_id, "current_api")
+    if apin in available:
+        pass
+    else:
+        apin = available[0]
+    openai.api_key = config.api["info"][apin]["key"]
+    openai.api_base = config.api["info"][apin]["url"]
     r = await openai.Audio.atranscribe("whisper-1", audio_file)
     return r["text"]
 
 async def generate_images(prompt, user_id):
-    api = db.get_user_attribute(user_id, "current_api")
-    api_info = config.api["info"].get(api, {})
-    openai.api_key = str(api_info.get("key", ""))
-    openai.api_base=str(config.api["info"][api].get("url"))
+    available = config.api["available_imagen"]
+    apin = db.get_user_attribute(user_id, "current_api")
+    if apin in available:
+        pass
+    else:
+        apin = available[0]
+    openai.api_key = config.api["info"][apin]["key"]
+    openai.api_base = config.api["info"][apin]["url"]
     r = await openai.Image.acreate(prompt=prompt, n=config.n_images, size="1024x1024")
     image_urls = [item.url for item in r.data]
     return image_urls
-
-async def is_content_acceptable(prompt):
-    r = await openai.Moderation.acreate(input=prompt)
-    return not all(r.results[0].categories.values())

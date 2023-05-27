@@ -6,9 +6,14 @@ import yaml
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 telegram_token = env['TELEGRAM_TOKEN'][0]
 user_whitelist = env.get('USER_WHITELIST', [])
-new_dialog_timeout = int(env['new_dialog_timeout'][0])
-n_images = int(env['return_n_generated_images'][0])
+dialog_timeout = int(env['DIALOG_TIMEOUT'][0])
+n_images = int(env['OUTPUT_IMAGES'][0])
 mongodb_uri = f"mongodb://{env['MONGODB_USERNAME'][0]}:{env['MONGODB_PASSWORD'][0]}@{env['MONGODB_HOST'][0]}/?retryWrites=true&w=majority"
+timeout_ask = os.environ.get('TIMEOUT_ASK')
+audio_max_size = int(env['AUDIO_MAX_MB'][0])
+file_max_size = int(env['DOC_MAX_MB'][0])
+url_max_size = int(env['URL_MAX_MB'][0])
+pdf_page_lim = int(env['PDF_PAGE_LIMIT'][0])
 
 # set config paths
 config_dir = Path(__file__).parent.parent.resolve() / "config"

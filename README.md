@@ -1,28 +1,19 @@
 **Origin repo: <a href="https://github.com/karfly/chatgpt_telegram_bot" alt="Karfly">Karfly/chatgpt_telegram_bot</a>**
 
-
-## Características originales
-- Mensaje en tiempo real
-- Compatible con GPT-4
-- Soporte de chat en grupo (/help_group_chat para obtener instrucciones)
-- DALLE 2 (elige el modo 👩‍🎨 Artista para generar imágenes)
-- Reconocimiento de mensajes de voz
-- Resaltado de código en Markdown
-- 15 modos de chat especiales: 👩🏼‍🎓 Asistente, 👩🏼‍💻 Asistente de código, 👩‍🎨 Artista, 🧠 Psicólogo, 🚀 Elon Musk y otros. Puedes crear fácilmente tus propios modos de chat editando `config/chat_mode.yml`.
-- Soporte de [ChatGPT API](https://platform.openai.com/docs/guides/chat/introduction)
-- Lista blanca de usuarios
-
 ## Nueva actualización:
-- Voz a texto en archivos de audio
-- Apis de GPT4Free
+- Soporte de lectura de archivos de texto, PDF y de enlaces.
+- Se reemplazó el modo "👩‍🎨 Artista básico" con el comando /img.
+- Si la api actual del usuario no soporta voz o imagen, se usará una api predefinida.
+- <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/188" alt="AutoDel">Borrar historiales antiguos al usar /new.</a>
+- La transcripción de mensajes de voz ahora también funciona para archivos de audio.
+- Añadidas variables a docker-compose para limitar el tamaño de los audios, documentos, paginas de PDF y urls.
+- Apis de GPT4Free (necesita especificar las cookies en docker-compose para usar Bing y ChatGPT)
 
-
-## Cambios base en esta modificación:
+## Cambios anteriores en esta modificación:
 - Traducción al español
 - Base en Minideb.
-- Se eliminó el seguimiento de tokens, ya que no lo necesito.
-- Se agregaron (creo que solo) 3 modos de chat. "Nada", "Matemático" y "Traductor" de cualquier idioma al español.
-- Necesita base de datos mongo externa. Puedes montarla en un contenedor aparte o usar algún servicio como Atlas
+- Se eliminó el seguimiento de tokens.
+- Necesita base de datos mongo externa.
 - Sólo hay mensajes en tiempo real, no hay envío de mensaje fijo
 - **Añade la cantidad de APIs y modelos que quieras!**
 - Un menú genérico para los tipos de opciones
@@ -35,8 +26,9 @@
 - Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."
 
 ## Comandos
-- /retry - Regenera la última respuesta del bot.
 - /new - Iniciar nuevo diálogo.
+- /img - Generar imagenes.
+- /retry - Regenera la última respuesta del bot.
 - /chat_mode - Seleccionar el modo de conversación.
 - /model - Mostrar modelos IA.
 - /api - Mostrar APIs.
@@ -55,6 +47,3 @@
     ```bash
     docker-compose up --build
     ```
-
-## References
-1. [*Build ChatGPT from GPT-3*](https://learnprompting.org/docs/applied_prompting/build_chatgpt)

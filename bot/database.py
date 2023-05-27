@@ -87,7 +87,7 @@ class Database:
         self.check_if_user_exists(user_id, raise_exception=True)
 
         # Obtener los valores iniciales para cada atributo
-        initial_chat_mode = config.chat_mode["available_chat_mode"][1]
+        initial_chat_mode = config.chat_mode["available_chat_mode"][0]
         initial_model = config.model["available_model"][0]
         initial_api = config.api["available_api"][0]
 
@@ -119,3 +119,11 @@ class Database:
             {"_id": dialog_id, "user_id": user_id},
             {"$set": {"messages": dialog_messages}}
         )
+
+    def delete_all_dialogs_except_current(self, user_id: int):
+        user = self.user_collection.find_one({"_id": user_id})
+        if not user:
+            raise ValueError(f"User with ID {user_id} does not exist")
+
+        current_dialog_id = user["current_dialog_id"]
+        self.dialog_collection.delete_many({"user_id": user_id, "_id": {"$ne": current_dialog_id}})

@@ -1,5 +1,6 @@
 available_api: ["openai", "you", "chatbase", "g4f"]
 available_imagen: ["openai"]
+available_transcript: ["openai"]
 # debes declarar los api en el apartado de acá arriba
 info:
   openai:

@@ -3,7 +3,7 @@ from apis.opengpt import chatbase
 from apis.gpt4free.foraneo import you
 import config
 
-def estadosapi():
+async def estadosapi():
     vivas = []
     num_errores = 0
     test=False

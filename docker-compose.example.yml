@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  chatgpt-for-telegram:
-    container_name: chatgpt-for-telegram
+  chatgpt-en-telegram:
+    container_name: chatgpt-en-telegram
     command: python3 bot/bot.py
     restart: always
     build:
@@ -14,10 +14,14 @@ services:
       - MONGODB_PASSWORD=admin
       - TELEGRAM_TOKEN=yourbottoken
       - USER_WHITELIST = 89727e9, mamador,   rrjrj,6077244180
-      - SUDO_USERS=69959, ejemplo1,ejemplo2
-      - new_dialog_timeout=7200
-      - return_n_generated_images=4
+      - DIALOG_TIMEOUT=7200
+      - OUTPUT_IMAGES=4
+      - TIMEOUT_ASK=True
+      - AUDIO_MAX_MB=20
+      - DOC_MAX_MB=2
+      - URL_MAX_MB=1
+      - PDF_PAGE_LIMIT=50
       - GPT4FREE_BING_U_COOKIE=LOOOOOOOOONGGGGGCOOOKIEEEEE882738319271$$$$
       - GPT4FREE_CHATGPT_SESSION_TOKEN=LOOOOOOOOONGGGGGCOOOKIEEEEE882738319271$$$$
-#opcionalmente    volumes:
+#opcional    volumes:
 #      - /ruta-fuera-del-docker/mi-configuracion:/config
