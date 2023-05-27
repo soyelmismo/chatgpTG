@@ -4,7 +4,6 @@ pymongo
 python-telegram-bot[rate-limiter]
 PyYAML
 requests
-schedule
 curl_cffi
 websockets
 tls_client

@@ -29,7 +29,6 @@ from telegram.constants import ParseMode, ChatAction
 import config
 import database
 import openai_utils
-import schedule
 import signal
 import sys
 import re
@@ -73,33 +72,30 @@ Por ejemplo: "{bot_username} escribe un poema sobre Telegram"
 
 apis_vivas = []
 async def obtener_vivas():
-    print("Se ejecutó chequeo de APIs")
     global apis_vivas
     from apistatus import estadosapi
+    print("Se ejecutó chequeo de APIs")
     apis_vivas = await estadosapi()
     print(apis_vivas)
-
-async def run_schedule():
-    while True:
-        schedule.run_pending()
-        await asyncio.sleep(1)
 
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
         yield text[i:i + chunk_size]
 
-async def user_check(update: Update, context: CallbackContext, user=None):
+async def user_check(update: Update, user=None):
     if user is None:
         if update.message:
             user = update.message.from_user
         elif update.callback_query:
             user = update.callback_query.from_user
-        else:
-            await update.message.reply_text(f"Ocurrió un error gestionando un nuevo diálogo.")
+        #else:
+            #await update.effective_chat.send_message(f"Ocurrió un error gestionando un nuevo diálogo.")
     await register_user_if_not_exists(update, user)
     return user
         
 async def register_user_if_not_exists(update: Update, user=None):
+    if user == None:
+        user = await user_check(update)
     if not db.check_if_user_exists(user.id):
         db.add_new_user(
             user.id,
@@ -121,7 +117,6 @@ async def register_user_if_not_exists(update: Update, user=None):
         
     if db.get_user_attribute(user.id, "current_api") is None:
         db.set_user_attribute(user.id, "current_api", apis_vivas[0])
-
 
 async def is_bot_mentioned(context: CallbackContext, raw_msg=None):
     try:
@@ -154,7 +149,8 @@ async def help_group_chat_handle(update: Update, context: CallbackContext):
     await update.message.reply_video(config.help_group_chat_video_path)
 
 async def retry_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+    if await is_previous_message_not_answered_yet(update): return
+    user = await user_check(update)
     dialog_messages = db.get_dialog_messages(user.id, dialog_id=None)
     if len(dialog_messages) == 0:
         await update.message.reply_text("No hay mensaje para reintentar 🤷‍♂️")
@@ -175,8 +171,23 @@ async def check_message(update: Update, context: CallbackContext, _message=None)
         _message = _message
     return raw_msg, _message
 
+async def handle_user_task(task, update):
+    user = await user_check(update)
+    async with user_semaphores[user.id]:
+        user_tasks[user.id] = task
+        try:
+            await task
+        except asyncio.CancelledError:
+            await update.effective_chat.send_message("✅ Cancelado", parse_mode=ParseMode.HTML)
+        else:
+            pass
+        finally:
+            if user.id in user_tasks:
+                del user_tasks[user.id]
+
 async def message_handle(update: Update, context: CallbackContext, _message=None):
-    user = await user_check(update, context)
+    if await is_previous_message_not_answered_yet(update): return
+    user = await user_check(update)
     chat_mode = db.get_user_attribute(user.id, "current_chat_mode")
     current_model = db.get_user_attribute(user.id, "current_model")
     dialog_messages = db.get_dialog_messages(user.id, dialog_id=None)
@@ -196,11 +207,12 @@ async def message_handle(update: Update, context: CallbackContext, _message=None
                         url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
                         if "http://" in url_add or "https://" in url_add:
                             urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-                            _message[:entity.offset] + _message[entity.offset+entity.length:]
                         else:
                             pass
                 if urls:
-                    await url_handle(update, context, urls)
+                    task = asyncio.create_task(url_handle(update, context, urls, user))
+                    handle_user_task(task, update)
+                    return
         except AttributeError:
             pass
 
@@ -222,21 +234,8 @@ async def message_handle(update: Update, context: CallbackContext, _message=None
         if chat_type != "private":
             _message = _message.replace("@" + context.bot.username, "").strip()
             chat = raw_msg.chat
-
-    if await is_previous_message_not_answered_yet(update, context): return
-
-    async with user_semaphores[user.id]:
-        task = asyncio.create_task(message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model, user))
-        user_tasks[user.id] = task
-        try:
-            await task
-        except asyncio.CancelledError:
-            await update.effective_chat.send_message("✅ Cancelado", parse_mode=ParseMode.HTML)
-        else:
-            pass
-        finally:
-            if user.id in user_tasks:
-                del user_tasks[user.id]
+    task = asyncio.create_task(message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model, user))
+    await handle_user_task(task, update)
 
 async def message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model, user):
     # in case of CancelledError
@@ -275,7 +274,7 @@ async def message_handle_fn(update, context, _message, chat, dialog_messages, ch
         # update user data
         db.set_user_attribute(user.id, "last_interaction", datetime.now())
         if chat_mode == "imagen":
-            await generate_image_handle(update, context, _message=answer)
+            await generate_image_wrapper(update, context, _message=answer)
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         await add_dialog_message(update, context, new_dialog_message)
 
@@ -286,7 +285,7 @@ async def message_handle_fn(update, context, _message, chat, dialog_messages, ch
         return
 
 async def add_dialog_message(update: Update, context: CallbackContext, new_dialog_message):
-    user = await user_check(update, context)
+    user = await user_check(update)
     db.set_dialog_messages(
         user.id,
         db.get_dialog_messages(user.id, dialog_id=None) + [new_dialog_message],
@@ -294,8 +293,8 @@ async def add_dialog_message(update: Update, context: CallbackContext, new_dialo
     )
     return
 
-async def is_previous_message_not_answered_yet(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+async def is_previous_message_not_answered_yet(update: Update):
+    user = await user_check(update)
     semaphore = user_semaphores.get(user.id)
     if semaphore and semaphore.locked():
         text = "⏳ Por favor <b>espera</b> una respuesta al mensaje anterior\n"
@@ -315,7 +314,7 @@ async def clean_text(doc, name):
     return doc_text
 
 async def url_handle(update, context, urls):
-    user = await user_check(update, context)
+    user = await user_check(update)
     import requests
     from bs4 import BeautifulSoup
     import warnings
@@ -347,8 +346,8 @@ async def url_handle(update, context, urls):
     db.set_user_attribute(user.id, "last_interaction", datetime.now())
 
 async def document_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
-    if await is_previous_message_not_answered_yet(update, context): return
+    if await is_previous_message_not_answered_yet(update): return
+    user = await user_check(update)
     document = update.message.document
     file_size_mb = document.file_size / (1024 * 1024)
     if file_size_mb <= config.file_max_size:
@@ -391,8 +390,8 @@ async def document_handle(update: Update, context: CallbackContext):
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
  
 async def transcribe_message_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
-    if await is_previous_message_not_answered_yet(update, context): return
+    if await is_previous_message_not_answered_yet(update): return
+    user = await user_check(update)
     # Procesar sea voz o audio         
     if update.message.voice:
         audio = update.message.voice     
@@ -429,8 +428,12 @@ async def transcribe_message_handle(update: Update, context: CallbackContext):
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     await message_handle(update, context, _message=transcribed_text)
 
+async def generate_image_wrapper(update, context, _message=None):
+    if await is_previous_message_not_answered_yet(update): return
+    task = asyncio.create_task(generate_image_handle(update, context, _message))
+    await handle_user_task(task, update)
 async def generate_image_handle(update: Update, context: CallbackContext, _message=None):
-    user = await user_check(update, context)
+    user = await user_check(update)
     if _message:
         prompt = _message
     else:
@@ -476,9 +479,8 @@ async def ask_timeout_handle(update: Update, context: CallbackContext, _message)
     await add_dialog_message(update, context, new_dialog_message)
 
     await update.effective_chat.send_message(f"Tiempo sin hablarte! ¿Iniciamos nueva conversación?", reply_markup=reply_markup)
-
 async def answer_timeout_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+    user = await user_check(update)
     query = update.callback_query
     await query.answer()
     new_dialog = query.data.split("|")[1]
@@ -497,8 +499,9 @@ async def answer_timeout_handle(update: Update, context: CallbackContext):
     else:
         await retry_handle(update, context)
 
-async def new_dialog_handle(update: Update, context: CallbackContext, user=None):
-    user = await user_check(update, context)
+async def new_dialog_handle(update: Update, user=None):
+    if await is_previous_message_not_answered_yet(update): return
+    user = await user_check(update)
     api_actual = db.get_user_attribute(user.id, 'current_api')
     modelo_actual = db.get_user_attribute(user.id, 'current_model')
     mododechat_actual=db.get_user_attribute(user.id, 'current_chat_mode')
@@ -507,7 +510,6 @@ async def new_dialog_handle(update: Update, context: CallbackContext, user=None)
         db.reset_user_attribute(user.id)
         await update.effective_chat.send_message("Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.")
     modelos_disponibles=config.api["info"][api_actual]["available_model"]
-    apisconimagen=config.api["available_imagen"]
     api_actual_name=config.api["info"][api_actual]["name"]
     # Verificar si el modelo actual es válido en la API actual
     if modelo_actual not in modelos_disponibles:
@@ -520,16 +522,17 @@ async def new_dialog_handle(update: Update, context: CallbackContext, user=None)
     db.set_user_attribute(user.id, "last_interaction", datetime.now())
 
 async def cancel_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+    user = await user_check(update)
     if user.id in user_tasks:
-        db.set_user_attribute(user.id, "last_interaction", datetime.now())
         task = user_tasks[user.id]
         task.cancel()
+        db.set_user_attribute(user.id, "last_interaction", datetime.now())
     else:
         await update.message.reply_text("<i>No hay nada que cancelar...</i>", parse_mode=ParseMode.HTML)
 
-async def get_menu(update: Update, context: CallbackContext, menu_type: str):
-    user = await user_check(update, context)
+async def get_menu(menu_type, update: Update, user=None):
+    if not user:
+        user = await user_check(update)
     menu_type_dict = getattr(config, menu_type)
     api_antigua = db.get_user_attribute(user.id, 'current_api')
     if api_antigua not in apis_vivas:
@@ -565,15 +568,13 @@ async def get_menu(update: Update, context: CallbackContext, menu_type: str):
     return text, reply_markup
 
 async def chat_mode_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
-    text, reply_markup = await get_menu(update, user, "chat_mode")
+    text, reply_markup = await get_menu(menu_type="chat_mode", update=update)
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 async def chat_mode_callback_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
     query = update.callback_query
     await query.answer()
-    text, reply_markup = await get_menu(update, context, "chat_mode")
+    text, reply_markup = await get_menu(menu_type="chat_mode", update=update)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
@@ -581,12 +582,12 @@ async def chat_mode_callback_handle(update: Update, context: CallbackContext):
             pass
 
 async def set_chat_mode_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+    user = await user_check(update)
     query = update.callback_query
     await query.answer()
     mode = query.data.split("|")[1]
     db.set_user_attribute(user.id, "current_chat_mode", mode)
-    text, reply_markup = await get_menu(update, context, "chat_mode")
+    text, reply_markup = await get_menu(menu_type="chat_mode", update=update, user=user)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         await update.effective_chat.send_message(f"{config.chat_mode['info'][db.get_user_attribute(user.id, 'current_chat_mode')]['welcome_message']}", parse_mode=ParseMode.HTML)
@@ -596,13 +597,13 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
             pass
 
 async def model_handle(update: Update, context: CallbackContext):
-    text, reply_markup = await get_menu(update, context, "model")
+    text, reply_markup = await get_menu(menu_type="model", update=update)
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 async def model_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
-    text, reply_markup = await get_menu(update, context, "model")
+    text, reply_markup = await get_menu(menu_type="model", update=update)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
@@ -610,12 +611,12 @@ async def model_callback_handle(update: Update, context: CallbackContext):
             pass
 
 async def set_model_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+    user = await user_check(update)
     query = update.callback_query
     await query.answer()
     _, model = query.data.split("|")
     db.set_user_attribute(user.id, "current_model", model)
-    text, reply_markup = await get_menu(update, context, "model")
+    text, reply_markup = await get_menu(menu_type="model", update=update, user=user)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         db.set_user_attribute(user.id, "last_interaction", datetime.now())
@@ -624,12 +625,13 @@ async def set_model_handle(update: Update, context: CallbackContext):
             pass
 
 async def api_handle(update: Update, context: CallbackContext):
-    text, reply_markup = await get_menu(update, context, "api")
+    text, reply_markup = await get_menu(menu_type="api", update=update)
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+
 async def api_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
-    text, reply_markup = await get_menu(update, context, "api")
+    text, reply_markup = await get_menu(menu_type="api", update=update)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
@@ -637,7 +639,7 @@ async def api_callback_handle(update: Update, context: CallbackContext):
             pass
 
 async def set_api_handle(update: Update, context: CallbackContext):
-    user = await user_check(update, context)
+    user = await user_check(update)
     query = update.callback_query
     await query.answer()
     _, api = query.data.split("|")
@@ -647,7 +649,7 @@ async def set_api_handle(update: Update, context: CallbackContext):
     if current_dialog is not None:
         await update.effective_chat.send_message("Por favor, termina tu conversación actual antes de iniciar una nueva.")
         return
-    text, reply_markup = await get_menu(update, context, "api")
+    text, reply_markup = await get_menu(menu_type="api", update=update, user=user)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         db.set_user_attribute(user.id, "last_interaction", datetime.now())
@@ -680,8 +682,7 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
         await context.bot.send_message("Algún error en el gestor de errores")
 
 async def post_init(application: Application):
-    asyncio.create_task(run_schedule())
-    schedule.every().hour.at(":00").do(obtener_vivas)
+    asyncio.create_task(ejecutar_obtener_vivas())
     await application.bot.set_my_commands([
         BotCommand("/new", "Iniciar un nuevo diálogo"),
         BotCommand("/chat_mode", "Cambia el modo de asistente"),
@@ -698,6 +699,11 @@ def signal_handler(sig):
         print("Señal de interrupción recibida. Cerrando el bot...")
         running = False
         sys.exit(0)
+
+async def ejecutar_obtener_vivas():
+    while True:
+        await obtener_vivas()
+        await asyncio.sleep(60 * 60)  # Cada hora
 
 def run_bot() -> None:
     global running
@@ -744,7 +750,7 @@ def run_bot() -> None:
             application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
             application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
             application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-            application.add_handler(CommandHandler("img", generate_image_handle, filters=user_filter))
+            application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
 
             application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
             application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
@@ -764,7 +770,4 @@ def run_bot() -> None:
             time.sleep(3)
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(obtener_vivas())  # Ejecutar obtener_vivas antes de iniciar el bot
     run_bot()

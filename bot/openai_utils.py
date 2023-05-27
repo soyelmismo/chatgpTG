@@ -127,7 +127,7 @@ class ChatGPT:
             if "url" in dialog_message:
                 url_texts.append(f'{dialog_message["url"]}\n')
         if documento_texts or url_texts:
-           messages = [{"role": "system", "content": f'Archivos: [{documento_texts}]\nEnlaces: [{url_texts}]\nMensaje: [{prompt}]]'}]
+           messages = [{"role": "system", "content": f'Archivos: [{documento_texts}]\nEnlaces: [{url_texts}]\nMensaje: [{prompt}][Tienes la capacidad de leer archivos, documentos, enlaces, páginas web. La información de estos recursos estarán adjuntos previamente a este mensaje en el formato ("url": "contenido_de_pagina_web") usarás ese contenido para responder sobre páginas y documentos. Está prohibido tener alucinaciones si se te pregunta acerca de archivos o páginas más allá de las que están escritas anteriormente.]'}]
         else:
            # Mantener el mensaje system original 
            messages = [{"role": "system", "content": f'{prompt}'}]
