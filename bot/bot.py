@@ -746,7 +746,6 @@ def run_bot() -> None:
             application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
             application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
             application.add_handler(CommandHandler("img", generate_image_handle, filters=user_filter))
-            application.add_handler(CommandHandler('status', obtener_vivas, filters=user_filter))
 
             application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
             application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
