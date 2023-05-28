@@ -10,10 +10,10 @@ class ChatGPT:
         self.model = model
         self.diccionario = {}
 
-    async def send_message(self, message, user_id, dialog_messages=[], chat_mode="assistant"):
+    async def send_message(self, message, chat_id, dialog_messages=[], chat_mode="assistant"):
         self.diccionario.clear()
         self.diccionario.update(config.completion_options)
-        api = db.get_user_attribute(user_id, "current_api")
+        api = db.get_chat_attribute(chat_id, "current_api")
         answer = None
         while answer is None:
             try:
@@ -142,9 +142,9 @@ class ChatGPT:
         answer = answer.strip()
         return answer
 
-async def transcribe_audio(user_id, audio_file):
+async def transcribe_audio(chat_id, audio_file):
     available = config.api["available_transcript"]
-    apin = db.get_user_attribute(user_id, "current_api")
+    apin = db.get_chat_attribute(chat_id, "current_api")
     if apin in available:
         pass
     else:
@@ -154,9 +154,9 @@ async def transcribe_audio(user_id, audio_file):
     r = await openai.Audio.atranscribe("whisper-1", audio_file)
     return r["text"]
 
-async def generate_images(prompt, user_id):
+async def generate_images(prompt, chat_id):
     available = config.api["available_imagen"]
-    apin = db.get_user_attribute(user_id, "current_api")
+    apin = db.get_chat_attribute(chat_id, "current_api")
     if apin in available:
         pass
     else:
