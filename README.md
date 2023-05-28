@@ -13,7 +13,8 @@
 
 
 ## Nueva actualización:
-- Se mejoró el chequeo de APIs
+- Se cambió el diálogo de usuarios, por el diálogo de chatID para mejor contexto grupal.
+- Se mejoró el chequeo de APIs.
 - Añadido MongoDB compatible con CPUs antiguas.
 - Soporte de lectura de archivos de texto, PDF y de enlaces.
 - Se reemplazó el modo "👩‍🎨 Artista básico" con el comando /img.
