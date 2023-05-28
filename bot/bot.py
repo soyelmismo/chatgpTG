@@ -29,20 +29,12 @@ from telegram.constants import ParseMode, ChatAction
 import config
 import database
 import openai_utils
-import signal
-import sys
-import re
-
-# setup
-
-running = True
 
 db = database.Database()
-
 logger = logging.getLogger(__name__)
-
 user_semaphores = {}
 user_tasks = {}
+apis_vivas = []
 
 HELP_MESSAGE = """Comandos:
 ⚪ /new - Iniciar nuevo diálogo.
@@ -58,7 +50,6 @@ HELP_MESSAGE = """Comandos:
 🎤 Puedes enviar <b>Mensajes de voz</b> en lugar de texto.
 📖 Envía <b>documentos</b> o <b>links</b> para <b>analizarlos</b> junto al bot!
 """
-
 HELP_GROUP_CHAT_MESSAGE = """Puedes añadir un bot a cualquier <b>chat de grupo</b> para ayudar y entretener a sus participantes.
 
 Instrucciones (ver <b>vídeo</b> más abajo)
@@ -70,13 +61,10 @@ To get a reply from the bot in the chat – @ <b>tag</b> it or <b>reply</b> to i
 Por ejemplo: "{bot_username} escribe un poema sobre Telegram"
 """
 
-apis_vivas = []
 async def obtener_vivas():
     global apis_vivas
     from apistatus import estadosapi
-    print("Se ejecutó chequeo de APIs")
     apis_vivas = await estadosapi()
-    print(apis_vivas)
 
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
@@ -93,9 +81,7 @@ async def user_check(update: Update, user=None):
     await register_user_if_not_exists(update, user)
     return user
         
-async def register_user_if_not_exists(update: Update, user=None):
-    if user == None:
-        user = await user_check(update)
+async def register_user_if_not_exists(update: Update, user):
     if not db.check_if_user_exists(user.id):
         db.add_new_user(
             user.id,
@@ -184,6 +170,15 @@ async def handle_user_task(task, update):
         finally:
             if user.id in user_tasks:
                 del user_tasks[user.id]
+
+async def add_dialog_message(update: Update, context: CallbackContext, new_dialog_message):
+    user = await user_check(update)
+    db.set_dialog_messages(
+        user.id,
+        db.get_dialog_messages(user.id, dialog_id=None) + [new_dialog_message],
+        dialog_id=None
+    )
+    return
 
 async def message_handle(update: Update, context: CallbackContext, _message=None):
     if await is_previous_message_not_answered_yet(update): return
@@ -279,19 +274,9 @@ async def message_handle_fn(update, context, _message, chat, dialog_messages, ch
         await add_dialog_message(update, context, new_dialog_message)
 
     except Exception as e:
-        error_text = f"Error: {e}"
-        logger.error(error_text)
-        await update.effective_chat.send_message(error_text)
+        logger.error(f"Error: {e}")
+        await update.effective_chat.send_message(f"Error: {e}")
         return
-
-async def add_dialog_message(update: Update, context: CallbackContext, new_dialog_message):
-    user = await user_check(update)
-    db.set_dialog_messages(
-        user.id,
-        db.get_dialog_messages(user.id, dialog_id=None) + [new_dialog_message],
-        dialog_id=None
-    )
-    return
 
 async def is_previous_message_not_answered_yet(update: Update):
     user = await user_check(update)
@@ -305,6 +290,7 @@ async def is_previous_message_not_answered_yet(update: Update):
         return False
 
 async def clean_text(doc, name):
+    import re
     doc = re.sub(r'^\n', '', doc) 
     doc = re.sub(r'\n+', r' ', doc) # Reemplaza saltos de línea dentro de párrafos por un espacio  
     doc = re.sub(r' {2,}', ' ', doc) # Reemplaza dos o más espacios con uno solo
@@ -340,13 +326,16 @@ async def url_handle(update, context, urls):
             await add_dialog_message(update, context, new_dialog_message)
             text = f"Anotado 📝 ¿Qué quieres saber de la página?"
         except Exception as e:
-            logging.error(f"Error al obtener el contenido de la página web: {e}")
-            text = "Error al obtener el contenido de la página web."
+            text = f"Error al obtener el contenido de la página web: {e}."
+            logger.error(text)
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     db.set_user_attribute(user.id, "last_interaction", datetime.now())
 
-async def document_handle(update: Update, context: CallbackContext):
+async def document_wrapper(update, context):
     if await is_previous_message_not_answered_yet(update): return
+    task = asyncio.create_task(document_handle(update, context))
+    await handle_user_task(task, update)
+async def document_handle(update: Update, context: CallbackContext):
     user = await user_check(update)
     document = update.message.document
     file_size_mb = document.file_size / (1024 * 1024)
@@ -388,9 +377,12 @@ async def document_handle(update: Update, context: CallbackContext):
     else:
         text = f"El archivo es demasiado grande ({file_size_mb:.2f} MB). El límite es de {config.file_max_size} MB."
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
- 
-async def transcribe_message_handle(update: Update, context: CallbackContext):
+
+async def transcribe_message_wrapper(update, context):
     if await is_previous_message_not_answered_yet(update): return
+    task = asyncio.create_task(transcribe_message_handle(update, context))
+    await handle_user_task(task, update)
+async def transcribe_message_handle(update: Update, context: CallbackContext):
     user = await user_check(update)
     # Procesar sea voz o audio         
     if update.message.voice:
@@ -446,16 +438,20 @@ async def generate_image_handle(update: Update, context: CallbackContext, _messa
         await update.message.reply_text("No se detectó texto para generar las imágenes 😔", parse_mode=ParseMode.HTML)
         return
     import openai
-    await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
     try:
         image_urls = await openai_utils.generate_images(prompt, user.id)
-    except openai.error.APIError as e:
-        if "Request has inappropriate content!" in str(e):
-            text = "🥲 Tu solicitud <b>no cumple</b> con las políticas de uso de OpenAI.</b> ¿Qué has escrito ahí, eh?"
+    except (openai.error.APIError, openai.error.InvalidRequestError) as e:
+        if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
+            text = "🥲 Tu solicitud no cumple con las políticas de uso de OpenAI..."
         else:
-            text = "🥲 Ha ocurrido <b>un error</b> al procesar tu solicitud. Por favor, intenta de nuevo más tarde."
+            text = "🥲 Ha ocurrido un error al procesar tu solicitud. Por favor, intenta de nuevo más tarde..."
         await update.message.reply_text(text, parse_mode=ParseMode.HTML)
         return
+    except telegram.error.BadRequest as e:
+        text = "🥲 Ha ocurrido un error en la solicitud. Por favor, verifica el formato y contenido de tu mensaje..."
+        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        return
+
     image_group=[]
     document_group=[]
     await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
@@ -693,81 +689,68 @@ async def post_init(application: Application):
         BotCommand("/help", "Ver mensaje de ayuda"),
     ])
 
-def signal_handler(sig):
-    global running
-    if sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
-        print("Señal de interrupción recibida. Cerrando el bot...")
-        running = False
-        sys.exit(0)
-
 async def ejecutar_obtener_vivas():
     while True:
-        await obtener_vivas()
-        await asyncio.sleep(60 * 60)  # Cada hora
+        try:
+            await obtener_vivas()
+        except asyncio.CancelledError:
+            break
+        await asyncio.sleep(60 * config.apicheck_minutes)  # Cada 60 segundos * 60 minutos
 
 def run_bot() -> None:
-    global running
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGHUP, signal_handler)
-    while running:
-        try:
-            application = (
-                ApplicationBuilder()
-                .token(config.telegram_token)
-                .concurrent_updates(True)
-                .rate_limiter(AIORateLimiter(max_retries=8))
-                .post_init(post_init)
-                .build()
-            )
-            # add handlers
-            if config.user_whitelist:
-                usernames = []
-                user_ids = []
-                for user in config.user_whitelist:
-                    user = user.strip()
-                    if user.isnumeric():
-                        user_ids.append(int(user))
-                    else:
-                        usernames.append(user)
-                user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
-            else:
-                user_filter = filters.ALL
+    try:
+        application = (
+            ApplicationBuilder()
+            .token(config.telegram_token)
+            .concurrent_updates(True)
+            .rate_limiter(AIORateLimiter(max_retries=8))
+            .post_init(post_init)
+            .build()
+        )
+        # add handlers
+        if config.user_whitelist:
+            usernames = []
+            user_ids = []
+            for user in config.user_whitelist:
+                user = user.strip()
+                if user.isnumeric():
+                    user_ids.append(int(user))
+                else:
+                    usernames.append(user)
+            user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
+        else:
+            user_filter = filters.ALL
 
-            docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
-            application.add_handler(MessageHandler(docfilter & user_filter, document_handle))
-            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
-            application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_handle))
-            application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_handle))
-            application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_handle))
-            
-            application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
-            application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
-            application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
-            application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
-            application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
-            application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
-            application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
-            application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
-            application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-            application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
+        docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
+        application.add_handler(MessageHandler(docfilter & user_filter, document_handle))
+        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle))
+        application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_wrapper))
+        application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_wrapper))
+        application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_handle))
+        
+        application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
+        application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
+        application.add_handler(CommandHandler("help_group_chat", help_group_chat_handle, filters=user_filter))
+        application.add_handler(CommandHandler("retry", retry_handle, filters=user_filter))
+        application.add_handler(CommandHandler("new", new_dialog_handle, filters=user_filter))
+        application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
+        application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
+        application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
+        application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
+        application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
 
-            application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
-            application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
-            application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
-            application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
-            application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
-            application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
-            application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
+        application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
+        application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
+        application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
+        application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
+        application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
+        application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
+        application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
 
-            application.add_error_handler(error_handle)
-            application.run_polling()
-        except Exception as e:
-            if not running:
-                break
-            print(f"Error: {e}. Intentando reconectar en 3 segundos...")
-            import time
-            time.sleep(3)
+        application.add_error_handler(error_handle)
+        application.run_polling()
+    except Exception as e:
+        logger.error(f"Error: {e}. Intentando reconectar en 3 segundos...")
 
 if __name__ == "__main__":
     run_bot()

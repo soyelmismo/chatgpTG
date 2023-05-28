@@ -1,10 +1,6 @@
 import config
-import openai
 import database
-from apis.gpt4free import g4f
-from apis.opengpt import chatbase
-from apis.gpt4free.foraneo import you
-
+import openai
 
 db = database.Database()
    
@@ -18,29 +14,32 @@ class ChatGPT:
         self.diccionario.clear()
         self.diccionario.update(config.completion_options)
         api = db.get_user_attribute(user_id, "current_api")
-        api_info = config.api["info"].get(api, {})
-        openai.api_key = str(api_info.get("key", ""))
-        openai.api_base=str(config.api["info"][api].get("url"))
         answer = None
         while answer is None:
             try:
                 messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
                 if api == "chatbase":
+                    from apis.opengpt import chatbase
                     r = chatbase.GetAnswer(messages=messages, model=self.model)
                 elif api == "g4f":
+                    from apis.gpt4free import g4f
                     provider_name = config.model['info'][self.model]['name']
                     provider = getattr(g4f.Providers, provider_name)
                     # streamed completion
                     r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
                 elif api == "you":
+                    from apis.gpt4free.foraneo import you
                     r = you.Completion.create(
                         prompt=messages,
                         chat=dialog_messages,
                         detailed=False,
-                        include_links=True, )
+                        include_links=True)
                     r = dict(r)
                 else:
                     if (self.model in config.model["available_model"]):
+                        api_info = config.api["info"].get(api, {})
+                        openai.api_key = str(api_info.get("key", ""))
+                        openai.api_base=str(config.api["info"][api].get("url"))
                         if self.model != "text-davinci-003":
                             self.diccionario["messages"] = messages
                             self.diccionario["model"] = self.model
