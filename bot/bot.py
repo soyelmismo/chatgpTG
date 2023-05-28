@@ -83,14 +83,11 @@ async def chat_check(update: Update, chat=None):
             chat = update.callback_query.message.chat
         #else:
             #await update.effective_chat.send_message(f"Ocurrió un error gestionando un nuevo diálogo.")
-    print("entro a wait")
     if not db.chat_exists(chat.id):
         db.add_chat(chat.id)
         db.new_dialog(chat.id)
     if chat.id not in chat_locks:
-        print("añadiendo en semaforos")
         chat_locks[chat.id] = asyncio.Semaphore(1)
-    print("pasó check")
     return chat
 
 async def acquiresemaphore(chat):
@@ -108,22 +105,17 @@ async def is_bot_mentioned(update: Update, context: CallbackContext):
     message=update.message
     try:
         if message.chat.type == "private":
-            print("chat privado")
             return True
 
         if message.text is not None and ("@" + context.bot.username) in message.text:
-            print("detectó mención")
             return True
         
         if message.reply_to_message is not None:
-            print("detectó respuesta")
             if message.reply_to_message.from_chat_id == context.bot.id:
                 return True
     except:
-        print("wtf")
         return True
     else:
-        print("no se mencionó")
         return False
 
 async def start_handle(update: Update, context: CallbackContext):
@@ -249,10 +241,8 @@ async def message_handle(chat, update: Update, context: CallbackContext, _messag
 
     #remove bot mention (in group chats)
     if chat.type != "private":
-        print("antes: ",_message)
         _message = _message.replace("@" + context.bot.username, "").strip()
         _message = f"{raw_msg.from_user.first_name}@{raw_msg.from_user.username}: {_message}"
-        print("despues: ",_message)
     chat_mode = db.get_chat_attribute(chat.id, "current_chat_mode")
     current_model = db.get_chat_attribute(chat.id, "current_model")
     dialog_messages = db.get_dialog_messages(chat.id, dialog_id=None)
