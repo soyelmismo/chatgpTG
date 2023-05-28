@@ -110,9 +110,8 @@ async def is_bot_mentioned(update: Update, context: CallbackContext):
         if message.text is not None and ("@" + context.bot.username) in message.text:
             return True
         
-        if message.reply_to_message is not None:
-            if message.reply_to_message.from_chat_id == context.bot.id:
-                return True
+        if message.reply_to_message and message.reply_to_message.from_user.id == context.bot.id:
+            return True
     except:
         return True
     else:
