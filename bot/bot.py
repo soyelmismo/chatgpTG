@@ -246,6 +246,7 @@ async def message_handle(chat, update: Update, context: CallbackContext, _messag
         except AttributeError:
             pass
 
+    dialog_messages = db.get_dialog_messages(chat.id, dialog_id=None)
     if (datetime.now() - db.get_chat_attribute(chat.id, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask == "True":
             await ask_timeout_handle(chat, update, context, _message)
@@ -260,7 +261,6 @@ async def message_handle(chat, update: Update, context: CallbackContext, _messag
         _message = f"{raw_msg.from_user.first_name}@{raw_msg.from_user.username}: {_message}"
     chat_mode = db.get_chat_attribute(chat.id, "current_chat_mode")
     current_model = db.get_chat_attribute(chat.id, "current_model")
-    dialog_messages = db.get_dialog_messages(chat.id, dialog_id=None)
     await message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model)
     #bcs(handle_chat_task(chat, task, update))
 
