@@ -150,7 +150,6 @@ async def transcribe_audio(chat_id, audio_file):
     else:
         index = random.randint(0, len(config.api["available_transcript"]) - 1)
         apin = config.api["available_transcript"][index]
-        print("tras",index)
     openai.api_key = config.api["info"][apin]["key"]
     openai.api_base = config.api["info"][apin]["url"]
     r = await openai.Audio.atranscribe("whisper-1", audio_file)
@@ -163,7 +162,6 @@ async def generate_images(prompt, chat_id):
     else:
         index = random.randint(0, len(config.api["available_imagen"]) - 1)
         apin = config.api["available_imagen"][index]
-        print("img",index)
     openai.api_key = config.api["info"][apin]["key"]
     openai.api_base = config.api["info"][apin]["url"]
     r = await openai.Image.acreate(prompt=prompt, n=config.n_images, size="1024x1024")
