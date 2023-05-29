@@ -1,6 +1,7 @@
 import config
 import database
 import openai
+import random
 
 db = database.Database()
    
@@ -143,24 +144,26 @@ class ChatGPT:
         return answer
 
 async def transcribe_audio(chat_id, audio_file):
-    available = config.api["available_transcript"]
     apin = db.get_chat_attribute(chat_id, "current_api")
-    if apin in available:
+    if apin in config.api["available_transcript"]:
         pass
     else:
-        apin = available[0]
+        index = random.randint(0, len(config.api["available_transcript"]) - 1)
+        apin = config.api["available_transcript"][index]
+        print("tras",index)
     openai.api_key = config.api["info"][apin]["key"]
     openai.api_base = config.api["info"][apin]["url"]
     r = await openai.Audio.atranscribe("whisper-1", audio_file)
     return r["text"]
 
 async def generate_images(prompt, chat_id):
-    available = config.api["available_imagen"]
     apin = db.get_chat_attribute(chat_id, "current_api")
-    if apin in available:
+    if apin in config.api["available_imagen"]:
         pass
     else:
-        apin = available[0]
+        index = random.randint(0, len(config.api["available_imagen"]) - 1)
+        apin = config.api["available_imagen"][index]
+        print("img",index)
     openai.api_key = config.api["info"][apin]["key"]
     openai.api_base = config.api["info"][apin]["url"]
     r = await openai.Image.acreate(prompt=prompt, n=config.n_images, size="1024x1024")

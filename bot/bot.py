@@ -90,6 +90,22 @@ async def chat_check(update: Update, chat=None):
         chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat
 
+async def handle_chat_task(chat, task, update):
+    async with chat_locks[chat.id]:
+        chat_tasks[chat.id] = task
+        try:
+            await acquiresemaphore(chat=chat)
+            await task
+        except asyncio.CancelledError:
+            await update.effective_chat.send_message("✅ Cancelado", parse_mode=ParseMode.HTML)
+            await releasemaphore(chat=chat)
+        else:
+            await releasemaphore(chat=chat)
+            pass
+        finally:
+            if chat.id in chat_tasks:
+                del chat_tasks[chat.id]
+                await releasemaphore(chat=chat)
 async def acquiresemaphore(chat):
     lock = chat_locks.get(chat.id)
     if lock is None:
@@ -100,6 +116,18 @@ async def releasemaphore(chat):
     lock = chat_locks.get(chat.id)
     if lock and lock.locked():
         lock.release()
+    if chat.id in chat_tasks:
+        del chat_tasks[chat.id]
+
+async def is_previous_message_not_answered_yet(chat, update: Update):
+    semaphore = chat_locks.get(chat.id)
+    if semaphore and semaphore.locked():
+        text = "⏳ Por favor <b>espera</b> una respuesta al mensaje anterior\n"
+        text += "O puedes /cancel"
+        await update.message.reply_text(text, reply_to_message_id=update.message.id, parse_mode=ParseMode.HTML)
+        return True
+    else:
+        return False
 
 async def is_bot_mentioned(update: Update, context: CallbackContext):
     message=update.message
@@ -144,6 +172,7 @@ async def new_dialog_handle(update: Update, context: CallbackContext):
     #Bienvenido!
     await update.effective_chat.send_message(f"{config.chat_mode['info'][db.get_chat_attribute(chat.id, 'current_chat_mode')]['welcome_message']}", parse_mode=ParseMode.HTML)
     db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
+    await releasemaphore(chat=chat)
 
 async def help_handle(update: Update, context: CallbackContext):
     await update.message.reply_text(HELP_MESSAGE, parse_mode=ParseMode.HTML)
@@ -158,11 +187,13 @@ async def retry_handle(update: Update, context: CallbackContext):
     if await is_previous_message_not_answered_yet(chat, update): return
     dialog_messages = db.get_dialog_messages(chat.id, dialog_id=None)
     if len(dialog_messages) == 0:
+        await releasemaphore(chat=chat)
         await update.message.reply_text("No hay mensaje para reintentar 🤷‍♂️")
         return
     last_dialog_message = dialog_messages.pop()
     db.set_dialog_messages(chat.id, dialog_messages, dialog_id=None)  # last message was removed from the context
     db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
+    await releasemaphore(chat=chat)
     await message_handle(chat, update, context, _message=last_dialog_message["user"])
 
 async def check_message(update: Update, _message=None):
@@ -176,28 +207,12 @@ async def check_message(update: Update, _message=None):
         _message = _message
     return raw_msg, _message
 
-async def handle_chat_task(chat, task, update):
-    async with chat_locks[chat.id]:
-        chat_tasks[chat.id] = task
-        try:
-            await acquiresemaphore(chat=chat)
-            await task
-        except asyncio.CancelledError:
-            await update.effective_chat.send_message("✅ Cancelado", parse_mode=ParseMode.HTML)
-        else:
-            pass
-        finally:
-            if chat.id in chat_tasks:
-                del chat_tasks[chat.id]
-                await releasemaphore(chat=chat)
-
 async def add_dialog_message(chat, new_dialog_message):
     db.set_dialog_messages(
         chat.id,
         db.get_dialog_messages(chat.id, dialog_id=None) + [new_dialog_message],
         dialog_id=None
     )
-    await releasemaphore(chat=chat)
     return
 
 async def message_handle_wrapper(update, context):
@@ -224,6 +239,7 @@ async def message_handle(chat, update: Update, context: CallbackContext, _messag
                         else:
                             pass
                 if urls:
+                    await releasemaphore(chat=chat)
                     task = bb(url_handle(chat, update, urls))
                     bcs(handle_chat_task(chat, task, update))
                     return
@@ -245,8 +261,8 @@ async def message_handle(chat, update: Update, context: CallbackContext, _messag
     chat_mode = db.get_chat_attribute(chat.id, "current_chat_mode")
     current_model = db.get_chat_attribute(chat.id, "current_model")
     dialog_messages = db.get_dialog_messages(chat.id, dialog_id=None)
-    task = bb(message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model))
-    bcs(handle_chat_task(chat, task, update))
+    await message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model)
+    #bcs(handle_chat_task(chat, task, update))
 
 async def message_handle_fn(update, context, _message, chat, dialog_messages, chat_mode, current_model):
     # in case of CancelledError
@@ -294,16 +310,6 @@ async def message_handle_fn(update, context, _message, chat, dialog_messages, ch
     if chat_mode == "imagen":
         await generate_image_wrapper(update, context, _message=answer)
 
-async def is_previous_message_not_answered_yet(chat, update: Update):
-    semaphore = chat_locks.get(chat.id)
-    if semaphore and semaphore.locked():
-        text = "⏳ Por favor <b>espera</b> una respuesta al mensaje anterior\n"
-        text += "O puedes /cancel"
-        await update.message.reply_text(text, reply_to_message_id=update.message.id, parse_mode=ParseMode.HTML)
-        return True
-    else:
-        return False
-
 async def clean_text(doc, name):
     import re
     doc = re.sub(r'^\n', '', doc) 
@@ -343,8 +349,9 @@ async def url_handle(chat, update, urls):
         except Exception as e:
             text = f"Error al obtener el contenido de la página web: {e}."
             logger.error(text)
-    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
+    await releasemaphore(chat=chat)
 
 async def document_handle(chat, update, context):
     document = update.message.document
@@ -381,14 +388,13 @@ async def document_handle(chat, update, context):
                     doc = f.read()
             doc_text = await clean_text(doc, name=document.file_name)
             new_dialog_message = {"documento": doc_text, "user": ".", "date": datetime.now()}
-            await releasemaphore(chat=chat)
             await add_dialog_message(chat, new_dialog_message)
             text = f"Anotado 🫡 ¿Qué quieres saber del archivo?"
             db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
     else:
         text = f"El archivo es demasiado grande ({file_size_mb:.2f} MB). El límite es de {config.file_max_size} MB."
-    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     await releasemaphore(chat=chat)
+    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 async def document_wrapper(update, context):
     chat = await chat_check(update)
     if not await is_bot_mentioned(update, context): return
@@ -457,6 +463,8 @@ async def generate_image_handle(chat, update: Update, context: CallbackContext, 
         return
     import openai
     try:
+        await releasemaphore(chat=chat)
+        await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
         image_urls = await openai_utils.generate_images(prompt, chat.id)
     except (openai.error.APIError, openai.error.InvalidRequestError) as e:
         if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
@@ -480,8 +488,11 @@ async def generate_image_handle(chat, update: Update, context: CallbackContext, 
         image_group.append(image)
         document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
         document_group.append(document)
-    await update.message.reply_media_group(image_group)
-    await update.message.reply_media_group(document_group)
+    try:
+        await update.message.reply_media_group(image_group)
+        await update.message.reply_media_group(document_group)
+    except "Timed out" in telegram.error.TimedOut:
+        pass
     db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
 async def generate_image_wrapper(update, context, _message=None):
@@ -728,12 +739,12 @@ def run_bot() -> None:
             user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
         else:
             user_filter = filters.ALL
-
-        docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
-        application.add_handler(MessageHandler(docfilter & user_filter, document_wrapper))
+        
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle_wrapper))
         application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_wrapper))
         application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_wrapper))
+        docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
+        application.add_handler(MessageHandler(docfilter & user_filter, document_wrapper))
         application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_wrapper))
         
         application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
