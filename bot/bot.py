@@ -207,7 +207,7 @@ async def retry_handle(update: Update, context: CallbackContext, chat=None, lang
     db.set_dialog_messages(chat.id, dialog_messages, dialog_id=None)  # last message was removed from the context
     db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
-    await message_handle(chat, update, context, _message=last_dialog_message["user"])
+    await message_handle(chat, lang, update, context, _message=last_dialog_message["user"])
 
 async def check_message(update: Update, _message=None):
     raw_msg = _message or update.effective_message
