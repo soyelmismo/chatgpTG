@@ -275,8 +275,11 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         _message = f"{raw_msg.from_user.first_name}@{raw_msg.from_user.username}: {_message}"
     chat_mode = db.get_chat_attribute(chat.id, "current_chat_mode")
     current_model = db.get_chat_attribute(chat.id, "current_model")
-    await message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model)
-    #bcs(handle_chat_task(chat, lang, task, update))
+    #await message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model)
+    await releasemaphore(chat=chat)
+    task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model)
+    bcs(handle_chat_task(chat, lang, task, update))
+
 
 async def message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model):
     # in case of CancelledError
