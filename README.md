@@ -5,6 +5,7 @@
 - /chat_mode - Seleccionar el modo de conversación.
 - /model - Mostrar modelos IA.
 - /api - Mostrar APIs.
+- /lang - Ver idiomas disponibles.
 - /help – Mostrar este mensaje de nuevo.
 
 ## Características:
