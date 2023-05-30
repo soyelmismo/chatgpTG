@@ -13,6 +13,24 @@
 
 
 ## Nueva actualización:
+- *MultiLenguaje!*:
+    - Español: "es"
+    - Inglés: "en"
+    - Japonés: "ja"
+    - Chino: "zh"
+    - Alemán: "de"
+    - Francés: "fr"
+    - Ruso: "ru"
+    - Portugués: "pt"
+    - Italiano: "it"
+    - Holandés: "nl"
+Establece el idioma por defecto del sistema en la variable AUTO_LANG
+Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
+- *Lectura de imágenes con OCR*
+    - Gracias a Tesseract! Se agregó todos los lenguajes disponibles para el bot.
+    - Si deseas desactivar lenguajes antes de construir el contenedor, estarán en Dockerfile.
+
+## Cambios anteriores:
 - Se cambió el diálogo de usuarios, por el diálogo de chatID para mejor contexto grupal.
 - Se mejoró el chequeo de APIs.
 - Añadido MongoDB compatible con CPUs antiguas.
@@ -21,8 +39,6 @@
 - <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/112/commits/d54809aeb89a1921f6cfdffc00a4d1ee4744c8d2" alt="Dialog_ask">Preguntar si iniciar nueva conversación si lleva tiempo sin chatear</a> (TIMEOUT_ASK y DIALOG_TIMEOUT en docker-compose.yml)
 - <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/188" alt="AutoDel">Borrar historiales antiguos al usar /new.</a>
 - Añadidas variables a docker-compose para limitar el tamaño de los audios, documentos, paginas de PDF y urls.
-
-## Cambios anteriores:
 - La transcripción de mensajes de voz ahora también funciona para archivos de audio.
 - Apis de GPT4Free (necesita especificar las cookies en docker-compose para usar Bing y ChatGPT)
 - Base en Minideb.

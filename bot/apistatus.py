@@ -6,7 +6,7 @@ async def estadosapi():
     malas = []
     test=False
     if test != True:
-        print("Se ejecutó chequeo de APIs")
+        print(f'{config.lang["apicheck"]["inicio"][config.pred_lang]}')
         for recorrido in config.api["available_api"]:
             url = config.api["info"][recorrido]["url"]
             key = config.api["info"][recorrido].get("key", "")
@@ -51,7 +51,7 @@ async def estadosapi():
                     if recorrido == "chatbase":
                         #if porque los mamaverga filtran la ip en el mensaje
                         if "API rate limit exceeded" in response:
-                            print("Advertencia: Límite temporal de API en chatbase!")
+                            print(f'{config.lang["apicheck"]["warning_chatbase"][config.pred_lang]}')
                         vivas.append(recorrido)
                     elif recorrido == "g4f":
                         vivas.append(recorrido)
@@ -71,9 +71,9 @@ async def estadosapi():
                 malas.append(recorrido)
     else:
         vivas = config.api["available_api"]
-    print(f"Conexión exitosa con {len(vivas)}, malas: {len(malas)}, total: {len(config.api['available_api'])}")
+    print(f'{config.lang["apicheck"]["connection"][config.pred_lang]}: {len(vivas)}, {config.lang["apicheck"]["bad"][config.pred_lang]}: {len(malas)}, {config.lang["apicheck"]["total"][config.pred_lang]}: {len(config.api["available_api"])}')
     if vivas:
-        print(f"Funcionales: {vivas}")
+        print(f'{config.lang["apicheck"]["working"][config.pred_lang]}: {vivas}')
     if malas:
-        print(f"Muertas: {malas}")
+        print(f'{config.lang["apicheck"]["dead"][config.pred_lang]}: {malas}')
     return vivas

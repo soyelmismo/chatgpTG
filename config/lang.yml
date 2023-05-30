@@ -1,0 +1,1036 @@
+available_lang: ["es", "ar", "en", "jp", "zh", "de", "fr", "ru", "pt", "it", "nl"]
+
+info:
+  actual:
+    es: Actual
+    ar: حالي
+    en: Current
+    jp: 現在の
+    zh: 当前的
+    de: Aktuell
+    fr: Actuel
+    ru: Фактический
+    pt: Atual
+    it: Attuale
+    nl: Huidig
+  name:
+    es: Español
+    ar: العربية
+    en: English
+    jp: 日本語
+    zh: 中文
+    de: Deutsch
+    fr: Français
+    ru: Русский
+    pt: Português
+    it: Italiano
+    nl: Nederlands
+  description:
+    es: Un abrazo lingüístico de pasión y expresividad, donde las palabras bailan con melodía y las frases se pintan de colores vivos.
+    ar: لغة غنية وشاعرية، حيث تكشف الكلمات عن تاريخ وثقافة حضارة قديمة.
+    en: A symphony of precision and versatility, where words weave tales with elegance and grammar unveils a world of possibilities.
+    jp: 日本語、美しい繊細さと奥深さのある言葉の芸術。音と意味が調和し、心に響く詩的な表現が生まれる。
+    zh: 一种充满韵律与活力的语言，文字如同画龙点睛，句子在千变万化中流淌。
+    de: Eine Sprache voller Präzision und Klarheit, in der Worte wie Bausteine zusammenpassen und die Grammatik die Basis für unendliche Möglichkeiten bietet.
+    fr: Une langue empreinte d'élégance et de raffinement, où les mots dansent avec grâce et les phrases s'épanouissent telles des fleurs en pleine floraison.
+    ru: Язык полный силы и выразительности, где слова создают мелодии, а фразы передают глубину эмоций и мыслей.
+    pt: Um abraço linguístico de paixão e expressividade, onde as palavras dançam com melodia e as frases são pintadas com cores vibrantes.
+    it: Una lingua ricca di passione ed espressività, dove le parole danzano con melodia e le frasi si colorano di tonalità vivaci.
+    nl: Een taal vol precisie en veelzijdigheid, waar woorden verhalen weven met elegantie en grammatica een wereld vol mogelijkheden onthult.
+  seleccion:
+    es: Por favor selecciona uno disponible.
+    ar: من فضلك اختر واحداً متاحاً.
+    en: Please select one that is available.
+    jp: 利用可能なものを選択してください。
+    zh: 请选择一个可用的。
+    de: Bitte wählen Sie eine verfügbare Option aus.
+    fr: Veuillez sélectionner une option disponible.
+    ru: Пожалуйста, выберите доступный вариант.
+    pt: Por favor, selecione uma opção disponível.
+    it: Seleziona una disponibile per favore.
+    nl: Selecteer alstublieft een beschikbare optie.
+  bienvenida:
+    es: Se cambió el idioma!
+    ar: تم تغيير اللغة!
+    en: Language changed!
+    jp: 言語が変更されました！
+    zh: 语言已更改！
+    de: Sprache geändert!
+    fr: Langue changée!
+    ru: Язык изменен!
+    pt: Idioma alterado!
+    it: Lingua cambiata!
+    nl: Taal gewijzigd!
+
+metagen:
+  log:
+    es: Historial
+    ar: سجل
+    en: Log
+    jp: ログ
+    zh: 日志
+    de: Protokoll
+    fr: Journal
+    ru: Журнал
+    pt: Registro
+    it: Log
+    nl: Logboek
+  documentos:
+    es: Documentos
+    ar: المستندات
+    en: Documents
+    jp: ドキュメント
+    zh: 文档
+    de: Dokumente
+    fr: Documents
+    ru: Документы
+    pt: Documentos
+    it: Documenti
+    nl: Documenten
+  urls:
+    es: Enlaces
+    ar: الروابط
+    en: Links
+    jp: リンク
+    zh: 链接
+    de: Links
+    fr: Liens
+    ru: Ссылки
+    pt: Links
+    it: Link
+    nl: Links
+  usuario:
+    es: Usuario
+    ar: مستخدم
+    en: User
+    jp: ユーザー
+    zh: 用户
+    de: Benutzer
+    fr: Utilisateur
+    ru: Пользователь
+    pt: Usuário
+    it: Utente
+    nl: Gebruiker
+  robot:
+    es: Máquina
+    ar: روبوت
+    en: Machine
+    jp: マシン
+    zh: 机器
+    de: Maschine
+    fr: Machine
+    ru: Машина
+    pt: Máquina
+    it: Macchina
+    nl: Machine
+  mensaje:
+    es: Mensaje
+    ar: رسالة
+    en: Message
+    jp: メッセージ
+    zh: 消息
+    de: Nachricht
+    fr: Message
+    ru: Сообщение
+    pt: Mensagem
+    it: Messaggio
+    nl: Bericht
+  contexto:
+    es: |
+      Tienes la capacidad de leer archivos, documentos, enlaces, páginas web. La información de estos recursos estarán adjuntos previamente a este mensaje en el formato ('url': 'contenido_de_pagina_web') usarás ese contenido para responder sobre páginas y documentos. Está prohibido tener alucinaciones si se te pregunta acerca de archivos o páginas más allá de las que están escritas anteriormente.
+    ar: |
+      لديك القدرة على قراءة الملفات والوثائق والروابط وصفحات الويب. سيتم تضمين معلومات هذه الموارد في الرسالة السابقة بتنسيق ('url': 'محتوى صفحة الويب'). ستستخدم هذا المحتوى للرد على الأسئلة المتعلقة بالصفحات والوثائق. من الغير مسموح لك أن تتخيل معلومات عن الملفات أو الصفحات خارج ما تم ذكره بالرسائل السابقة.
+    en: |
+      You have the ability to read files, documents, links, web pages. The information from these resources will be attached to this message beforehand in the format ('url': 'web_page_content'). You will use that content to respond to questions about pages and documents. It is prohibited to have hallucinations if asked about files or pages beyond those that are written above.
+    jp: |
+      ファイル、ドキュメント、リンク、ウェブページを読む能力があります。これらのリソースの情報は事前にこのメッセージに添付され、形式は ('url': 'web_page_content')です。それらのコンテンツを使用して、ページやドキュメントに関する質問に回答します。上記に書かれている以外のファイルやページに関する質問には幻覚を持ってはいけません。
+    zh: |
+      您有能力读取文件、文档、链接和网页。这些资源的信息将事先附加在此消息中，格式为('url': 'web_page_content')。您将使用该内容回答有关页面和文档的问题。严禁对超出上述范围的文件或页面产生幻觉。
+    de: |
+      Du hast die Fähigkeit, Dateien, Dokumente, Links und Webseiten zu lesen. Die Informationen dieser Ressourcen werden dieser Nachricht im Voraus im Format ('url': 'web_page_content') angehängt. Du verwendest diesen Inhalt, um Fragen zu Seiten und Dokumenten zu beantworten. Es ist verboten, Halluzinationen zu haben, wenn nach Dateien oder Seiten gefragt wird, die über das hinausgehen, was hier geschrieben steht.
+    fr: |
+      Vous avez la capacité de lire des fichiers, des documents, des liens et des pages web. Les informations de ces ressources seront attachées à ce message au préalable selon le format ('url': 'contenu_de_la_page_web'). Vous utiliserez ce contenu pour répondre aux questions concernant les pages et les documents. Il est interdit d'avoir des hallucinations si l'on vous demande des informations sur des fichiers ou des pages autres que celles qui sont écrites ci-dessus.
+    ru: |
+      У вас есть возможность читать файлы, документы, ссылки, веб-страницы. Информация из этих ресурсов будет приложена к данному сообщению заранее в формате ('url': 'web_page_content'). Вы будете использовать этот контент для ответа на вопросы о страницах и документах. Запрещено иметь галлюцинации, если вас спросят о файлах или страницах, выходящих за рамки указанных выше.
+    pt: |
+      Você tem a capacidade de ler arquivos, documentos, links e páginas da web. As informações desses recursos serão anexadas a esta mensagem antecipadamente no formato ('url': 'conteúdo_da_página_web'). Você usará esse conteúdo para responder a perguntas sobre páginas e documentos. É proibido ter alucinações se questionado sobre arquivos ou páginas além das mencionadas anteriormente.
+    it: |
+      Hai la capacità di leggere file, documenti, link, pagine web. Le informazioni di queste risorse saranno allegate a questo messaggio in anticipo nel formato ('url': 'contenuto_pagina_web'). Userai quel contenuto per rispondere alle domande su pagine e documenti. È vietato avere allucinazioni se ti viene chiesto di file o pagine al di là di quelli già citati.
+    nl: |
+      Je hebt de mogelijkheid om bestanden, documenten, links en webpaginas te lezen. De informatie van deze bronnen zal voorafgaand aan dit bericht worden bijgevoegd in het formaat ('url': 'webpagina_inhoud'). Je zult die inhoud gebruiken om vragen te beantwoorden over pagina's en documenten. Het is verboden om hallucinaties te hebben als er wordt gevraagd naar bestanden of pagina's die verder gaan dan wat hierboven is geschreven.
+  transcripcion_imagen:
+    es: Transcripción de imagen
+    ar: نص الصورة المحولة
+    en: Image transcription
+    jp: 画像の文字起こし
+    zh: 图片转录
+    de: Bildtranskription
+    fr: Transcription d'image
+    ru: Транскрипция изображения
+    pt: Transcrição de imagem
+    it: Trascrizione dell'immagine
+    nl: Transcriptie van afbeelding
+  paginas:
+    es: Página
+    ar: صفحة
+    en: Page
+    jp: ページ
+    zh: 页
+    de: Seite
+    fr: Page
+    ru: страница
+    pt: Página
+    it: Pagina
+    nl: Pagina
+  parrafos:
+    es: Párrafo
+    ar: فقرة
+    en: Paragraph
+    jp: 段落
+    zh: 段落
+    de: Absatz
+    fr: Paragraphe
+    ru: параграф
+    pt: Parágrafo
+    it: Paragrafo
+    nl: alinea
+
+apicheck:
+  inicio:
+    es: Se ejecutó chequeo de APIs
+    ar: تم تنفيذ فحص الواجهات البرمجية
+    en: API check executed
+    jp: APIのチェックが実行されました
+    zh: 执行API检查
+    de: API-Überprüfung durchgeführt
+    fr: Vérification de l'API effectuée
+    ru: Выполнена проверка API
+    pt: Verificação de API executada
+    it: Eseguito controllo API
+    nl: API-controle uitgevoerd
+  warning_chatbase:
+    es: Advertencia... Límite temporal de API en chatbase!
+    ar: تحذير... حد زمني لواجهة برمجة التطبيقات في Chatbase!
+    en: Warning... API time limit on Chatbase!
+    jp: 警告... ChatbaseのAPI時間制限！
+    zh: 警告... Chatbase上的API时间限制！
+    de: Warnung... Zeitlimit für API auf Chatbase!
+    fr: Attention... Limite de temps API sur Chatbase !
+    ru: Предупреждение... Ограничение по времени API на Chatbase!
+    pt: Aviso... Limite de tempo de API no Chatbase!
+    it: Attenzione... Limite di tempo API su Chatbase!
+    nl: Waarschuwing... Tijdsbeperking voor API op Chatbase!
+  connection:
+    es: Conexión exitosa con
+    ar: تم الاتصال بنجاح مع
+    en: Successful connection with
+    jp: 接続成功
+    zh: 成功连接到
+    de: Erfolgreiche Verbindung mit
+    fr: Connexion réussie avec
+    ru: Успешное подключение к
+    pt: Conexão bem-sucedida com
+    it: Connessione riuscita con
+    nl: Succesvolle verbinding met
+  bad:
+    es: malas
+    ar: غير جيدة
+    en: bad
+    jp: 悪い
+    zh: 差
+    de: schlecht
+    fr: mauvais
+    ru: плохие
+    pt: ruim
+    it: male
+    nl: slecht
+  total:
+    es: total
+    ar: إجمالي
+    en: total
+    jp: 合計
+    zh: 总计
+    de: total
+    fr: total
+    ru: всего
+    pt: total
+    it: totale
+    nl: totaal
+  working:
+    es: Funcionales
+    ar: يعمل
+    en: working
+    jp: 動作中
+    zh: 正常
+    de: funktioniert
+    fr: fonctionnel
+    ru: работает
+    pt: funcionando
+    it: funzionante
+    nl: werkend
+  dead:
+    es: Muertas
+    ar: متوقفة
+    en: dead
+    jp: 停止中
+    zh: 停止
+    de: tot
+    fr: mort
+    ru: не работают
+    pt: parado
+    it: morto
+    nl: gestopt
+
+commands:
+  new:
+    es: Iniciar un nuevo diálogo
+    ar: بدء حوار جديد
+    en: Start a new conversation
+    jp: 新しい会話を始める
+    zh: 开始新对话
+    de: Ein neues Gespräch beginnen
+    fr: Démarrer une nouvelle conversation
+    ru: Начать новый диалог
+    pt: Iniciar uma nova conversa
+    it: Inizia una nuova conversazione
+    nl: Start een nieuw gesprek
+  chat_mode:
+    es: Cambia el modo de asistente
+    ar: تغيير وضع المساعدة
+    en: Change assistant mode
+    jp: アシスタントモードを変更する
+    zh: 更改助手模式
+    de: Assistentenmodus ändern
+    fr: Changer le mode assistant
+    ru: Изменить режим помощника
+    pt: Alterar o modo assistente
+    it: Cambia modalità assistente
+    nl: Verander assistent modus
+  retry:
+    es: Re-generar respuesta para la consulta anterior
+    ar: إعادة توليد الإجابة للاستفسار السابق
+    en: Re-generate answer for the previous query
+    jp: 前のクエリに対する回答を再生成する
+    zh: 为前一个查询重新生成答案
+    de: Antwort für die vorherige Anfrage neu generieren
+    fr: Regénérer la réponse pour la requête précédente
+    ru: Создать новый ответ на предыдущий запрос
+    pt: Re-gerar resposta para a consulta anterior
+    it: Rigenera la risposta per la query precedente
+    nl: Genereer opnieuw een antwoord voor de vorige vraag
+  model:
+    es: Mostrar modelos de API
+    ar: عرض نماذج واجهة برمجة التطبيق (API)
+    en: Show API models
+    jp: APIモデルを表示する
+    zh: 显示API模型
+    de: API-Modelle anzeigen
+    fr: Afficher les modèles d'API
+    ru: Показать модели API
+    pt: Mostrar modelos de API
+    it: Mostra i modelli API
+    nl: Toon API-modellen
+  api:
+    es: Mostrar APIs
+    ar: عرض واجهات برمجة التطبيق (API)
+    en: Show APIs
+    jp: APIを表示する
+    zh: 显示API
+    de: APIs anzeigen
+    fr: Afficher les API
+    ru: Показать API
+    pt: Mostrar APIs
+    it: Mostra le API
+    nl: Toon API's
+  img:
+    es: Genera imágenes según lo que escribas
+    ar: توليد الصور وفقًا لما تكتبه
+    en: Generate images based on what you write
+    jp: 入力内容に基づいて画像を生成する
+    zh: 根据您输入的内容生成图片
+    de: Bilder basierend auf dem, was Sie schreiben, erstellen
+    fr: Générer des images en fonction de ce que vous écrivez
+    ru: Создайте изображения на основе того, что вы пишите
+    pt: Gerar imagens com base no que você escreve
+    it: Genera immagini in base a ciò che scrivi
+    nl: Genereer afbeeldingen op basis van wat je schrijft
+  lang:
+    es: Cambiar el idioma del bot
+    ar: تغيير لغة الروبوت
+    en: Change the language of the bot
+    jp: ボットの言語を変更する
+    zh: 更改机器人的语言
+    de: Ändere die Sprache des Bots
+    fr: Changer la langue du bot
+    ru: Изменить язык бота
+    pt: Alterar o idioma do bot
+    it: Cambia la lingua del bot
+    nl: Verander de taal van de bot
+  help:
+    es: Ver mensaje de ayuda
+    ar: توليد الصور وفقًا لما تكتبه
+    en: View help message
+    jp: ヘルプメッセージを表示する
+    zh: 查看帮助信息
+    de: Hilfsnachricht anzeigen
+    fr: Voir le message d'aide
+    ru: Посмотреть сообщение справки
+    pt: Ver mensagem de ajuda
+    it: Visualizza il messaggio di aiuto
+    nl: Bekijk helpbericht
+
+mensajes:
+  mensaje_bienvenido:
+    es: Hola! Soy <b>ChatGPT</b> bot implementado con la API de OpenAI.
+    ar: مرحبًا! أنا <b>ChatGPT</b>، الروبوت المنفذ باستخدام واجهة برمجة التطبيقات من OpenAI.
+    en: Hi! I'm <b>ChatGPT</b> bot implemented with OpenAI API.
+    jp: OpenAIのAPIで実装された<b>ChatGPT</b>ボットです。
+    zh: 你好! 我是用OpenAI的API实现的<b>ChatGPT</b>机器人。
+    de: Hallo, ich bin ein <b>ChatGPT</b> Bot, der mit der OpenAI API implementiert wurde.
+    fr: Bonjour, je suis un bot <b>ChatGPT</b> implémenté avec l'API OpenAI.
+    ru: Привет, я <b>ChatGPT</b> бот, реализованный с помощью OpenAI API.
+    pt: Olá, sou o bot <b>ChatGPT</b> implementado com a API OpenAI.
+    it: Salve, sono un bot <b>ChatGPT</b> implementato con le API OpenAI.
+    nl: Hallo, ik ben <b>ChatGPT</b> bot geïmplementeerd met de OpenAI API.
+  mensaje_ayuda:
+    es: |
+      Comandos:
+      ⚪ /new - Iniciar nuevo diálogo.
+      ⚪ /img - Genera imágenes según lo que escribas.
+      ⚪ /retry - Regenera la última respuesta del bot.
+      ⚪ /chat_mode - Seleccionar el modo de conversación.
+      ⚪ /model - Mostrar configuración de API.
+      ⚪ /api - Mostrar APIs.
+      ⚪ /lang - Ver idiomas disponibles.
+      ⚪ /help – Mostrar este mensaje de nuevo.
+
+      🎨 Generar textos para imágenes con <b>🖼️ Generar imágenes</b> /chat_mode
+      👥 Añadir el bot a un <b>grupo</b>: /help_group_chat
+      🎤 Puedes enviar <b>Mensajes de voz</b> en lugar de texto.
+      📖 Envía <b>documentos</b> o <b>links</b> para <b>analizarlos</b> junto al bot!
+    ar: |
+      الأوامر:
+      ⚪ /new - بدء حوار جديد.
+      ⚪ /img - إنشاء صور وفقًا لما تكتبه.
+      ⚪ /retry - إعادة توليد آخر رد من الروبوت.
+      ⚪ /chat_mode - تحديد وضع المحادثة.
+      ⚪ /model - عرض إعدادات واجهة برمجة التطبيقات.
+      ⚪ /api - عرض واجهات البرمجة القابلة للاستخدام.
+      ⚪ /lang - عرض اللغات المتاحة.
+      ⚪ /help – عرض هذه الرسالة مرة أخرى.
+
+      🎨 إنشاء نصوص للصور مع <b>🖼️ إنشاء الصور</b> /chat_mode
+      👥 أضف الروبوت إلى <b>مجموعة</b>: /help_group_chat
+      🎤 يمكنك إرسال <b>رسائل صوتية</b> بدلاً من النص.
+      📖 أرسل <b>مستندات</b> أو <b>روابط</b> لتحليلها مع الروبوت!
+    en: |
+      Commands:
+      ⚪ /new - Start a new dialogue.
+      ⚪ /img - Generate images based on your input.
+      ⚪ /retry - Regenerate the bot's last response.
+      ⚪ /chat_mode - Select conversation mode.
+      ⚪ /model - Show API configuration.
+      ⚪ /api - Show APIs.
+      ⚪ /lang - View available languages.
+      ⚪ /help - Show this message again.
+
+      🎨 Generate text for images with <b>🖼️ Generate images</b> /chat_mode
+      👥 Add the bot to a <b>group</b>: /help_group_chat
+      🎤 You can send <b>Voice Messages</b> instead of text.
+      📖 Send <b>documents</b> or <b>links</b> to <b>analyze</b> them with the bot!
+    jp: |
+      コマンド:
+      ⚪️ /new - 新しい会話を開始します。
+      ⚪️ /img - 入力に基づいて画像を生成します。
+      ⚪️ /retry - ボットの最後の応答を再生成します。
+      ⚪️ /chat_mode - 会話モードを選択します。
+      ⚪️ /model - APIの構成を表示します。
+      ⚪️ /api - APIを表示します。
+      ⚪ /lang - 利用可能な言語を表示します。
+      ⚪️ /help - このメッセージを再度表示します。
+
+      🎨 🖼 Generate images /chat_modeで画像のテキストを生成します
+      👥 ボットをグループに追加する：/help_group_chat
+      🎤 テキストの代わりに音声メッセージを送信できます。
+      📖 ボットと一緒にドキュメントやリンクを送信して分析しましょう
+    zh: |
+      命令：
+      ⚪ /new - 开始一个新的对话。
+      ⚪ /img - 根据你的输入生成图像。
+      ⚪ /retry - 重新生成机器人的最后回应。
+      ⚪ /chat_mode - 选择对话模式。
+      ⚪ /model - 显示API配置。
+      ⚪ /api - 显示API。
+      ⚪ /lang - 查看可用语言。
+      ⚪ /help - 再次显示此信息.
+
+      🎨 用<b>🖼️ 生成图像的文本</b>。 /chat_mode
+      👥 将机器人添加到一个<b>组</b>: /help_group_chat
+      🎤 您可以发送<b>语音信息</b>而不是文字。
+      📖 发送文件或链接以便与机器人一起分析!
+    de: |
+      Kommandos:
+      ⚪️ /new - Starten Sie ein neues Gespräch.
+      ⚪️ /img - Erstellen Sie Bilder basierend auf Ihrer Eingabe.
+      ⚪️ /retry - Regenerieren Sie die letzte Antwort des Bots.
+      ⚪️ /chat_mode - Wählen Sie den Konversationsmodus.
+      ⚪️ /model - Zeige API-Konfiguration an.
+      ⚪️ /api - Zeige APIs an.
+      ⚪ /lang - Verfügbare Sprachen anzeigen.
+      ⚪️ /help - Zeige diese Nachricht erneut an.
+
+      🎨 Erstellen Sie Text für Bilder mit 🖼 Generate images /chat_mode
+      👥 Fügen Sie den Bot einer Gruppe hinzu: /help_group_chat
+      🎤 Sie können statt Text Sprachnachrichten senden.
+      📖 Senden Sie Dokumente oder Links, um sie mit dem Bot zu analysieren!
+    fr: |
+      Commandes:
+      ⚪️ /new - Démarrer une nouvelle conversation.
+      ⚪️ /img - Générer des images en fonction de votre saisie.
+      ⚪️ /retry - Régénérer la dernière réponse du bot.
+      ⚪️ /chat_mode - Sélectionner le mode de conversation.
+      ⚪️ /model - Afficher la configuration API.
+      ⚪️ /api - Afficher les API.
+      ⚪ /lang - Voir les langues disponibles.
+      ⚪️ /help - Afficher ce message à nouveau.
+
+      🎨 Générer du texte pour des images avec 🖼 Generate images /chat_mode
+      👥 Ajouter le bot à un groupe : /help_group_chat
+      🎤 Vous pouvez envoyer des Messages vocaux à la place du texte.
+      📖 Envoyez des documents ou des liens pour les analyser avec le bot!
+    ru: |
+      Команды:
+      ⚪️ /new - Начать новый диалог.
+      ⚪️ /img - Создавать изображения на основе вашего ввода.
+      ⚪️ /retry - Пересоздать последний ответ бота.
+      ⚪️ /chat_mode - Выбрать режим общения.
+      ⚪️ /model - Показать конфигурацию API.
+      ⚪️ /api - Показать API.
+      ⚪ /lang - Просмотр доступных языков.
+      ⚪️ /help - Показать это сообщение снова.
+
+      🎨 Создавайте текст для изображений с помощью 🖼 Generate images /chat_mode
+      👥 Добавьте бота в группу: /help_group_chat
+      🎤 Вы можете отправлять Голосовые сообщения вместо текста.
+      📖 Отправляйте документы или ссылки, чтобы анализировать их с помощью бота!
+    pt: |
+      Comandos:
+      ⚪️ /new - Iniciar uma nova conversa.
+      ⚪️ /img - Criar imagens com base na sua entrada.
+      ⚪️ /retry - Recriar a última resposta do bot.
+      ⚪️ /chat_mode - Selecionar o modo de conversação.
+      ⚪️ /model - Exibir a configuração da API.
+      ⚪️ /api - Exibir APIs.
+      ⚪ /lang - Ver idiomas disponíveis.
+      ⚪️ /help - Exibir esta mensagem novamente.
+
+      🎨 Crie texto para imagens com 🖼 Generate images /chat_mode
+      👥 Adicione o bot a um grupo: /help_group_chat
+      🎤 Você pode enviar Mensagens de voz em vez de texto.
+      📖 Envie documentos ou links para analisar com o bot!
+    it: |
+      Comandi:
+      ⚪️ /new - Avvia una nuova conversazione.
+      ⚪️ /img - Genera immagini in base all'input.
+      ⚪️ /retry - Ricrea l'ultima risposta del bot.
+      ⚪️ /chat_mode - Seleziona la modalità di conversazione.
+      ⚪️ /model - Visualizza la configurazione API.
+      ⚪️ /api - Visualizza le API.
+      ⚪ /lang - Visualizza le lingue disponibili.
+      ⚪️ /help - Visualizza nuovamente questo messaggio.
+
+      🎨 Crea testo per immagini con 🖼 Generate images /chat_mode
+      👥 Aggiungi il bot a un gruppo: /help_group_chat
+      🎤 Puoi inviare Messaggi vocali invece di testo.
+      📖 Invia documenti o link per analizzarli con il bot!
+    nl: |
+      Commando's:
+      ⚪️ /new - Start een nieuw gesprek.
+      ⚪️ /img - Genereer afbeeldingen op basis van uw invoer.
+      ⚪️ /retry - Genereer opnieuw de laatste reactie van de bot.
+      ⚪️ /chat_mode - Selecteer conversatiemodus.
+      ⚪️ /model - API-configuratie weergeven.
+      ⚪️ /api - API's weergeven.
+      ⚪ /lang - Bekijk beschikbare talen.
+      ⚪️ /help - Dit bericht opnieuw weergeven.
+
+      🎨 Genereer tekst voor afbeeldingen met 🖼 Afbeeldingen genereren /chat_mode
+      👥 Voeg de bot toe aan een groep: /help_group_chat
+      🎤 U kunt in plaats van tekst spraakberichten verzenden.
+      📖 Verzend documenten of links om ze te analyseren met de bot!
+  ayuda_grupos:
+    es: |
+      Puedes añadir un bot a cualquier <b>chat de grupo</b> para ayudar y entretener a sus participantes.
+
+      Instrucciones (ver <b>vídeo</b> más abajo)
+      1. Añade el bot al chat de grupo
+      2. Conviértelo en <b>administrador</b>, para que pueda ver los mensajes (el resto de derechos se pueden restringir)
+      3. Eres increíble!
+
+      To get a reply from the bot in the chat – @ <b>tag</b> it or <b>reply</b> to its message.
+      Por ejemplo: "{bot_username} escribe un poema sobre Telegram"
+    ar: |
+      يمكنك إضافة روبوت إلى أي <b>مجموعة دردشة</b> للمساعدة والتسلية للمشاركين.
+
+      التعليمات (انظر الفيديو أدناه)
+      1. أضف الروبوت إلى مجموعة الدردشة
+      2. قم بتحويله إلى <b>مسؤول</b> حتى يتمكن من رؤية الرسائل (يمكن تقييد حقوقه الأخرى)
+      3. أنت رائع!
+
+      للحصول على رد من الروبوت في المحادثة - @ <b>علمه</b> أو <b>رد</b> على رسالته.
+      على سبيل المثال: "{bot_username} اكتب قصيدة عن Telegram"
+    en: |
+      You can add a bot to any <b>group chat</b> to help and entertain its participants.
+
+      Instructions (see video below)
+      1. Add the bot to the group chat
+      2. Make it a <b>administrator</b>, so it can see messages (other rights can be restricted)
+      3. You're awesome!
+
+      To get a reply from the bot in the chat - @ <b>tag</b> it or <b>reply</b> to its message.
+      For example: "{bot_username} write a poem about Telegram"
+    jp: |
+      ボットを任意の<b>グループチャット</b>に追加して、参加者をサポートやエンターテイメントを提供しましょう。
+
+      手順（以下のビデオを参照）
+      1. ボットをグループチャットに追加します
+      2. ボットを<b>管理者</b>にすることで、メッセージを表示できるようにします（他の権限は制限できます）
+      3. すごいですね！
+
+      チャットでボットからの返信を受けるには、ボットに<b>タグ</b>を付けるか、ボットのメッセージに<b>返信</b>します。
+      例："{bot_username} に Telegram についての詩を書いてもらう"
+    zh: |
+      您可以将机器人添加到任何<b>群组聊天</b>中，以帮助和娱乐参与者。
+
+      操作步骤（请参阅下面的视频）
+      1. 将机器人添加到群组聊天中
+      2. 将其设置为<b>管理员</b>，以便它可以查看消息（其他权限可以受限）
+      3. 您真棒！
+
+      要在聊天中从机器人获得回复-请<b>@标记</b>它或<b>回复</b>其消息。
+      例如："请{bot_username} 为 Telegram 写一首诗"
+    de: |
+      Du kannst einen Bot zu jedem <b>Gruppenchat</b> hinzufügen, um den Teilnehmern zu helfen und sie zu unterhalten.
+
+      Anleitung (siehe Video unten)
+      1. Füge den Bot dem Gruppenchat hinzu.
+      2. Mache den Bot zum <b>Administrator</b>, damit er die Nachrichten sehen kann (andere Rechte können eingeschränkt werden).
+      3. Du bist großartig!
+
+      Um eine Antwort vom Bot im Chat zu erhalten, markiere ihn mit einem <b>@</b> oder antworte auf seine Nachricht.
+      Zum Beispiel: "{bot_username}, schreibe ein Gedicht über Telegram"
+    fr: |
+      Vous pouvez ajouter un bot à n'importe quel <b>chat de groupe</b> pour aider et divertir ses participants.
+
+      Instructions (voir la vidéo ci-dessous)
+      1. Ajoutez le bot au chat de groupe.
+      2. Faites-en un <b>administrateur</b>, afin qu'il puisse voir les messages (les autres droits peuvent être restreints).
+      3. Vous êtes génial !
+
+      Pour obtenir une réponse du bot dans le chat, mentionnez-le avec un <b>@</b> ou répondez à son message.
+      Par exemple : "{bot_username}, écris un poème sur Telegram"
+    ru: |
+      Вы можете добавить бота в любой <b>групповой чат</b>, чтобы помочь и развлечь его участников.
+
+      Инструкции (см. видео ниже)
+      1. Добавьте бота в групповой чат.
+      2. Сделайте его <b>администратором</b>, чтобы он мог видеть сообщения (другие права могут быть ограничены).
+      3. Вы молодец!
+
+      Чтобы получить ответ от бота в чате, упомяните его с помощью <b>@</b> или ответьте на его сообщение.
+      Например: "{bot_username}, напиши стих о Telegram"
+    pt: |
+      Você pode adicionar um bot a qualquer <b>chat em grupo</b> para ajudar e entreter seus participantes.
+
+      Instruções (veja o vídeo abaixo)
+      1. Adicione o bot ao chat em grupo.
+      2. Torne-o um <b>administrador</b>, para que ele possa ver as mensagens (outros direitos podem ser restritos).
+      3. Você é incrível!
+
+      Para receber uma resposta do bot no chat, marque-o com <b>@</b> ou responda à sua mensagem.
+      Por exemplo: "{bot_username}, escreva um poema sobre o Telegram"
+    it: |
+      Puoi aggiungere un bot a qualsiasi <b>chat di gruppo</b> per aiutare e intrattenere i partecipanti.
+
+      Istruzioni (guarda il video qui sotto)
+      1. Aggiungi il bot alla chat di gruppo.
+      2. Rendilo <b>amministratore</b>, così da poter visualizzare i messaggi (altri diritti possono essere limitati).
+      3. Sei fantastico!
+
+      Per ottenere una risposta dal bot nella chat, menzionalo con <b>@</b> o rispondi al suo messaggio.
+      Ad esempio: "{bot_username}, scrivi una poesia su Telegram"
+    nl: |
+      Je kunt een bot toevoegen aan elke <b>groepschat</b> om de deelnemers te helpen en te vermaken.
+
+      Instructies (zie onderstaande video)
+      1. Voeg de bot toe aan de groepschat.
+      2. Maak er een <b>beheerder</b> van, zodat deze de berichten kan zien (andere rechten kunnen beperkt worden).
+      3. Je bent geweldig!
+
+      Om een antwoord van de bot in de chat te krijgen, mention hem met een <b>@</b> of reageer op zijn bericht.
+      Bijvoorbeeld: "{bot_username}, schrijf een gedicht over Telegram"
+  mensaje_semaforo:
+    es: ⏳ Por favor <b>espera</b> una respuesta al mensaje anterior... O puedes /cancel
+    ar: ⏳ من فضلك <b>انتظر</b> ردًا على الرسالة السابقة... أو يمكنك  /cancel
+    en: ⏳ Please <b>wait</b> for a response to the previous message... Or you can /cancel
+    jp: ⏳ 前のメッセージに対する回答を<b>お待ちください</b>... または /cancel でキャンセルすることもできます
+    zh: ⏳ 请<b>等待</b>上一条消息的回复或者您可以 /cancel 取消
+    de: ⏳ Bitte <b>warten</b> Sie auf eine Antwort auf die vorherige Nachricht... Oder Sie können mit /cancel abbrechen
+    fr: ⏳ Veuillez <b>attendre</b> une réponse au message précédent... Ou vous pouvez /cancel
+    ru: ⏳ Пожалуйста, <b>подождите</b> ответа на предыдущее сообщение... Или вы можете отменить с помощью /cancel
+    pt: ⏳ Por favor, <b>aguarde</b> uma resposta à mensagem anterior... Ou você pode /cancel
+    it: ⏳ Per favore, <b>attendi</b> una risposta al messaggio precedente... Oppure puoi /cancel
+    nl: ⏳ Wacht alsjeblieft op een reactie op het vorige bericht... Of je kunt /cancel typen
+  cancelado:
+    es: ✅ Cancelado
+    ar: ✅ تم الإلغاء
+    en: ✅ Cancelled
+    jp: ✅ キャンセルされました
+    zh: ✅ 已取消
+    de: ✅ Abgebrochen
+    fr: ✅ Annulé
+    ru: ✅ Отменено
+    pt: ✅ Cancelado
+    it: ✅ Annullato
+    nl: ✅ Geannuleerd
+  nadacancelado:
+    es: <i>No hay nada que cancelar...</i>
+    ar: <i>لا يوجد شيء للإلغاء...</i>
+    en: <i>There is nothing to cancel...</i>
+    jp: <i>キャンセルするものはありません...</i>
+    zh: <i>没有要取消的内容...</i>
+    de: <i>Es gibt nichts zu stornieren...</i>
+    fr: <i>Il n'y a rien à annuler...</i>
+    ru: <i>Нечего отменять...</i>
+    pt: <i>Não há nada para cancelar...</i>
+    it: <i>Non c'è niente da annullare...</i>
+    nl: <i>Er is niets om te annuleren...</i>
+  reset_chat_attributes:
+    es: Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.
+    ar: كان لديك إعداد غير صالح في التكوين ، لذلك تمت إعادة كل شيء إلى القيم الافتراضية.
+    en: You had an invalid setting in the configuration, so everything has been reset to default values.
+    jp: 設定に無効な設定があったため、すべての値がデフォルト値にリセットされました。
+    zh: 由于配置中存在无效设置，因此已将所有值重置为默认值。
+    de: Du hattest eine ungültige Einstellung in der Konfiguration, daher wurden alle Werte auf die Standardwerte zurückgesetzt.
+    fr: Vous aviez un paramètre non valide dans la configuration, donc tout a été réinitialisé aux valeurs par défaut.
+    ru: В вашей конфигурации была указана недопустимая настройка, поэтому все значения были сброшены до значений по умолчанию.
+    pt: Você tinha uma configuração inválida na configuração, então tudo foi redefinido para os valores padrão.
+    it: Avevi un'impostazione non valida nella configurazione, quindi tutto è stato ripristinato ai valori predefiniti.
+    nl: Je had een ongeldige instelling in de configuratie, dus alles is gereset naar de standaardwaarden.
+  no_retry_mensaje:
+    es: No hay mensaje para reintentar 🤷‍♂️
+    ar: لا يوجد رسالة لإعادة المحاولة 🤷‍♂️
+    en: There is no message to retry 🤷‍♂️
+    jp: 再試行するメッセージはありません 🤷‍♂️
+    zh: 没有可重试的消息 🤷‍♂️
+    de: Es gibt keine Nachricht zum erneuten Versuch 🤷‍♂️
+    fr: Il n'y a pas de message à réessayer 🤷‍♂️
+    ru: Нет сообщения для повторной попытки 🤷‍♂️
+    pt: Não há mensagem para tentar novamente 🤷‍♂️
+    it: Non c'è nessun messaggio da riprovare 🤷‍♂️
+    nl: Er is geen bericht om opnieuw te proberen 🤷‍♂️
+  timeout_ask:
+    es: Tiempo sin hablarte! ¿Iniciamos nueva conversación?
+    ar: هل مر وقت طويل منذ آخر مرة تحدثنا؟ هل نبدأ محادثة جديدة؟
+    en: Long time no talk! Shall we start a new conversation?
+    jp: 久しぶりです！新しい会話を始めましょうか？
+    zh: 好久不见！我们开始新的对话吧？
+    de: Lange nicht gesprochen! Sollen wir ein neues Gespräch beginnen?
+    fr: Cela fait longtemps qu'on n'a pas parlé ! Devrions-nous commencer une nouvelle conversation ?
+    ru: Давненько не общались! Начнем новый разговор?
+    pt: Já faz tempo que não conversamos! Vamos iniciar uma nova conversa?
+    it: Siamo stati troppo tempo senza parlare! Iniziamo una nuova conversazione?
+    nl: Lang niet gesproken! Zullen we een nieuw gesprek beginnen?
+  timeout_nodialog:
+    es: No hay historial. Iniciando uno nuevo 🤷‍♂️
+    ar: لا يوجد سجل. سنبدأ محادثة جديدة 🤷‍♂️
+    en: There is no history. Starting a new one 🤷‍♂️
+    jp: 履歴がありません。新しい会話を始めます 🤷‍♂️
+    zh: 没有历史记录。开始新的对话 🤷‍♂️
+    de: Es gibt keine Historie. Wir beginnen eine neue 🤷‍♂️
+    fr: Il n'y a pas d'historique. Nous commençons une nouvelle conversation 🤷‍♂️
+    ru: История отсутствует. Начинаем новую 🤷‍♂️
+    pt: Não há histórico. Iniciando um novo 🤷‍♂️
+    it: Non c'è cronologia. Iniziamo una nuova 🤷‍♂️
+    nl: Er is geen geschiedenis. We beginnen een nieuw gesprek 🤷‍♂️
+  timeout_ask_false:
+    es: Iniciando nuevo diálogo debido a tiempo de espera agotado. Modo de chat {chatmode}
+    ar: بدء حوار جديد بسبب انتهاء وقت الانتظار. وضع الدردشة {chatmode}
+    en: Starting a new dialogue due to timeout. Chat mode {chatmode}
+    jp: タイムアウトにより新しい対話を開始します。チャットモード {chatmode}
+    zh: 由于超时，开始新的对话。聊天模式 {chatmode}
+    de: Aufgrund eines Zeitüberschreitungs wird ein neuer Dialog gestartet. Chat-Modus {chatmode}
+    fr: Nouveau dialogue en raison d'un dépassement de délai. Mode de chat {chatmode}
+    ru: Начинаем новый диалог из-за истечения времени ожидания. Режим чата {chatmode}
+    pt: Iniciando um novo diálogo devido ao tempo limite. Modo de chat {chatmode}
+    it: Avvio di un nuovo dialogo a causa del timeout. Modalità chat {chatmode}
+    nl: Start een nieuw gesprek vanwege time-out. Chatmodus {chatmode}
+  message_empty_handle:
+    es: 🥲 Enviaste un <b>mensaje vacío</b>. Por favor, inténtalo de nuevo!
+    ar: 🥲 لقد أرسلت <b>رسالة فارغة</b>. يرجى المحاولة مرة أخرى!
+    en: 🥲 You sent an <b>empty message</b>. Please try again!
+    jp: 🥲 <b>空のメッセージ</b>を送信しました。もう一度お試しください！
+    zh: 🥲 您发送了一条<b>空消息</b>。请再试一次！
+    de: 🥲 Du hast eine <b>leere Nachricht</b> geschickt. Bitte versuche es erneut!
+    fr: 🥲 Vous avez envoyé un <b>message vide</b>. Veuillez réessayer !
+    ru: 🥲 Вы отправили <b>пустое сообщение</b>. Пожалуйста, попробуйте еще раз!
+    pt: 🥲 Você enviou uma <b>mensagem vazia</b>. Por favor, tente novamente!
+    it: 🥲 Hai inviato un <b>messaggio vuoto</b>. Per favore, riprova!
+    nl: 🥲 Je hebt een <b>leeg bericht</b> verstuurd. Probeer het opnieuw!
+  image_ocr_ask:
+    es: "🖼️ {ocresult}\n\n¿Quieres saber algo sobre esta transcripción?"
+    ar: "🖼️ {ocresult}\n\nهل تود معرفة شيء ما عن هذا النص المحول؟"
+    en: "🖼️ {ocresult}\n\nDo you want to know anything about this transcription?"
+    jp: "🖼️ {ocresult}\n\nこの文字起こしについて何か知りたいですか？"
+    zh: "🖼️ {ocresult}\n\n你想了解关于这个转录的任何信息吗？"
+    de: "🖼️ {ocresult}\n\nMöchtest du etwas über diese Transkription wissen?"
+    fr: "🖼️ {ocresult}\n\nVoulez-vous en savoir plus sur cette transcription?"
+    ru: "🖼️ {ocresult}\n\nВы хотите узнать что-нибудь об этой транскрипции?"
+    pt: "🖼️ {ocresult}\n\nVocê quer saber algo sobre essa transcrição?"
+    it: "🖼️ {ocresult}\n\nVuoi sapere qualcosa riguardo a questa trascrizione?"
+    nl: "🖼️ {ocresult}\n\nWil je iets weten over deze transcriptie?"
+  document_anotado_ask:
+    es: Anotado 🫡 ¿Qué quieres saber del archivo?
+    ar: تم التعليق على الوثيقة 🫡 ما الذي تريد معرفته عن الملف؟
+    en: Annotated 🫡 What do you want to know about the file?
+    jp: 注釈付き 🫡 ファイルについて知りたいことは何ですか？
+    zh: 已标注 🫡 你想了解该文件的什么内容？
+    de: Annotiert 🫡 Was möchtest du über die Datei wissen?
+    fr: Annoté 🫡 Que voulez-vous savoir sur le fichier ?
+    ru: Аннотировано 🫡 Что вы хотите узнать о файле?
+    pt: Anotado 🫡 O que você quer saber sobre o arquivo?
+    it: Annotato 🫡 Cosa vuoi sapere sul file?
+    nl: Geannoteerd 🫡 Wat wil je weten over het bestand?
+  url_anotado_ask:
+    es: Anotado 📝 ¿Qué quieres saber de la página?
+    ar: تم التعليق 📝 ما الذي تريد معرفته عن الصفحة؟
+    en: Annotated 📝 What do you want to know about the page?
+    jp: アノテーションされました📝ページについて知りたいことは何ですか？
+    zh: 注释 📝 您想了解页面的什么信息？
+    de: Annotiert 📝 Was möchtest du über die Seite wissen?
+    fr: Annotée 📝 Que voulez-vous savoir sur la page ?
+    ru: Проаннотировано 📝 Что вы хотите узнать о странице?
+    pt: Anotado 📝 O que você quer saber sobre a página?
+    it: Annotato 📝 Cosa vuoi sapere sulla pagina?
+    nl: Geannoteerd 📝 Wat wil je weten over de pagina?
+  genimagen_noargs:
+    es: Debes escribir algo después del comando /img
+    ar: يجب عليك كتابة شيء بعد الأمر /img
+    en: You must write something after the command /img
+    jp: /imgコマンドの後に何かを入力する必要があります。
+    zh: 在使用 /img 命令后必须输入一些内容。
+    de: Du musst etwas nach dem Befehl /img schreiben.
+    fr: Vous devez écrire quelque chose après la commande /img
+    ru: После команды /img вы должны что-то написать.
+    pt: Você deve escrever algo depois do comando /img.
+    it: Devi scrivere qualcosa dopo il comando /img.
+    nl: Je moet iets schrijven na het commando /img.
+  genimagen_notext:
+    es: No se detectó texto para generar las imágenes 😔
+    ar: لم يتم اكتشاف نص لإنشاء الصور 😔
+    en: No text was detected to generate the images 😔
+    jp: 画像生成のためのテキストが検出されませんでした 😔
+    zh: 没有检测到文本以生成图像 😔
+    de: Es wurde kein Text erkannt, um die Bilder zu generieren 😔
+    fr: Aucun texte détecté pour générer les images 😔
+    ru: Не обнаружен текст для генерации изображений 😔
+    pt: Não foi detectado nenhum texto para gerar as imagens 😔
+    it: Non è stato rilevato alcun testo per generare le immagini 😔
+    nl: Er is geen tekst gedetecteerd om de afbeeldingen te genereren 😔
+
+errores:
+  error:
+    es: Error
+    ar: خطأ
+    en: Error
+    jp: エラー
+    zh: 错误
+    de: Fehler
+    fr: Erreur
+    ru: Ошибка
+    pt: Erro
+    it: Errore
+    nl: Fout
+  handler_excepcion:
+    es: Excepción al gestionar una actualización
+    ar: استثناء في التعامل مع تحديث
+    en: Exception while handling an update
+    jp: アップデートの処理中に例外が発生しました
+    zh: 处理更新时出现异常
+    de: Ausnahme beim Verarbeiten einer Aktualisierung
+    fr: Exception lors de la gestion d'une mise à jour
+    ru: Исключение при обработке обновления
+    pt: Exceção ao lidar com uma atualização
+    it: Eccezione durante la gestione di un aggiornamento
+    nl: Uitzondering bij het verwerken van een update
+  handler_error_handler:
+    es: Algún error en el gestor de errores
+    ar: خطأ ما في مدير الأخطاء
+    en: Some error in the error handler
+    jp: エラーハンドラーにエラーがあります
+    zh: 错误处理程序中存在某些错误
+    de: Ein Fehler im Fehler-Handler
+    fr: Une erreur dans le gestionnaire d'erreurs
+    ru: Ошибка в обработчике ошибок
+    pt: Algum erro no manipulador de erros
+    it: Qualche errore nel gestore degli errori
+    nl: Er is een fout opgetreden in de foutenafhandelaar
+  utils_modelo_desconocido:
+    es: Modelo desconocido
+    ar: النموذج غير معروف
+    en: Unknown model
+    jp: 不明なモデル
+    zh: 未知模型
+    de: Unbekanntes Modell
+    fr: Modèle inconnu
+    ru: Неизвестная модель
+    pt: Modelo desconhecido
+    it: Modello sconosciuto
+    nl: Onbekend model
+  utils_chatbase_limit:
+    es: Se alcanzó el límite de API. Inténtalo luego!
+    ar: تم الوصول إلى الحد الأقصى للواجهة البرمجية. يرجى المحاولة لاحقًا!
+    en: API limit reached. Please try again later!
+    jp: APIの制限に達しました。後でもう一度お試しください！
+    zh: 达到API限制，请稍后再试！
+    de: API-Limit erreicht. Bitte versuchen Sie es später erneut!
+    fr: Limite d'API atteinte. Veuillez réessayer ultérieurement !
+    ru: Достигнут лимит API. Пожалуйста, попробуйте позже!
+    pt: Limite da API atingido. Por favor, tente novamente mais tarde!
+    it: Limite API raggiunto. Riprova più tardi!
+    nl: API-limiet bereikt. Probeer het later opnieuw!
+  utils_dialog_messages_0:
+    es: Error... O no hay mensajes de diálogo, o seleccionaste un valor maximo de tokens exageradísimo
+    ar: خطأ... إما أنه لا توجد رسائل في الحوار أو اخترت قيمة قصوى لعدد الرموز غير واقعية.
+    en: Error... Either there are no dialogue messages, or you selected an excessively high maximum token value.
+    jp: エラー... ダイアログメッセージが存在しないか、極端に高い最大トークン値が選択されています
+    zh: 出错了... 要么没有对话消息，要么您选择了过高的最大令牌值
+    de: Fehler... Entweder gibt es keine Dialognachrichten oder Sie haben einen übermäßig hohen maximalen Token-Wert ausgewählt
+    fr: Erreur... Soit il n'y a pas de messages de dialogue, soit vous avez sélectionné une valeur maximale de jetons excessive
+    ru: Ошибка... Либо нет сообщений диалога, либо выбрано чрезмерно высокое максимальное значение токенов
+    pt: Erro... Ou não há mensagens de diálogo ou você selecionou um valor máximo de tokens excessivamente alto
+    it: Errore... O non ci sono messaggi di dialogo, o hai selezionato un valore massimo di token eccessivamente alto
+    nl: Fout... Er zijn geen dialoogberichten of je hebt een overdreven hoog maximum aantal tokens geselecteerd
+  pdf_pages_limit:
+    es: 😬 ¡El documento se excede por {paginas - pdf_page_lim} páginas! Se leerán las primeras {pdf_page_lim} páginas.
+    ar: 😬 يتجاوز المستند الحد المسموح به بواقع {paginas - pdf_page_lim} صفحة! سيتم قراءة أول {pdf_page_lim} صفحة فقط.
+    en: 😬 The document exceeds the limit by {pages - pdf_page_lim} pages! Only the first {pdf_page_lim} pages will be read.
+    jp: 😬 ドキュメントが {pages - pdf_page_lim} ページ超過しています！最初の {pdf_page_lim} ページのみが読み込まれます。
+    zh: 😬 该文档超过了 {pages - pdf_page_lim} 页的限制！只会读取前 {pdf_page_lim} 页。
+    de: 😬 Das Dokument überschreitet das Limit um {pages - pdf_page_lim} Seiten! Es werden nur die ersten {pdf_page_lim} Seiten gelesen.
+    fr: 😬 Le document dépasse la limite de {pages - pdf_page_lim} pages ! Seules les {pdf_page_lim} premières pages seront lues.
+    ru: 😬 Документ превышает лимит на {pages - pdf_page_lim} страниц! Будут прочитаны только первые {pdf_page_lim} страниц.
+    pt: 😬 O documento excede o limite por {pages - pdf_page_lim} páginas! Apenas as primeiras {pdf_page_lim} páginas serão lidas.
+    it: 😬 Il documento supera il limite di {pages - pdf_page_lim} pagine! Verranno lette solo le prime {pdf_page_lim} pagine.
+    nl: 😬 Het document overschrijdt de limiet met {pages - pdf_page_lim} pagina's! Alleen de eerste {pdf_page_lim} pagina's worden gelezen.
+  document_size_limit:
+    es: El archivo es demasiado grande ({file_size_mb} MB). El límite es de {file_max_size} MB.
+    ar: الملف كبير جدًا ({file_size_mb} ميجابايت). الحد الأقصى هو {file_max_size} ميجابايت.
+    en: The file is too large ({file_size_mb} MB). The limit is {file_max_size} MB.
+    jp: ファイルが大きすぎます（{file_size_mb} MB）。制限は{file_max_size} MBです。
+    zh: 文件太大了（{file_size_mb} MB）。限制是{file_max_size} MB。
+    de: Die Datei ist zu groß ({file_size_mb} MB). Das Limit beträgt {file_max_size} MB.
+    fr: Le fichier est trop volumineux ({file_size_mb} Mo). La limite est de {file_max_size} Mo.
+    ru: Файл слишком большой ({file_size_mb} МБ). Лимит - {file_max_size} МБ.
+    pt: O arquivo é muito grande ({file_size_mb} MB). O limite é de {file_max_size} MB.
+    it: Il file è troppo grande ({file_size_mb} MB). Il limite è {file_max_size} MB.
+    nl: Het bestand is te groot ({file_size_mb} MB). De limiet is {file_max_size} MB.
+  audio_size_limit:
+    es: 💀 El archivo de audio sobrepasa el limite de {audio_max_size} megas!
+    ar: 💀 حجم ملف الصوت يتجاوز الحد الأقصى {audio_max_size} ميجابايت!
+    en: 💀 The audio file exceeds the limit of {audio_max_size} MB!
+    jp: 💀 オーディオファイルが{audio_max_size} MBの制限を超えています！
+    zh: 💀 音频文件超过了{audio_max_size} MB的限制！
+    de: 💀 Die Audio-Datei überschreitet das Limit von {audio_max_size} MB!
+    fr: 💀 Le fichier audio dépasse la limite de {audio_max_size} Mo !
+    ru: 💀 Размер аудиофайла превышает лимит {audio_max_size} МБ!
+    pt: 💀 O arquivo de áudio excede o limite de {audio_max_size} MB!
+    it: 💀 Il file audio supera il limite di {audio_max_size} MB!
+    nl: 💀 Het audiobestand overschrijdt de limiet van {audio_max_size} MB!
+  url_size_limit:
+    es: Error al obtener el contenido de la página web
+    ar: خطأ في الحصول على محتوى صفحة الويب
+    en: Error getting web page content
+    jp: ウェブページのコンテンツ取得エラー
+    zh: 获取网页内容出错
+    de: Fehler beim Abrufen des Webseiteninhalts
+    fr: Erreur lors de la récupération du contenu de la page web
+    ru: Ошибка при получении содержимого веб-страницы
+    pt: Erro ao obter o conteúdo da página da web
+    it: Errore durante il recupero del contenuto della pagina web
+    nl: Fout bij het ophalen van de inhoud van de webpagina
+  url_size_exception:
+    es: la respuesta de la URL es muy grande
+    ar: إستثناء الحجم الكبير للرد من عنوان URL
+    en: The response from the URL is too large
+    jp: URLからの応答が大きすぎます
+    zh: 来自网址的响应太大
+    de: Die Antwort von der URL ist zu groß
+    fr: La réponse de l'URL est trop grande
+    ru: Ответ от URL слишком большой
+    pt: A resposta do URL é muito grande
+    it: La risposta dall'URL è troppo grande
+    nl: De reactie van de URL is te groot
+
+
+
+  genimagen_rejected:
+    es: 🥲 Tu solicitud no cumple con las políticas de uso de OpenAI...
+    ar: 🥲 طلبك لا يتوافق مع سياسات استخدام OpenAI ...
+    en: 🥲 Your request does not comply with OpenAI's usage policies...
+    jp: 🥲 あなたのリクエストはOpenAIの利用ポリシーに準拠していません...
+    zh: 🥲 您的请求不符合OpenAI的使用政策...
+    de: 🥲 Deine Anfrage entspricht nicht den Nutzungsrichtlinien von OpenAI...
+    fr: 🥲 Votre demande ne respecte pas les politiques d'utilisation d'OpenAI...
+    ru: 🥲 Ваш запрос не соответствует политикам использования OpenAI...
+    pt: 🥲 Sua solicitação não está em conformidade com as políticas de uso da OpenAI...
+    it: 🥲 La tua richiesta non è conforme alle politiche di utilizzo di OpenAI...
+    nl: 🥲 Uw verzoek voldoet niet aan de gebruiksrichtlijnen van OpenAI...
+  genimagen_other:
+    es: 🥲 Ha ocurrido un error al procesar tu solicitud. Por favor, intenta de nuevo más tarde...
+    ar: 🥲 حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى في وقت لاحق...
+    en: 🥲 An error occurred while processing your request. Please try again later...
+    jp: 🥲 リクエストの処理中にエラーが発生しました。後でもう一度試してください...
+    zh: 🥲 处理您的请求时发生错误。请稍后再试...
+    de: 🥲 Bei der Verarbeitung Ihrer Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut...
+    fr: 🥲 Une erreur s'est produite lors du traitement de votre demande. Veuillez réessayer plus tard...
+    ru: 🥲 При обработке вашего запроса произошла ошибка. Пожалуйста, попробуйте еще раз позже...
+    pt: 🥲 Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde...
+    it: 🥲 Si è verificato un errore durante l'elaborazione della tua richiesta. Riprova più tardi...
+    nl: 🥲 Er is een fout opgetreden bij het verwerken van uw verzoek. Probeer het later opnieuw...
+  genimagen_badrequest:
+    es: 🥲 Ha ocurrido un error en la solicitud. Por favor, verifica el formato y contenido de tu mensaje...
+    ar: 🥲 حدث خطأ في الطلب. يرجى التحقق من تنسيق ومحتوى رسالتك...
+    en: 🥲 An error occurred in the request. Please check the format and content of your message...
+    jp: 🥲 リクエストにエラーが発生しました。メッセージのフォーマットと内容を確認してください...
+    zh: 🥲 请求发生错误。请检查您的消息的格式和内容...
+    de: 🥲 Bei der Anfrage ist ein Fehler aufgetreten. Bitte überprüfen Sie das Format und den Inhalt Ihrer Nachricht...
+    fr: 🥲 Une erreur s'est produite dans la demande. Veuillez vérifier le format et le contenu de votre message...
+    ru: 🥲 В запросе произошла ошибка. Пожалуйста, проверьте формат и содержание вашего сообщения...
+    pt: 🥲 Ocorreu um erro na solicitação. Verifique o formato e o conteúdo da sua mensagem...
+    it: 🥲 Si è verificato un errore nella richiesta. Controlla il formato e il contenuto del tuo messaggio...
+    nl: 🥲 Er is een fout opgetreden in het verzoek. Controleer het formaat en de inhoud van uw bericht...
+  menu_api_no_disponible:
+    es: Tu API actual "{api_antigua}" no está disponible. Por lo que se ha cambiado automáticamente a "{api_nueva}".
+    ar: API "{api_antigua}" الحالية غير متاحة. لذلك تم تغييرها تلقائيًا إلى "{api_nueva}".
+    en: Your current API "{api_antigua}" is not available. Therefore, it has been automatically changed to "{api_nueva}".
+    jp: 現在のAPI "{api_antigua}"は利用できません。したがって、自動的に "{api_nueva}"に変更されました。
+    zh: 您当前的API "{api_antigua}"不可用。因此，它已自动更改为 "{api_nueva}"。
+    de: Ihre aktuelle API "{api_antigua}" ist nicht verfügbar. Daher wurde sie automatisch auf "{api_nueva}" geändert.
+    fr: Votre API actuelle "{api_antigua}" n'est pas disponible. Elle a donc été automatiquement changée en "{api_nueva}".
+    ru: Ваша текущая API "{api_antigua}" недоступна. Поэтому она была автоматически изменена на "{api_nueva}".
+    pt: Sua API atual "{api_antigua}" não está disponível. Portanto, ela foi alterada automaticamente para "{api_nueva}".
+    it: La tua API attuale "{api_antigua}" non è disponibile. Pertanto, è stata automaticamente cambiata in "{api_nueva}".
+    nl: Uw huidige API "{api_antigua}" is niet beschikbaar. Daarom is deze automatisch gewijzigd in "{api_nueva}".
+  model_no_compatible:
+    es: Tu modelo actual no es compatible con la API "{api_actual_name}", por lo que se ha cambiado el modelo automáticamente a "{new_model_name}".
+    ar: النموذج الحالي الخاص بك غير متوافق مع واجهة برمجة التطبيق "{api_actual_name}" ، لذا تم تغيير النموذج تلقائيًا إلى "{new_model_name}".
+    en: Your current model is not compatible with the "{api_actual_name}" API, so the model has been automatically changed to "{new_model_name}".
+    jp: 現在のモデルは"{api_actual_name}" APIと互換性がありませんので、モデルは自動的に"{new_model_name}"に変更されました。
+    zh: 您当前的模型与"{api_actual_name}" API不兼容，因此模型已自动更改为"{new_model_name}"。
+    de: Dein aktuelles Modell ist nicht mit der "{api_actual_name}" API kompatibel, daher wurde das Modell automatisch auf "{new_model_name}" geändert.
+    fr: Votre modèle actuel n'est pas compatible avec l'API "{api_actual_name}", donc le modèle a été automatiquement changé pour "{new_model_name}".
+    ru: Ваша текущая модель несовместима с API "{api_actual_name}", поэтому модель была автоматически изменена на "{new_model_name}".
+    pt: Seu modelo atual não é compatível com a API "{api_actual_name}", portanto o modelo foi alterado automaticamente para "{new_model_name}".
+    it: Il tuo modello attuale non è compatibile con l'API "{api_actual_name}", quindi il modello è stato automaticamente cambiato in "{new_model_name}".
+    nl: Je huidige model is niet compatibel met de "{api_actual_name}" API, daarom is het model automatisch gewijzigd naar "{new_model_name}".

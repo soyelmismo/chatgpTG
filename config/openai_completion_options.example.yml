@@ -1,4 +1,4 @@
-max_tokens: 2048
+max_tokens: 2047
 temperature: 1
 top_p: 1
 frequency_penalty: 0

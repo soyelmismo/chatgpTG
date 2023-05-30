@@ -22,6 +22,7 @@ services:
     depends_on:
       - mongo
     environment:
+      - AUTO_LANG=es
       - MONGODB_HOST=mongo
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=GDT9MbJUTFHpyJyeS2JxzgkpYTjnrU8v

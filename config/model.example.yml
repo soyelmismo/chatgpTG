@@ -36,9 +36,3 @@ info:
   g4f-yqcloud:
     name: Yqcloud
     description: chat9.yqcloud.top
-
-  dalle-2:
-    type: image
-
-  whisper:
-    type: audio

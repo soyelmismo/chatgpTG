@@ -16,21 +16,21 @@ class Database:
             return True
         else:
             if raise_exception:
-                raise ValueError(f"Usuario {chat_id} no existe")
+                raise ValueError(f"Chat {chat_id} no existe")
             else:
                 return False
 
-    def add_chat(self, chat_id: int):
+    def add_chat(self, chat_id: int, lang: str):
         chat_dict = {
             "_id": chat_id,
             "last_interaction": datetime.now(),
             "first_seen": datetime.now(),
 
             "current_dialog_id": None,
+            "current_lang": lang,
             "current_chat_mode": config.chat_mode["available_chat_mode"][1],
             "current_model": config.model["available_model"][0],
             "current_api": config.api["available_api"][0],
-
         }
         if not self.chat_exists(chat_id):
             self.chats.insert_one(chat_dict)
@@ -46,6 +46,7 @@ class Database:
             "start_time": datetime.now(),
             "model": self.get_chat_attribute(chat_id, "current_model"),
             "api": self.get_chat_attribute(chat_id, "current_api"),
+            "lang": self.get_chat_attribute(chat_id, "current_lang"),
             "messages": [],
         }
 

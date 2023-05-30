@@ -12,3 +12,4 @@ fake_useragent
 pydantic
 PyPDF2
 beautifulsoup4
+pytesseract

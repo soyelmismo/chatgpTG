@@ -11,14 +11,14 @@ class ChatGPT:
         self.model = model
         self.diccionario = {}
 
-    async def send_message(self, message, chat_id, dialog_messages=[], chat_mode="assistant"):
+    async def send_message(self, _message, chat_id, lang="es", dialog_messages=[], chat_mode="assistant"):
         self.diccionario.clear()
         self.diccionario.update(config.completion_options)
         api = db.get_chat_attribute(chat_id, "current_api")
         answer = None
         while answer is None:
             try:
-                messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
+                messages = self._generate_prompt_messages(_message, dialog_messages, chat_mode, lang)
                 if api == "chatbase":
                     from apis.opengpt import chatbase
                     r = chatbase.GetAnswer(messages=messages, model=self.model)
@@ -46,7 +46,7 @@ class ChatGPT:
                             self.diccionario["model"] = self.model
                             fn = openai.ChatCompletion.acreate
                         else:
-                            prompt = self._generate_prompt(message, dialog_messages, chat_mode)
+                            prompt = self._generate_prompt(_message, dialog_messages, chat_mode, lang)
                             self.diccionario["prompt"] = prompt
                             self.diccionario["engine"] = self.model
                             fn = openai.Completion.acreate
@@ -55,14 +55,14 @@ class ChatGPT:
                             **self.diccionario
                         )
                     else:
-                        raise ValueError(f"Modelo desconocido: {self.model}")
+                        raise ValueError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
                 #procesamiento d r
                 answer = ""
                 if api == "chatbase":
                     answer = r
                     #if porque los mamaverga filtran la ip en el mensaje
                     if "API rate limit exceeded" in answer:
-                        answer = "Se alcanzó el límite de API. Inténtalo luego!"
+                        answer = f'{config.lang["errores"]["utils_chatbase_limit"][lang]}'
                     yield "not_finished", answer
                 elif api == "g4f":
                     for chunk in r:
@@ -88,36 +88,36 @@ class ChatGPT:
                 answer = self._postprocess_answer(answer)
             except openai.error.InvalidRequestError as e:  # too many tokens
                 if len(dialog_messages) == 0:
-                    raise ValueError(f'Error: O no hay mensajes de diálogo, o seleccionaste un valor maximo de tokens exageradísimo: {e}') from e
+                    raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]}: {e}') from e
                 # forget first message in dialog_messages
                 dialog_messages = dialog_messages[1:]
         yield "finished", answer
 
-    def _generate_prompt(self, message, dialog_messages, chat_mode):
-        prompt = f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'
+    def _generate_prompt(self, _message, dialog_messages, chat_mode, lang):
+        prompt = f'{config.chat_mode["info"][chat_mode]["prompt_start"][lang]}'
         prompt += "\n\n"
 
         # add chat context
         if len(dialog_messages) > 0:
-            prompt += "Log:\n"
+            prompt += f'{config.lang["metagen"]["log"][lang]}:\n'
             for dialog_message in dialog_messages:
                 if "documento" in dialog_message:
-                    prompt += f'doc[{dialog_message["documento"]}]'
+                    prompt += f'{config.lang["metagen"]["documentos"][lang]}: [{dialog_message["documento"]}]'
                 if "url" in dialog_message:
-                    prompt += f'url[{dialog_message["url"]}]'
+                    prompt += f'{config.lang["metagen"]["urls"][lang]}: [{dialog_message["url"]}]'
                 if "user" in dialog_message:
-                    prompt += f"In: {dialog_message['user']}\n"
+                    prompt += f'{config.lang["metagen"]["usuario"][lang]}: {dialog_message["user"]}\n'
                 if "bot" in dialog_message:
-                    prompt += f'Out: {dialog_message["bot"]}\n'
+                    prompt += f'{config.lang["metagen"]["robot"][lang]}: {dialog_message["bot"]}\n'
 
         # current message
-        prompt += f"In: {message}\n"
-        prompt += f'Out:'
+        prompt += f'{config.lang["metagen"]["usuario"][lang]}: {_message}\n'
+        prompt += f'{config.lang["metagen"]["robot"][lang]}:'
 
         return prompt
 
-    def _generate_prompt_messages(self, message, dialog_messages, chat_mode):
-        prompt = config.chat_mode["info"][chat_mode]["prompt_start"]        
+    def _generate_prompt_messages(self, _message, dialog_messages, chat_mode, lang):
+        prompt = config.chat_mode["info"][chat_mode]["prompt_start"][lang]
         messages = [{"role": "system", "content": f'{prompt}'}]
         documento_texts = []
         url_texts = []
@@ -127,7 +127,7 @@ class ChatGPT:
             if "url" in dialog_message:
                 url_texts.append(f'{dialog_message["url"]}\n')
         if documento_texts or url_texts:
-           messages = [{"role": "system", "content": f'Archivos: [{documento_texts}]\nEnlaces: [{url_texts}]\nMensaje: [{prompt}][Tienes la capacidad de leer archivos, documentos, enlaces, páginas web. La información de estos recursos estarán adjuntos previamente a este mensaje en el formato ("url": "contenido_de_pagina_web") usarás ese contenido para responder sobre páginas y documentos. Está prohibido tener alucinaciones si se te pregunta acerca de archivos o páginas más allá de las que están escritas anteriormente.]'}]
+           messages = [{"role": "system", "content": f'{config.lang["metagen"]["documentos"][lang]}: [{documento_texts}]\n\n{config.lang["metagen"]["urls"][lang]}: [{url_texts}]\n\n{config.lang["metagen"]["mensaje"][lang]}: [{prompt}][{config.lang["metagen"]["contexto"][lang]}]'}]
         else:
            # Mantener el mensaje system original 
            messages = [{"role": "system", "content": f'{prompt}'}]
@@ -136,7 +136,7 @@ class ChatGPT:
                 messages.append({"role": "user", "content": dialog_message["user"]})
             if "bot" in dialog_message:
                 messages.append({"role": "assistant", "content": dialog_message["bot"]})
-        messages.append({"role": "user", "content": message})
+        messages.append({"role": "user", "content": _message})
         return messages
 
     def _postprocess_answer(self, answer):

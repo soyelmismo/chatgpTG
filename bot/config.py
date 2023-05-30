@@ -15,11 +15,17 @@ audio_max_size = int(env['AUDIO_MAX_MB'][0])
 file_max_size = int(env['DOC_MAX_MB'][0])
 url_max_size = int(env['URL_MAX_MB'][0])
 pdf_page_lim = int(env['PDF_PAGE_LIMIT'][0])
+pred_lang = str(env['AUTO_LANG'][0])
 
 # set config paths
 config_dir = Path(__file__).parent.parent.resolve() / "config"
 
 # load config files
+
+#language
+with open(config_dir / "lang.yml", 'r') as f:
+    lang = yaml.safe_load(f)
+
 # apis
 with open(config_dir / "api.yml", 'r') as f:
     api = yaml.safe_load(f)
