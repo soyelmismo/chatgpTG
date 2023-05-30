@@ -604,12 +604,12 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat):
     api_antigua = db.get_chat_attribute(chat.id, 'current_api')
     current_lang = db.get_chat_attribute(chat.id, 'current_lang')
     if api_antigua not in apis_vivas:
-        db.set_chat_attribute(chat.id, "current_api", apis_vivas[1])
+        db.set_chat_attribute(chat.id, "current_api", apis_vivas[0])
         await update.effective_chat.send_message(f'{config.lang["errores"]["menu_api_no_disponible"][current_lang].format(api_antigua=api_antigua, api_nueva=menu_type_dict["info"][db.get_chat_attribute(chat.id, "current_api")]["name"])}')
         pass
     modelos_disponibles = config.api["info"][db.get_chat_attribute(chat.id, "current_api")]["available_model"]
     if db.get_chat_attribute(chat.id, 'current_model') not in modelos_disponibles:
-        db.set_chat_attribute(chat.id, "current_model", modelos_disponibles[1])
+        db.set_chat_attribute(chat.id, "current_model", modelos_disponibles[0])
         await update.effective_chat.send_message(f'{config.lang["errores"]["model_no_compatible"][current_lang].format(api_actual_name=menu_type_dict["info"][db.get_chat_attribute(chat.id, "current_api")]["name"], new_model_name=config.model["info"][db.get_chat_attribute(chat.id, "current_model")]["name"])}')
         pass
     if menu_type == "model":
