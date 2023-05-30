@@ -14,7 +14,7 @@ RUN apt-get update
 RUN install_packages python3 python3-pip
 
 #For audios transcription
-RUN apt-get install --no-install-recommends ffmpeg
+RUN install_packages ffmpeg
 
 #Image transcription
 RUN apt-get install --no-install-recommends tesseract-ocr
