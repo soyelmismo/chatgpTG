@@ -11,6 +11,9 @@
 ## Características:
 - Envía un archivo de texto, PDF o URL y el bot los podrá analizar!
 - Añade proxies reversos de OpenAI y sus respectivos modelos cuanto quieras!
+- Multi lenguaje.
+- Lee el texto de imágenes
+- Transcribe audios
 
 
 ## Nueva actualización:
