@@ -29,6 +29,7 @@
     - "pt": Português
     - "it": Italiano
     - "nl": Nederlands
+
 Establece el idioma por defecto del sistema en la variable AUTO_LANG
 Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
 - *Lectura de imágenes con OCR*
