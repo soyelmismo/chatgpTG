@@ -14,16 +14,17 @@
 
 ## Nueva actualización:
 - *MultiLenguaje!*:
-    - Español: "es"
-    - Inglés: "en"
-    - Japonés: "ja"
-    - Chino: "zh"
-    - Alemán: "de"
-    - Francés: "fr"
-    - Ruso: "ru"
-    - Portugués: "pt"
-    - Italiano: "it"
-    - Holandés: "nl"
+    - "es": Español
+    - "ar": عربي
+    - "en": English
+    - "jp": 日本語
+    - "zh": 中文
+    - "de": Deutsch
+    - "fr": Français
+    - "ru": Русский
+    - "pt": Português
+    - "it": Italiano
+    - "nl": Nederlands
 Establece el idioma por defecto del sistema en la variable AUTO_LANG
 Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
 - *Lectura de imágenes con OCR*

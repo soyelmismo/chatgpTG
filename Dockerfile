@@ -11,35 +11,35 @@ ENV PIP_DEFAULT_TIMEOUT=100
 RUN apt-get update
 
 #Python
-RUN install_packages python3 python3-pip
+RUN apt-get -y install --no-install-recommends python3 python3-pip
 
 #For audios transcription
-RUN install_packages ffmpeg
+RUN apt-get -y install --no-install-recommends ffmpeg
 
 #Image transcription
-RUN apt-get install --no-install-recommends tesseract-ocr
+RUN apt-get -y install --no-install-recommends tesseract-ocr
 #Image pre-processing
-RUN apt-get install --no-install-recommends python3-opencv
+RUN apt-get -y install --no-install-recommends python3-opencv
 #Spanish Images
-RUN apt-get install --no-install-recommends tesseract-ocr-spa
+RUN apt-get -y install --no-install-recommends tesseract-ocr-spa
 #English Images
-RUN apt-get install --no-install-recommends tesseract-ocr-eng
+RUN apt-get -y install --no-install-recommends tesseract-ocr-eng
 #日本語 Images
-RUN apt-get install --no-install-recommends tesseract-ocr-jpn tesseract-ocr-jpn-vert
+RUN apt-get -y install --no-install-recommends tesseract-ocr-jpn tesseract-ocr-jpn-vert
 #中文 Images
-RUN apt-get install --no-install-recommends tesseract-ocr-chi-sim tesseract-ocr-chi-sim-vert tesseract-ocr-chi-tra tesseract-ocr-chi-tra-vert
+RUN apt-get -y install --no-install-recommends tesseract-ocr-chi-sim tesseract-ocr-chi-sim-vert tesseract-ocr-chi-tra tesseract-ocr-chi-tra-vert
 #Deutsch Images
-RUN apt-get install --no-install-recommends tesseract-ocr-deu
+RUN apt-get -y install --no-install-recommends tesseract-ocr-deu
 #Français Images
-RUN apt-get install --no-install-recommends tesseract-ocr-fra
+RUN apt-get -y install --no-install-recommends tesseract-ocr-fra
 #Русский Images
-RUN apt-get install --no-install-recommends tesseract-ocr-rus
+RUN apt-get -y install --no-install-recommends tesseract-ocr-rus
 #Português Images
-RUN apt-get install --no-install-recommends tesseract-ocr-por
+RUN apt-get -y install --no-install-recommends tesseract-ocr-por
 #Italiano Images
-RUN apt-get install --no-install-recommends tesseract-ocr-ita
+RUN apt-get -y install --no-install-recommends tesseract-ocr-ita
 #Nederlands Images
-RUN apt-get install --no-install-recommends tesseract-ocr-nld
+RUN apt-get -y install --no-install-recommends tesseract-ocr-nld
 
 WORKDIR /
 ADD . /
