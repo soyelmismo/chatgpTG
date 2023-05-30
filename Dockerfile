@@ -11,7 +11,7 @@ ENV PIP_DEFAULT_TIMEOUT=100
 RUN apt-get update
 
 #Python
-RUN apt-get install --no-install-recommends python3 python3-pip
+RUN install_packages python3 python3-pip
 
 #For audios transcription
 RUN apt-get install --no-install-recommends ffmpeg
