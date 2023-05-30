@@ -1,51 +1,56 @@
-**Origin repo: <a href="https://github.com/karfly/chatgpt_telegram_bot" alt="Karfly">Karfly/chatgpt_telegram_bot</a>**
-
-# Este fork es personal, pero estoy tan orgulloso de esto que lo quiero compartir.
-
-## Características originales
-- Mensaje en tiempo real
-- Compatible con GPT-4
-- Soporte de chat en grupo (/help_group_chat para obtener instrucciones)
-- DALLE 2 (elige el modo 👩‍🎨 Artist para generar imágenes)
-- Reconocimiento de mensajes de voz
-- Resaltado de códigos
-- 15 modos de chat especiales: 👩🏼‍🎓 Asistente, 👩🏼‍💻 Asistente de código, 👩‍🎨 Artista, 🧠 Psicólogo, 🚀 Elon Musk y otros. Puedes crear fácilmente tus propios modos de chat editando `config/chat_mode.yml`.
-- Soporte de [ChatGPT API](https://platform.openai.com/docs/guides/chat/introduction)
-- Lista blanca de usuarios
-
-## Cambios en esta modificación:
-- Traducción al español
-- Base en Alpine. ¡Llegando a usar tan solo 60MB de RAM!
-- Se eliminó el seguimiento de tokens, ya que no lo necesito.
-- Se agregaron (creo que solo) 3 modos de chat. "Nada", "Matemático" y "Traductor" de cualquier idioma al español.
-- Necesita base de datos mongo externa. Puedes montarla en un contenedor aparte o usar algún servicio como Atlas
-- Sólo hay mensajes en tiempo real, no hay envío de mensaje fijo
-- **Añade la cantidad de APIs y modelos que quieras!**
-- Un menú genérico para los 3 tipos de opciones
-- Simplificación de ciertas partes del código
-- Se añadió un comando /reboot para reiniciar el sistema Docker, los permisos del usuario se declaran en docker-compose.yml en la variable sudo_users
-- Cambio de API por usuario!
-- El generador de imágenes envía las imágenes comprimidas y en formato sin comprimir (archivo) 
-
-# Importante:
-- Debido al cambio dinámico de las API, se re estructuró los archivos originales. Se debe declarar los modelos, apis y modos de chat en el inicio de cada archivo correspondiente para que el bot los pueda leer.
-- Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."
-- Cualquier error, notificarme
-- No sé si se me olvida algo jaja
-- No sería raro si el Dev original se enoja por hacer una aberración con su código. Gracias!
-
-
-<p align="center">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmM2ZWVjY2M4NWQ3ZThkYmQ3MDhmMTEzZGUwOGFmOThlMDIzZGM4YiZjdD1n/unx907h7GSiLAugzVX/giphy.gif" />
-</p>
-
-## Comandos
-- /retry - Regenera la última respuesta del bot.
+## Comandos:
 - /new - Iniciar nuevo diálogo.
+- /img - Generar imagenes.
+- /retry - Regenera la última respuesta del bot.
 - /chat_mode - Seleccionar el modo de conversación.
 - /model - Mostrar modelos IA.
 - /api - Mostrar APIs.
+- /lang - Ver idiomas disponibles.
 - /help – Mostrar este mensaje de nuevo.
+
+## Características:
+- Envía un archivo de texto, PDF o URL y el bot los podrá analizar!
+- Añade proxies reversos de OpenAI y sus respectivos modelos cuanto quieras!
+
+
+## Nueva actualización:
+- *MultiLenguaje!*:
+    - "es": Español
+    - "ar": عربي
+    - "en": English
+    - "jp": 日本語
+    - "zh": 中文
+    - "de": Deutsch
+    - "fr": Français
+    - "ru": Русский
+    - "pt": Português
+    - "it": Italiano
+    - "nl": Nederlands
+Establece el idioma por defecto del sistema en la variable AUTO_LANG
+Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
+- *Lectura de imágenes con OCR*
+    - Gracias a Tesseract! Se agregó todos los lenguajes disponibles para el bot.
+    - Si deseas desactivar lenguajes antes de construir el contenedor, estarán en Dockerfile.
+
+## Cambios anteriores:
+- Se cambió el diálogo de usuarios, por el diálogo de chatID para mejor contexto grupal.
+- Se mejoró el chequeo de APIs.
+- Añadido MongoDB compatible con CPUs antiguas.
+- Soporte de lectura de archivos de texto, PDF y de enlaces.
+- Se reemplazó el modo "👩‍🎨 Artista básico" con el comando /img.
+- <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/112/commits/d54809aeb89a1921f6cfdffc00a4d1ee4744c8d2" alt="Dialog_ask">Preguntar si iniciar nueva conversación si lleva tiempo sin chatear</a> (TIMEOUT_ASK y DIALOG_TIMEOUT en docker-compose.yml)
+- <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/188" alt="AutoDel">Borrar historiales antiguos al usar /new.</a>
+- Añadidas variables a docker-compose para limitar el tamaño de los audios, documentos, paginas de PDF y urls.
+- La transcripción de mensajes de voz ahora también funciona para archivos de audio.
+- Apis de GPT4Free (necesita especificar las cookies en docker-compose para usar Bing y ChatGPT)
+- Base en Minideb.
+- Se eliminó el seguimiento de tokens.
+- Preferencias de API por usuario!
+- Si la api actual del usuario no soporta voz o imagen, se usará una api predefinida.
+- El generador de imágenes envía las imágenes comprimidas y en formato sin comprimir (archivo) 
+
+# Importante:
+- Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."
 
 ## Setup
 1. Obtén tu clave de [OpenAI API](https://openai.com/api/)
@@ -62,4 +67,4 @@
     ```
 
 ## References
-1. [*Build ChatGPT from GPT-3*](https://learnprompting.org/docs/applied_prompting/build_chatgpt)
+1. Origin: <a href="https://github.com/karfly/chatgpt_telegram_bot" alt="Karfly">Karfly/chatgpt_telegram_bot</a>

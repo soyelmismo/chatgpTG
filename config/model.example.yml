@@ -1,20 +1,138 @@
-available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003"]
+available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "g4f-you", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"]
 # debes declarar los modelos en el apartado de acá arriba
 info:
   gpt-3.5-turbo:
     name: ChatGPT
-    description: es ese modelo bien conocido. Es <b>rápido</b> y <b>barato</b>. Ideal para tareas diarias.
-
+    description:
+      es: es ese modelo bien conocido. Es <b>rápido</b> y <b>barato</b>. Ideal para tareas diarias.
+      ar: هذا النموذج المعروف جيداً. سريع ورخيص. مثالي للمهام اليومية.
+      en: That well-known model. It is <b>fast</b> and <b>cheap</b>. Ideal for daily tasks.
+      jp: よく知られているモデルです。 <b>速く</b>、<b>安い</b>です。日常的なタスクに理想的です。
+      zh: 那个众所周知的模型。 它是<b>快速</b>和<b>廉价</b>的。非常适合日常任务。
+      de: Dieses bekannte Modell. Es ist <b>schnell</b> und <b>günstig</b>. Ideal für tägliche Aufgaben.
+      fr: Ce modèle bien connu. Il est <b>rapide</b> et <b>bon marché</b>. Idéal pour les tâches quotidiennes.
+      ru: Эта хорошо известная модель. Она <b>быстрая</b> и <b>дешевая</b>. Идеальна для повседневных задач.
+      pt: Esse modelo bem conhecido. É <b>rápido</b> e <b>barato</b>. Ideal para tarefas diárias.
+      it: Quel modello ben noto. È <b>veloce</b> e <b>a buon mercato</b>. Ideale per le attività quotidiane.
+      nl: Dat bekende model. Het is <b>snel</b> en <b>goedkoop</b>. Ideaal voor dagelijkse taken.
+    
   gpt-4:
     name: GPT-4
-    description: es el modelo más <b>inteligente</b> y avanzado del mundo. Pero es más lento y no tan eficiente en costos como ChatGPT. La mejor opción para tareas intelectuales <b>complejas</b>.
+    description:
+      es: es el modelo más <b>inteligente</b> y avanzado del mundo. Pero es más lento y no tan eficiente en costos como ChatGPT. La mejor opción para tareas intelectuales <b>complejas</b>.
+      ar: هو النموذج الأكثر <b>ذكاءً</b> وتقدمًا في العالم. ولكنه أبطأ وليس كفؤًا في التكلفة مثل ChatGPT. الخيار الأفضل للمهام العقلية <b>المعقدة</b>.
+      en: It is the most <b>intelligent</b> and advanced model in the world. But it is slower and not as cost-efficient as ChatGPT. The best option for <b>complex</b> intellectual tasks.
+      jp: 世界で最も<b>知能が高く、進んだ</b>モデルです。ただし、ChatGPTに比べて遅く、コスト効率が良くありません。知的な<b>複雑な</b>タスクに最適なオプションです。
+      zh: 这是世界上最<b>智能</b>和先进的模型。 但它比ChatGPT更慢，成本效益不如ChatGPT。最适合<b>复杂的</b>智力任务的最佳选择。
+      de: Es ist das intelligenteste und fortschrittlichste Modell der Welt. Aber es ist langsamer und nicht so kosteneffizient wie ChatGPT. Die beste Wahl für komplexe intellektuelle Aufgaben.
+      fr: C'est le modèle le plus <b>intelligent</b> et avancé au monde. Mais il est plus lent et pas aussi rentable que ChatGPT. Le meilleur choix pour les tâches intellectuelles <b>complexes</b>.
+      ru: Это самая <b>умная</b> и продвинутая модель в мире. Но она медленнее и не такая экономичная, как ChatGPT. Лучший выбор для <b>сложных</b> интеллектуальных задач.
+      pt: É o modelo mais <b>inteligente</b> e avançado do mundo. Mas é mais lento e não tão eficiente em custos como o ChatGPT. A melhor opção para tarefas intelectuais <b>complexas</b>.
+      it: È il modello più <b>intelligente</b> e avanzato al mondo. Ma è più lento e non così efficiente in termini di costi come ChatGPT. La migliore opzione per le attività intellettuali <b>complesse</b>.
+      nl: Het is het meest <b>intelligente</b> en geavanceerde model ter wereld. Maar het is langzamer en niet zo kostenefficiënt als ChatGPT. De beste keuze voor <b>complexe</b> intellectuele taken.
 
   text-davinci-003:
     name: GPT-3
-    description: es un modelo obsoleto. De hecho, <b>no hay razón para usarlo</b>, ya que es más caro y más lento que ChatGPT, pero alrededor del mismo nivel de inteligencia.
+    description:
+      es: es un modelo obsoleto. De hecho, <b>no hay razón para usarlo</b>, ya que es más caro y más lento que ChatGPT, pero alrededor del mismo nivel de inteligencia.
+      ar: هو نموذج قديم. في الواقع، <b>لا يوجد سبب لاستخدامه</b>، حيث أنه أكثر تكلفة وبطيء من ChatGPT، ولكنه على نفس المستوى من الذكاء.
+      en: It is an outdated model. In fact, <b>there is no reason to use it</b>, as it is more expensive and slower than ChatGPT, but around the same level of intelligence.
+      jp: それは時代遅れのモデルです。 実際、ChatGPTよりもコストが高く、遅いため、<b>使用する理由がありません</b>が、同じレベルの知能を持っています。
+      zh: 它是一个过时的模型。 实际上，<b>没有理由使用它</b>，因为它比ChatGPT更昂贵、更慢，但智能水平差不多。
+      de: Es ist ein veraltetes Modell. Tatsächlich gibt es <b>keinen Grund, es zu verwenden</b>, da es teurer und langsamer als ChatGPT ist, aber auf etwa demselben Intelligenzniveau liegt.
+      fr: C'est un modèle obsolète. En fait, <b>il n'y a aucune raison de l'utiliser</b>, car il est plus cher et plus lent que ChatGPT, mais environ au même niveau d'intelligence.
+      ru: Это устаревшая модель. На самом деле, <b>нет никакой причины ее использовать</b>, так как она дороже и медленнее, чем ChatGPT, но примерно на том же уровне интеллекта.
+      pt: É um modelo desatualizado. Na verdade, <b>não há razão para usá-lo</b>, pois é mais caro e mais lento que o ChatGPT, mas em torno do mesmo nível de inteligência.
+      it: È un modello obsoleto. In realtà, <b>non c'è motivo di usarlo</b>, poiché è più costoso e più lento di ChatGPT, ma circa allo stesso livello di intelligenza.
+      nl: Het is een verouderd model. Er is eigenlijk <b>geen reden om het te gebruiken</b>, omdat het duurder en langzamer is dan ChatGPT, maar ongeveer op hetzelfde intelligentieniveau ligt.
 
-  dalle-2:
-    type: image
+  g4f-you:
+    name: You
+    description:
+      es: el buscador chatbot de You.com
+      ar: بوت الدردشة لمحرك البحث You.com
+      en: The chatbot search engine of You.com.
+      jp: You.comのチャットボット検索エンジン。
+      zh: You.com的聊天机器人搜索引擎。
+      de: Der Chatbot-Suchmaschine von You.com.
+      fr: Le moteur de recherche de chatbot de You.com.
+      ru: Чат-бот поисковой системы You.com.
+      pt: O mecanismo de busca de chatbot da You.com.
+      it: Il motore di ricerca chatbot di You.com.
+      nl: De chatbot-zoekmachine van You.com.
 
-  whisper:
-    type: audio
+  g4f-ails:
+    name: Ails
+    description:
+      es: Ai.ls es una pagina con acceso a chatgpt gratis
+      ar: Ai.ls هي صفحة توفر الوصول إلى ChatGPT مجانًا.
+      en: Ai.ls is a webpage that provides free access to ChatGPT.
+      jp: Ai.lsは、ChatGPTへの無料アクセスを提供するウェブページです。
+      zh: Ai.ls是一个提供免费访问ChatGPT的网页。
+      de: Ai.ls ist eine Webseite, die kostenlosen Zugang zu ChatGPT bietet.
+      fr: Ai.ls est une page web qui offre un accès gratuit à ChatGPT.
+      ru: Ai.ls - это веб-страница, которая предоставляет бесплатный доступ к ChatGPT.
+      pt: Ai.ls é uma página da web que fornece acesso gratuito ao ChatGPT.
+      it: Ai.ls è una pagina web che fornisce accesso gratuito a ChatGPT.
+      nl: Ai.ls is een webpagina die gratis toegang biedt tot ChatGPT.
+
+  g4f-bing:
+    name: Bing
+    description:
+      es: el chatbot oficial de bing.com
+      ar: الدردشة الرسمية لموقع bing.com
+      en: The official chatbot of bing.com.
+      jp: bing.comの公式チャットボット。
+      zh: bing.com的官方聊天机器人。
+      de: Der offizielle Chatbot von bing.com.
+      fr: Le chatbot officiel de bing.com.
+      ru: Официальный чат-бот bing.com.
+      pt: O chatbot oficial do bing.com.
+      it: Il chatbot ufficiale di bing.com.
+      nl: De officiële chatbot van bing.com.
+
+  g4f-chatgpt:
+    name: Openai
+    description:
+      es: acceso directo a chat.openai.com
+      ar: اختصار للوصول إلى chat.openai.com
+      en: Shortcut to access chat.openai.com.
+      jp: chat.openai.comへのショートカット。
+      zh: 访问chat.openai.com的快捷方式。
+      de: Verknüpfung zum Zugriff auf chat.openai.com.
+      fr: Raccourci pour accéder à chat.openai.com.
+      ru: Быстрый доступ к chat.openai.com.
+      pt: Atalho para acessar chat.openai.com.
+      it: Scorciatoia per accedere a chat.openai.com.
+      nl: Snelkoppeling om toegang te krijgen tot chat.openai.com.
+
+  g4f-phind:
+    name: Phind
+    description:
+      es: phind.com es algo asi como un buscador de codigo para programar
+      ar: Phind.com هو عبارة عن محرك بحث للأكواد المستخدمة في البرمجة.
+      en: Phind.com is a search engine for programming code.
+      jp: Phind.comは、プログラムコードの検索エンジンです。
+      zh: Phind.com是一个编程代码搜索引擎。
+      de: Phind.com ist eine Suchmaschine für Programmiercode.
+      fr: Phind.com est un moteur de recherche de code de programmation.
+      ru: Phind.com - это поисковая система для кода программирования.
+      pt: Phind.com é um mecanismo de busca para código de programação.
+      it: Phind.com è un motore di ricerca per il codice di programmazione.
+      nl: Phind.com is een zoekmachine voor programmeercode.
+
+  g4f-yqcloud:
+    name: Yqcloud
+    description:
+      es: chat9.yqcloud.top es otro chatbot gpt gratuito
+      ar: Chat9.yqcloud.top هو آخر بوت دردشة GPT مجاني.
+      en: Chat9.yqcloud.top is another free GPT chatbot.
+      jp: Chat9.yqcloud.topは、別の無料のGPTチャットボットです。
+      zh: Chat9.yqcloud.top是另一个免费的GPT聊天机器人。
+      de: Chat9.yqcloud.top ist ein weiterer kostenloser GPT-Chatbot.
+      fr: Chat9.yqcloud.top est un autre chatbot GPT gratuit.
+      ru: Chat9.yqcloud.top - еще один бесплатный чат-бот GPT.
+      pt: Chat9.yqcloud.top é outro chatbot GPT gratuito.
+      it: Chat9.yqcloud.top è un altro chatbot GPT gratuito.
+      nl: Chat9.yqcloud.top is een andere gratis GPT-chatbot.
+  

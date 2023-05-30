@@ -1,27 +1,80 @@
-available_api: ["openai", "you", "chatbase"]
+available_api: ["openai", "you", "chatbase", "g4f"]
 available_imagen: ["openai"]
+available_transcript: ["openai"]
 # debes declarar los api en el apartado de acá arriba
 info:
   openai:
     name: OpenAI
-    description: La API oficial.
+    description:
+      es: La API oficial.
+      ar: API الرسمية.
+      en: The official API.
+      jp: 公式API。
+      zh: 官方API。
+      de: Die offizielle API.
+      fr: L'API officielle.
+      ru: Официальный API.
+      pt: A API oficial.
+      it: L'API ufficiale.
+      nl: De officiële API.
     url: https://api.openai.com/v1
-    key: sk-69420
+    key: sk-666
     available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003"]
 
   you:
     name: You
-    description: de You.com.
+    description:
+      es: de el buscador You.com.
+      ar: من محرك البحث You.com. 
+      en: from the search engine You.com.
+      jp: 検索エンジンYou.comから。
+      zh: 来自搜索引擎You.com。
+      de: von der Suchmaschine You.com.
+      fr: depuis le moteur de recherche You.com.
+      ru: с поисковой системы You.com.
+      pt: do mecanismo de busca You.com.
+      it: dal motore di ricerca You.com.
+      nl: vanaf de zoekmachine You.com.
     url: youchat
     key: youkey
     available_model: ["gpt-3.5-turbo"]
 
   chatbase:
     name: ChatBase
-    description: de ChatBase.co.
+    description:
+      es: de el sitio ChatBase.co.
+      ar: من موقع ChatBase.co. 
+      en: from the website ChatBase.co.
+      jp: ウェブサイトChatBase.coから。
+      zh: 来自ChatBase.co网站。
+      de: von der Website ChatBase.co.
+      fr: depuis le site ChatBase.co.
+      ru: с веб-сайта ChatBase.co.
+      pt: do site ChatBase.co.
+      it: dal sito web ChatBase.co.
+      nl: vanaf de website ChatBase.co.
     url: youchat
-    key: youkey
+    key: ""
     available_model: ["gpt-3.5-turbo", "gpt-4"]
+   
+  g4f:
+    name: GPT4Free
+    description:
+      es: API de APIs.
+      ar: واجهة برمجة تطبيقات للواجهات البرمجية.
+      en: API of APIs.
+      jp: APIのAPI。
+      zh: API的API。
+      de: API von APIs.
+      fr: API des APIs.
+      ru: API API.
+      pt: API de APIs.
+      it: API di API.
+      nl: API van APIs.
+    url: http://127.0.0.1:1337
+    key: ""
+    available_model: ["g4f-you", "g4f-bing", "g4f-chatgpt", "g4f-yqcloud"]
+
   # otra_api:
   #   name: Otra
   #   description: Test.
