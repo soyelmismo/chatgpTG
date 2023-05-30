@@ -610,7 +610,7 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat):
     modelos_disponibles = config.api["info"][db.get_chat_attribute(chat.id, "current_api")]["available_model"]
     if db.get_chat_attribute(chat.id, 'current_model') not in modelos_disponibles:
         db.set_chat_attribute(chat.id, "current_model", modelos_disponibles[0])
-        await update.effective_chat.send_message(f'{config.lang["errores"]["model_no_compatible"][current_lang].format(api_actual_name=menu_type_dict["info"][db.get_chat_attribute(chat.id, "current_api")]["name"], new_model_name=config.model["info"][db.get_chat_attribute(chat.id, "current_model")]["name"])}')
+        await update.effective_chat.send_message(f'{config.lang["errores"]["model_no_compatible"][current_lang].format(api_actual_name=config.api["info"][db.get_chat_attribute(chat.id, "current_api")]["name"], new_model_name=config.model["info"][db.get_chat_attribute(chat.id, "current_model")]["name"])}')
         pass
     if menu_type == "model":
         item_keys = modelos_disponibles
