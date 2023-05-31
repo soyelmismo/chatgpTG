@@ -450,6 +450,9 @@ async def ocr_image(chat, lang, update, context):
         # Obtener el texto de la imagen utilizando pytesseract
         # Carga la imagen
         imagen = Image.open(str(img_path))
+        imagen.info['dpi'] = (300, 300)
+        
+
 
         # Detecta el idioma de la imagen usando el parámetro 'lang' y el valor 'osd' (Oriented Script Detection)
         datos_osd = pytesseract.image_to_osd(imagen)
