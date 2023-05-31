@@ -311,7 +311,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
                     continue                                                                         
                 else:                                                                                
                     await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)                                                       
-            await sleep(0.5)  # wait a bit to avoid flooding                                 
+            await sleep(0.05)  # wait a bit to avoid flooding                                 
             prev_answer = answer
         # update chat data
         db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
