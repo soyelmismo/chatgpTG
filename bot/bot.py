@@ -457,11 +457,11 @@ async def ocr_image(chat, lang, update, context):
 
         # Lee el texto de la imagen usando el idioma detectado
         texto = pytesseract.image_to_string(imagen, lang=idioma_detectado)
-        ocresult = pytesseract.image_to_string(str(img_path))
+        #ocresult = pytesseract.image_to_string(str(img_path))
         
         db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
-    new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{ocresult}"', "date": datetime.now()}
-    await update.message.reply_text(f'{config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=ocresult)}')
+    new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{texto}"', "date": datetime.now()}
+    await update.message.reply_text(f'{config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=texto)}')
     await add_dialog_message(chat, new_dialog_message)
     await releasemaphore(chat=chat)
 async def ocr_image_wrapper(update, context):
