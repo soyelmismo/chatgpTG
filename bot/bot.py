@@ -434,9 +434,22 @@ async def ocr_image(chat, lang, update, context):
         import cv2
         img = cv2.imread(str(img_path))
 
+        # Redimensionar la imagen a la mitad
         img = cv2.resize(img, None, fx=0.5, fy=0.5)
 
-        ocresult = pytesseract.image_to_string(img, config="--psm 3")
+        # Aplicar umbralización
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, thresh_img = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+        # Reducción de ruido 
+        denoised_img = cv2.fastNlMeansDenoisingColored(thresh_img, None, 10, 10, 7, 21)
+
+        # Mejora de contraste
+        enhanced_img = cv2.equalizeHist(denoised_img)
+
+        # Obtener el texto de la imagen utilizando pytesseract
+        ocresult = pytesseract.image_to_string(enhanced_img, config="--psm 3")
+        
         db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
     new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{ocresult}"', "date": datetime.now()}
     await update.message.reply_text(f'{config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=ocresult)}')
