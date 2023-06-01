@@ -45,10 +45,6 @@ async def obtener_vivas():
     global apis_vivas
     apis_vivas = await estadosapi()
 
-def split_text_into_chunks(text, chunk_size):
-    for i in range(0, len(text), chunk_size):
-        yield text[i:i + chunk_size]
-
 async def handle_chat_task(chat, lang, task, update):
     async with chat_locks[chat.id]:
         chat_tasks[chat.id] = task
@@ -326,6 +322,17 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
     if chat_mode == "imagen":
         await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
 
+async def send_large_message(text, update):
+    if len(text) <= 4096:
+        print("menos de 4096")
+        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+    else:
+        print("más de 4096")
+        # Divide el mensaje en partes más pequeñas
+        message_parts = [text[i:i+4096] for i in range(0, len(text), 4096)]
+        for part in message_parts:
+            await update.message.reply_text(part, parse_mode=ParseMode.HTML)
+
 async def clean_text(doc, name):
     import re
     doc = re.sub(r'^\n', '', doc) 
@@ -459,35 +466,43 @@ async def transcribe_message_handle(chat, lang, update, context):
         audio = update.message.audio
     file_size_mb = audio.file_size / (1024 * 1024)
     if file_size_mb <= config.audio_max_size:
-        await update.effective_chat.send_action(ChatAction.TYPING)
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            # Descargar y convertir a MP3
-            tmp_dir = Path(tmp_dir)
-            ext = audio.mime_type
-            import mimetypes
-            ext = mimetypes.guess_extension(ext)
-            doc_path = tmp_dir / Path("tempaudio" + ext)
+        try:
+            await update.effective_chat.send_action(ChatAction.TYPING)
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                # Descargar y convertir a MP3
+                tmp_dir = Path(tmp_dir)
+                ext = audio.mime_type
+                import mimetypes
+                if ext == 'audio/opus':
+                    ext = '.opus'
+                else:
+                    ext = mimetypes.guess_extension(ext)
+                doc_path = tmp_dir / Path("tempaudio" + ext)
 
-            # download
-            voice_file = await context.bot.get_file(audio.file_id)
-            await voice_file.download_to_drive(doc_path)
+                # download
+                voice_file = await context.bot.get_file(audio.file_id)
+                await voice_file.download_to_drive(doc_path)
 
-            # convert to mp3
-            mp3_file_path = tmp_dir / "voice.mp3"
-            from pydub import AudioSegment
-            AudioSegment.from_file(doc_path).export(mp3_file_path, format="mp3")
+                # convert to mp3
+                mp3_file_path = tmp_dir / "voice.mp3"
+                from pydub import AudioSegment
+                AudioSegment.from_file(doc_path).export(mp3_file_path, format="mp3")
 
-            # Transcribir
-            with open(mp3_file_path, "rb") as f:
-                await releasemaphore(chat=chat)
-                transcribed_text = await openai_utils.ChatGPT(chat).transcribe_audio(f)
+                # Transcribir
+                with open(mp3_file_path, "rb") as f:
+                    await releasemaphore(chat=chat)
+                    transcribed_text = await openai_utils.ChatGPT(chat).transcribe_audio(f)
 
-        # Enviar respuesta            
-        text = f"🎤 {transcribed_text}"
-        db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
+            # Enviar respuesta            
+            text = f"🎤 {transcribed_text}"
+            db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
+        except Exception as e:
+            logger.error(f'{config.lang["errores"]["error"][lang]}: {e}')
+            await releasemaphore(chat=chat)
+            return
     else:
         text = f'{config.lang["errores"]["audio_size_limit"][lang].format(audio_max_size=config.audio_max_size)}'
-    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+    await send_large_message(text, update)
     await releasemaphore(chat=chat)
     await message_handle(chat, lang, update, context, _message=transcribed_text)
 async def transcribe_message_wrapper(update, context):
@@ -755,14 +770,6 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
             "</pre>\n\n"
             f"<pre>{html.escape(tb_string)}</pre>"
         )
-
-        # # split text into multiple messages due to 4096 character limit
-        # for message_chunk in split_text_into_chunks(message, 4096):
-        #     try:
-        #         await context.bot.send_message(update.effective_chat_id, message_chunk, parse_mode=ParseMode.HTML)
-        #     except telegram.error.BadRequest:
-        #         # answer has invalid characters, so we send it without parse_mode
-        #         await context.bot.send_message(update.effective_chat_id, message_chunk)
     except:
         await context.bot.send_message(f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}')
 
