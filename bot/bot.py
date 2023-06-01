@@ -166,7 +166,7 @@ async def parameters_check(chat, lang, update):
     modelo_actual = db.get_chat_attribute(chat.id, 'current_model')
     modelos_disponibles=config.api["info"][api_actual]["available_model"]
     if modelo_actual not in modelos_disponibles:
-        modelo_actual = random.randint(1, len(modelos_disponibles))
+        modelo_actual = modelos_disponibles[random.randint(1, len(modelos_disponibles))]
         db.set_chat_attribute(chat.id, "current_model", modelo_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_model"][lang].format(api_actual_name=config.api["info"][api_actual]["name"], new_model_name=modelo_actual)}')
     return mododechat_actual, api_actual, modelo_actual
