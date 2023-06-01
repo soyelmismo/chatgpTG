@@ -57,7 +57,6 @@ async def handle_chat_task(chat, lang, task, update):
             await releasemaphore(chat=chat)
         else:
             await releasemaphore(chat=chat)
-            pass
         finally:
             if chat.id in chat_tasks:
                 del chat_tasks[chat.id]
