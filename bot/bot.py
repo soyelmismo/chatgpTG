@@ -317,7 +317,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
     except Exception as e:
         logger.error(f'{config.lang["errores"]["error"][lang]}: {e}')
         await releasemaphore(chat=chat)
-        await context.bot.edit_message_text(f'{config.lang["errores"]["error"][lang]}: {e}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
+        await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
     if chat_mode == "imagen":
         await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)

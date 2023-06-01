@@ -45,11 +45,13 @@ class ChatGPT:
                         include_links=True)
                     r = dict(r)
                     answer += r["text"]
+                    if "Unable to fetch the response, Please try again." in answer:
+                        raise Exception(answer)
                     if len(r["links"]) >= 1:
                         answer += "\n\nLinks: \n"
                         for link in r["links"]:
-                            answer += f"\n- <a href='{link['url']}'>{link['name']}</a>"
-                            yield "not_finished", answer
+                            answer += f"\n- [{link['name']}]({link['url']})"
+                    yield "not_finished", answer
                 else:
                     if (self.model in config.model["available_model"]):
                         api_info = config.api["info"].get(self.api, {})

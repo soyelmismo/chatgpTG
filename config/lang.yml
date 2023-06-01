@@ -817,7 +817,7 @@ mensajes:
     es: Debes escribir algo después del comando /img
     ar: يجب عليك كتابة شيء بعد الأمر /img
     en: You must write something after the command /img
-    jp: /imgコマンドの後に何かを入力する必要があります。
+    jp: /img コマンドの後に何かを入力する必要があります。
     zh: 在使用 /img 命令后必须输入一些内容。
     de: Du musst etwas nach dem Befehl /img schreiben.
     fr: Vous devez écrire quelque chose après la commande /img
@@ -851,6 +851,18 @@ errores:
     pt: Erro
     it: Errore
     nl: Fout
+  error_inesperado:
+    es: Se produjo un error inesperado... Si el problema persiste, por favor inicia un nuevo diálogo con /new
+    ar: حدث خطأ غير متوقع... إذا استمرت المشكلة، يرجى بدء حوار جديد باستخدام /new
+    en: An unexpected error occurred... If the problem persists, please start a new dialogue using /new
+    jp: 予期しないエラーが発生しました... 問題が解決しない場合は、/new を使用して新しいダイアログを開始してください
+    zh: 发生了意外错误... 如果问题仍然存在，请使用 /new 开始一个新的对话
+    de: Es ist ein unerwarteter Fehler aufgetreten... Wenn das Problem weiterhin besteht, starten Sie bitte einen neuen Dialog mit /new
+    fr: Une erreur inattendue s'est produite... Si le problème persiste, veuillez démarrer un nouveau dialogue en utilisant /new
+    ru: Произошла непредвиденная ошибка... Если проблема не исчезает, пожалуйста, начните новый диалог с помощью /new
+    pt: Ocorreu um erro inesperado... Se o problema persistir, por favor inicie um novo diálogo usando /new
+    it: Si è verificato un errore imprevisto... Se il problema persiste, inizia un nuovo dialogo usando /new
+    nl: Er is een onverwachte fout opgetreden... Als het probleem aanhoudt, start dan een nieuw gesprek met /new
   handler_excepcion:
     es: Excepción al gestionar una actualización
     ar: استثناء في التعامل مع تحديث
