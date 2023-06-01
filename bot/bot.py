@@ -251,8 +251,6 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
                         url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
                         if "http://" in url_add or "https://" in url_add:
                             urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-                        else:
-                            pass
                 if urls:
                     await releasemaphore(chat=chat)
                     task = bb(url_handle(chat, lang, update, context, urls))
@@ -478,7 +476,7 @@ async def ocr_image(chat, lang, update, context):
                 text = config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=doc)
                 new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{doc}"', "date": datetime.now()}
                 await add_dialog_message(chat, new_dialog_message)
-    except RuntimeError as timeout_error:
+    except RuntimeError:
         text = "**Error**: La imagen tardó mucho en procesarse... 😔"
         pass
     await update.message.reply_text(f'{text}', parse_mode=ParseMode.MARKDOWN)
