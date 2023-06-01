@@ -146,8 +146,6 @@ async def chat_check(update: Update, context: CallbackContext, chat=None, lang=N
         chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat
 async def parameters_check(chat, lang, update):
-    
-    api_actual = db.get_chat_attribute(chat, 'current_api')
     # Verificar si hay valores inválidos en el usuario
     #chatmode
     mododechat_actual=db.get_chat_attribute(chat, 'current_chat_mode')
