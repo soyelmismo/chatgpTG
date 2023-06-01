@@ -147,22 +147,24 @@ async def chat_check(update: Update, context: CallbackContext, chat=None, lang=N
         chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat
 async def parameters_check(chat, lang, update):
-    mododechat_actual=db.get_chat_attribute(chat.id, 'current_chat_mode')
+    
     api_actual = db.get_chat_attribute(chat.id, 'current_api')
-    modelo_actual = db.get_chat_attribute(chat.id, 'current_model')
-    modelos_disponibles=config.api["info"][api_actual]["available_model"]
     # Verificar si hay valores inválidos en el usuario
     #chatmode
+    mododechat_actual=db.get_chat_attribute(chat.id, 'current_chat_mode')
     if mododechat_actual not in config.chat_mode["available_chat_mode"]:
         mododechat_actual = config.chat_mode["available_chat_mode"][1]
         db.set_chat_attribute(chat.id, "current_chat_mode", mododechat_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_chat_mode"][lang].format(new=mododechat_actual)}')
     #api
+    api_actual = db.get_chat_attribute(chat.id, 'current_api')
     if api_actual not in apis_vivas:
-        api_actual = random.randint(1, len(apis_vivas))
+        api_actual = apis_vivas[random.randint(1, len(apis_vivas))]
         db.set_chat_attribute(chat.id, "current_api", api_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_api"][lang].format(new=api_actual)}')
     #model
+    modelo_actual = db.get_chat_attribute(chat.id, 'current_model')
+    modelos_disponibles=config.api["info"][api_actual]["available_model"]
     if modelo_actual not in modelos_disponibles:
         modelo_actual = random.randint(1, len(modelos_disponibles))
         db.set_chat_attribute(chat.id, "current_model", modelo_actual)
