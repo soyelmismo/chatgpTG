@@ -42,7 +42,8 @@ RUN apt-get -y install --no-install-recommends tesseract-ocr-ita
 RUN apt-get -y install --no-install-recommends tesseract-ocr-nld
 
 WORKDIR /
-ADD . /
+COPY bot/ /bot
+COPY static/ /static
 COPY config/api.example.yml config/api.yml
 COPY config/chat_mode.example.yml config/chat_mode.yml
 COPY config/model.example.yml config/model.yml
