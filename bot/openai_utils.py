@@ -10,7 +10,7 @@ class ChatGPT:
         self.chat = chat
         self.model = model
         assert model in config.model["available_model"], f"Unknown model: {model}"
-        self.api = db.get_chat_attribute(self.chat.id, "current_api")
+        self.api = db.get_chat_attribute(self.chat, "current_api")
         self.diccionario = {}
 
     async def send_message(self, _message, lang="es", dialog_messages=[], chat_mode="assistant"):
@@ -45,13 +45,14 @@ class ChatGPT:
                             detailed=False,
                             include_links=True)
                         r = dict(r)
-                        answer += r["text"]
+                        answer += r["text"].encode('utf-16', 'surrogatepass').decode('utf-16')  # Aquí aplicamos la codificación y decodificación
                         if "Unable to fetch the response, Please try again." in answer:
                             raise Exception(answer)
                         if len(r["links"]) >= 1:
                             answer += "\n\nLinks: \n"
                             for link in r["links"]:
-                                answer += f"\n- [{link['name']}]({link['url']})"
+                                 link_name = link['name']
+                                 answer += f"\n- [{link_name}]({link['url']})"
                         yield "not_finished", answer
                     else:
                         api_info = config.api["info"].get(self.api, {})
@@ -77,9 +78,11 @@ class ChatGPT:
                     answer = self._postprocess_answer(answer)
                 except openai.error.InvalidRequestError as e:  # too many tokens
                     if len(dialog_messages) == 0:
-                        raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]}: {e}') from e
+                        raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]} [{self.api}]: {e}') from e
                     # forget first message in dialog_messages
                     dialog_messages = dialog_messages[1:]
+                except Exception as e:
+                    raise ValueError(f'[{self.api}]: {e}')
         else:
             raise ValueError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
         yield "finished", answer
