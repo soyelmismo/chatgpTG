@@ -56,18 +56,22 @@ async def estadosapi():
                     elif recorrido == "g4f":
                         vivas.append(recorrido)
                     else:
+                        print("error check api: string chatbase o g4f?",response)
                         malas.append(recorrido)
                 elif isinstance(response, dict):
                     if recorrido == "you":
                         if response["text"]:
                             vivas.append(recorrido)
                     else:
+                        print("error check api: diccionario you?",response)
                         malas.append(recorrido)
                 elif response.status_code == 200:
                     vivas.append(recorrido)
                 else:
+                    print("error check api: else final",response)
                     malas.append(recorrido)
             except requests.exceptions.RequestException as e:
+                print(f'error check api: exception {e}')
                 malas.append(recorrido)
     else:
         vivas = config.api["available_api"]
