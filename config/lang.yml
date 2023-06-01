@@ -705,18 +705,6 @@ mensajes:
     pt: <i>Não há nada para cancelar...</i>
     it: <i>Non c'è niente da annullare...</i>
     nl: <i>Er is niets om te annuleren...</i>
-  reset_chat_attributes:
-    es: Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.
-    ar: كان لديك إعداد غير صالح في التكوين ، لذلك تمت إعادة كل شيء إلى القيم الافتراضية.
-    en: You had an invalid setting in the configuration, so everything has been reset to default values.
-    jp: 設定に無効な設定があったため、すべての値がデフォルト値にリセットされました。
-    zh: 由于配置中存在无效设置，因此已将所有值重置为默认值。
-    de: Du hattest eine ungültige Einstellung in der Konfiguration, daher wurden alle Werte auf die Standardwerte zurückgesetzt.
-    fr: Vous aviez un paramètre non valide dans la configuration, donc tout a été réinitialisé aux valeurs par défaut.
-    ru: В вашей конфигурации была указана недопустимая настройка, поэтому все значения были сброшены до значений по умолчанию.
-    pt: Você tinha uma configuração inválida na configuração, então tudo foi redefinido para os valores padrão.
-    it: Avevi un'impostazione non valida nella configurazione, quindi tutto è stato ripristinato ai valori predefiniti.
-    nl: Je had een ongeldige instelling in de configuratie, dus alles is gereset naar de standaardwaarden.
   no_retry_mensaje:
     es: No hay mensaje para reintentar 🤷‍♂️
     ar: لا يوجد رسالة لإعادة المحاولة 🤷‍♂️
@@ -983,9 +971,54 @@ errores:
     pt: A resposta do URL é muito grande
     it: La risposta dall'URL è troppo grande
     nl: De reactie van de URL is te groot
-
-
-
+  reset_chat_attributes:
+    es: Tenías un parámetro no válido en la configuración, por lo que se ha restablecido todo a los valores predeterminados.
+    ar: كان لديك إعداد غير صالح في التكوين ، لذلك تمت إعادة كل شيء إلى القيم الافتراضية.
+    en: You had an invalid setting in the configuration, so everything has been reset to default values.
+    jp: 設定に無効な設定があったため、すべての値がデフォルト値にリセットされました。
+    zh: 由于配置中存在无效设置，因此已将所有值重置为默认值。
+    de: Du hattest eine ungültige Einstellung in der Konfiguration, daher wurden alle Werte auf die Standardwerte zurückgesetzt.
+    fr: Vous aviez un paramètre non valide dans la configuration, donc tout a été réinitialisé aux valeurs par défaut.
+    ru: В вашей конфигурации была указана недопустимая настройка, поэтому все значения были сброшены до значений по умолчанию.
+    pt: Você tinha uma configuração inválida na configuração, então tudo foi redefinido para os valores padrão.
+    it: Avevi un'impostazione non valida nella configurazione, quindi tutto è stato ripristinato ai valori predefiniti.
+    nl: Je had een ongeldige instelling in de configuratie, dus alles is gereset naar de standaardwaarden.
+  reset_chat_mode:
+    es: Tu modo de chat no estaba disponible, por lo que se ha cambiado a "{new}"
+    ar: وضع الدردشة الخاص بك غير متاح ، لذلك تم تغييره إلى "{new}"
+    en: Your chat mode was not available, so it has been changed to "{new}"
+    jp: チャットモードは利用できませんでしたので、"{new}" に変更されました
+    zh: 您的聊天模式不可用，因此已更改为 "{new}"
+    de: Ihr Chat-Modus war nicht verfügbar, daher wurde er auf "{new}" geändert
+    fr: Votre mode de discussion n'était pas disponible, il a donc été changé en "{new}"
+    ru: Ваш режим чата недоступен, поэтому он был изменен на "{new}"
+    pt: Seu modo de bate-papo não estava disponível, então foi alterado para "{new}"
+    it: La modalità di chat non era disponibile, quindi è stata cambiata in "{new}"
+    nl: Uw chatmodus was niet beschikbaar, dus is deze gewijzigd naar "{new}"
+  reset_api:
+    es: Tu API seleccionada no está disponible, por lo que se ha cambiado a "{new}"
+    ar: الواجهة البرمجية (API) التي اخترتها غير متاحة، لذا تم تغييرها إلى "{new}"
+    en: The API you selected is not available, so it has been changed to "{new}"
+    jp: 選択したAPIは利用できませんので、"{new}"に変更されました
+    zh: 您选择的API不可用，因此已更改为 "{new}"
+    de: Die von Ihnen ausgewählte API ist nicht verfügbar, daher wurde sie auf "{new}" geändert
+    fr: L'API que vous avez sélectionnée n'est pas disponible, elle a donc été changée en "{new}"
+    ru: Выбранное вами API недоступно, поэтому оно было изменено на "{new}"
+    pt: A API selecionada não está disponível, então foi alterada para "{new}"
+    it: L'API che hai selezionato non è disponibile, quindi è stata cambiata in "{new}"
+    nl: De door u geselecteerde API is niet beschikbaar, dus is deze gewijzigd naar "{new}"
+  reset_model:
+    es: Tu modelo actual no es compatible con la API "{api_actual_name}", por lo que se ha cambiado el modelo automáticamente a "{new_model_name}".
+    ar: النموذج الحالي الخاص بك غير متوافق مع واجهة برمجة التطبيق "{api_actual_name}" ، لذا تم تغيير النموذج تلقائيًا إلى "{new_model_name}".
+    en: Your current model is not compatible with the "{api_actual_name}" API, so the model has been automatically changed to "{new_model_name}".
+    jp: 現在のモデルは"{api_actual_name}" APIと互換性がありませんので、モデルは自動的に"{new_model_name}"に変更されました。
+    zh: 您当前的模型与"{api_actual_name}" API不兼容，因此模型已自动更改为"{new_model_name}"。
+    de: Dein aktuelles Modell ist nicht mit der "{api_actual_name}" API kompatibel, daher wurde das Modell automatisch auf "{new_model_name}" geändert.
+    fr: Votre modèle actuel n'est pas compatible avec l'API "{api_actual_name}", donc le modèle a été automatiquement changé pour "{new_model_name}".
+    ru: Ваша текущая модель несовместима с API "{api_actual_name}", поэтому модель была автоматически изменена на "{new_model_name}".
+    pt: Seu modelo atual não é compatível com a API "{api_actual_name}", portanto o modelo foi alterado automaticamente para "{new_model_name}".
+    it: Il tuo modello attuale non è compatibile con l'API "{api_actual_name}", quindi il modello è stato automaticamente cambiato in "{new_model_name}".
+    nl: Je huidige model is niet compatibel met de "{api_actual_name}" API, daarom is het model automatisch gewijzigd naar "{new_model_name}".
   genimagen_rejected:
     es: 🥲 Tu solicitud no cumple con las políticas de uso de OpenAI...
     ar: 🥲 طلبك لا يتوافق مع سياسات استخدام OpenAI ...
@@ -1034,15 +1067,15 @@ errores:
     pt: Sua API atual "{api_antigua}" não está disponível. Portanto, ela foi alterada automaticamente para "{api_nueva}".
     it: La tua API attuale "{api_antigua}" non è disponibile. Pertanto, è stata automaticamente cambiata in "{api_nueva}".
     nl: Uw huidige API "{api_antigua}" is niet beschikbaar. Daarom is deze automatisch gewijzigd in "{api_nueva}".
-  model_no_compatible:
-    es: Tu modelo actual no es compatible con la API "{api_actual_name}", por lo que se ha cambiado el modelo automáticamente a "{new_model_name}".
-    ar: النموذج الحالي الخاص بك غير متوافق مع واجهة برمجة التطبيق "{api_actual_name}" ، لذا تم تغيير النموذج تلقائيًا إلى "{new_model_name}".
-    en: Your current model is not compatible with the "{api_actual_name}" API, so the model has been automatically changed to "{new_model_name}".
-    jp: 現在のモデルは"{api_actual_name}" APIと互換性がありませんので、モデルは自動的に"{new_model_name}"に変更されました。
-    zh: 您当前的模型与"{api_actual_name}" API不兼容，因此模型已自动更改为"{new_model_name}"。
-    de: Dein aktuelles Modell ist nicht mit der "{api_actual_name}" API kompatibel, daher wurde das Modell automatisch auf "{new_model_name}" geändert.
-    fr: Votre modèle actuel n'est pas compatible avec l'API "{api_actual_name}", donc le modèle a été automatiquement changé pour "{new_model_name}".
-    ru: Ваша текущая модель несовместима с API "{api_actual_name}", поэтому модель была автоматически изменена на "{new_model_name}".
-    pt: Seu modelo atual não é compatível com a API "{api_actual_name}", portanto o modelo foi alterado automaticamente para "{new_model_name}".
-    it: Il tuo modello attuale non è compatibile con l'API "{api_actual_name}", quindi il modello è stato automaticamente cambiato in "{new_model_name}".
-    nl: Je huidige model is niet compatibel met de "{api_actual_name}" API, daarom is het model automatisch gewijzigd naar "{new_model_name}".
+  tiempoagotado:
+    es: Tiempo de espera agotado.
+    ar: لقد انتهى وقت الانتظار.
+    en: Time limit exceeded.
+    jp: 時間切れです。
+    zh: 时间已耗尽。
+    de: Zeitlimit überschritten.
+    fr: Temps écoulé.
+    ru: Время ожидания истекло.
+    pt: Limite de tempo excedido.
+    it: Tempo scaduto.
+    nl: Tijdslimiet overschreden.

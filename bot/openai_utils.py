@@ -14,50 +14,50 @@ class ChatGPT:
         self.diccionario = {}
 
     async def send_message(self, _message, lang="es", dialog_messages=[], chat_mode="assistant"):
-        self.diccionario.clear()
-        self.diccionario.update(config.completion_options)
-        answer = None
-        while answer is None:
-            try:
-                answer = ""
-                messages = self._generate_prompt_messages(_message, dialog_messages, chat_mode, lang)
-                if self.api == "chatbase":
-                    from apis.opengpt import chatbase
-                    r = chatbase.GetAnswer(messages=messages, model=self.model)
-                    answer = r
-                    if "API rate limit exceeded" in answer:
-                        answer = f'{config.lang["errores"]["utils_chatbase_limit"][lang]}'
-                    yield "not_finished", answer
-                elif self.api == "g4f":
-                    from apis.gpt4free import g4f
-                    provider_name = config.model['info'][self.model]['name']
-                    provider = getattr(g4f.Providers, provider_name)
-                    r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
-                    for chunk in r:
-                        answer += chunk
+        if (self.model in config.model["available_model"]):
+            self.diccionario.clear()
+            self.diccionario.update(config.completion_options)
+            answer = None
+            while answer is None:
+                try:
+                    answer = ""
+                    messages = self._generate_prompt_messages(_message, dialog_messages, chat_mode, lang)
+                    if self.api == "chatbase":
+                        from apis.opengpt import chatbase
+                        r = chatbase.GetAnswer(messages=messages, model=self.model)
+                        answer = r
+                        if "API rate limit exceeded" in answer:
+                            answer = f'{config.lang["errores"]["utils_chatbase_limit"][lang]}'
                         yield "not_finished", answer
-                elif self.api == "you":
-                    from apis.gpt4free.foraneo import you
-                    r = you.Completion.create(
-                        prompt=messages,
-                        chat=dialog_messages,
-                        detailed=False,
-                        include_links=True)
-                    r = dict(r)
-                    answer += r["text"]
-                    if "Unable to fetch the response, Please try again." in answer:
-                        raise Exception(answer)
-                    if len(r["links"]) >= 1:
-                        answer += "\n\nLinks: \n"
-                        for link in r["links"]:
-                            answer += f"\n- [{link['name']}]({link['url']})"
-                    yield "not_finished", answer
-                else:
-                    if (self.model in config.model["available_model"]):
+                    elif self.api == "g4f":
+                        from apis.gpt4free import g4f
+                        provider_name = config.model['info'][self.model]['name']
+                        provider = getattr(g4f.Providers, provider_name)
+                        r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
+                        for chunk in r:
+                            answer += chunk
+                            yield "not_finished", answer
+                    elif self.api == "you":
+                        from apis.gpt4free.foraneo import you
+                        r = you.Completion.create(
+                            prompt=messages,
+                            chat=dialog_messages,
+                            detailed=False,
+                            include_links=True)
+                        r = dict(r)
+                        answer += r["text"]
+                        if "Unable to fetch the response, Please try again." in answer:
+                            raise Exception(answer)
+                        if len(r["links"]) >= 1:
+                            answer += "\n\nLinks: \n"
+                            for link in r["links"]:
+                                answer += f"\n- [{link['name']}]({link['url']})"
+                        yield "not_finished", answer
+                    else:
                         api_info = config.api["info"].get(self.api, {})
                         openai.api_key = str(api_info.get("key", ""))
                         openai.api_base=str(config.api["info"][self.api].get("url"))
-                        if self.model != "text-davinci-003":
+                        if self.model not in config.model["text_completions"]:
                             self.diccionario["messages"] = messages
                             self.diccionario["model"] = self.model
                             r = await openai.ChatCompletion.acreate(stream=True, **self.diccionario)
@@ -69,19 +69,19 @@ class ChatGPT:
                         else:
                             prompt = self._generate_prompt(_message, dialog_messages, chat_mode, lang)
                             self.diccionario["prompt"] = prompt
-                            self.diccionario["engine"] = self.model
+                            self.diccionario["model"] = self.model
                             r = await openai.Completion.acreate(stream=True, **self.diccionario)
                             async for r_item in r:
                                 answer += r_item.choices[0].text
                                 yield "not_finished", answer
-                    else:
-                        raise ValueError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
-                answer = self._postprocess_answer(answer)
-            except openai.error.InvalidRequestError as e:  # too many tokens
-                if len(dialog_messages) == 0:
-                    raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]}: {e}') from e
-                # forget first message in dialog_messages
-                dialog_messages = dialog_messages[1:]
+                    answer = self._postprocess_answer(answer)
+                except openai.error.InvalidRequestError as e:  # too many tokens
+                    if len(dialog_messages) == 0:
+                        raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]}: {e}') from e
+                    # forget first message in dialog_messages
+                    dialog_messages = dialog_messages[1:]
+        else:
+            raise ValueError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
         yield "finished", answer
 
     def _generate_prompt(self, _message, dialog_messages, chat_mode, lang):
@@ -138,7 +138,7 @@ class ChatGPT:
         if self.api in config.api["available_transcript"]:
             pass
         else:
-            index = random.randint(0, len(config.api["available_transcript"]) - 1)
+            index = random.randint(1, len(config.api["available_transcript"]))
             self.api = config.api["available_transcript"][index]
         openai.api_key = config.api["info"][self.api]["key"]
         openai.api_base = config.api["info"][self.api]["url"]
@@ -149,7 +149,7 @@ class ChatGPT:
         if self.api in config.api["available_imagen"]:
             pass
         else:
-            index = random.randint(0, len(config.api["available_imagen"]) - 1)
+            index = random.randint(1, len(config.api["available_imagen"]))
             self.api = config.api["available_imagen"][index]
         openai.api_key = config.api["info"][self.api]["key"]
         openai.api_base = config.api["info"][self.api]["url"]

@@ -29,6 +29,7 @@ from telegram.constants import ParseMode, ChatAction
 import config
 import database
 import openai_utils
+import random
 
 db = database.Database()
 logger = logging.getLogger(__name__)
@@ -109,23 +110,13 @@ async def new_dialog_handle(update: Update, context: CallbackContext, chat=None,
     if not lang:
         lang = await lang_check(update, context, chat)
     if await is_previous_message_not_answered_yet(chat, lang, update): return
-    api_actual = db.get_chat_attribute(chat.id, 'current_api')
-    modelo_actual = db.get_chat_attribute(chat.id, 'current_model')
-    mododechat_actual=db.get_chat_attribute(chat.id, 'current_chat_mode')
-    # Verificar si hay valores inválidos en el usuario
-    if (mododechat_actual not in config.chat_mode["available_chat_mode"] or api_actual not in apis_vivas or modelo_actual not in config.model["available_model"]):
-        db.reset_chat_attribute(chat.id)
-        await update.effective_chat.send_message(f'{config.lang["mensajes"]["reset_chat_attributes"][lang]}')
-    modelos_disponibles=config.api["info"][api_actual]["available_model"]
-    api_actual_name=config.api["info"][api_actual]["name"]
-    # Verificar si el modelo actual es válido en la API actual
-    if modelo_actual not in modelos_disponibles:
-        db.set_chat_attribute(chat.id, "current_model", modelos_disponibles[1])
-        await update.effective_chat.send_message(f'{config.lang["mensajes"]["model_no_compatible"][lang].format(api_actual_name=api_actual_name, new_model_name=config.model["info"][db.get_chat_attribute(chat.id, "current_model")]["name"])}')
+
+    mododechat_actual, _, _ = await parameters_check(chat, lang, update)
+
     db.new_dialog(chat.id)
     db.delete_all_dialogs_except_current(chat.id)
     #Bienvenido!
-    await update.effective_chat.send_message(f"{config.chat_mode['info'][db.get_chat_attribute(chat.id, 'current_chat_mode')]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
+    await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
     db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
 
@@ -155,6 +146,28 @@ async def chat_check(update: Update, context: CallbackContext, chat=None, lang=N
     if chat.id not in chat_locks:
         chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat
+async def parameters_check(chat, lang, update):
+    mododechat_actual=db.get_chat_attribute(chat.id, 'current_chat_mode')
+    api_actual = db.get_chat_attribute(chat.id, 'current_api')
+    modelo_actual = db.get_chat_attribute(chat.id, 'current_model')
+    modelos_disponibles=config.api["info"][api_actual]["available_model"]
+    # Verificar si hay valores inválidos en el usuario
+    #chatmode
+    if mododechat_actual not in config.chat_mode["available_chat_mode"]:
+        mododechat_actual = config.chat_mode["available_chat_mode"][1]
+        db.set_chat_attribute(chat.id, "current_chat_mode", mododechat_actual)
+        await update.effective_chat.send_message(f'{config.lang["errores"]["reset_chat_mode"][lang].format(new=mododechat_actual)}')
+    #api
+    if api_actual not in apis_vivas:
+        api_actual = random.randint(1, len(apis_vivas))
+        db.set_chat_attribute(chat.id, "current_api", api_actual)
+        await update.effective_chat.send_message(f'{config.lang["errores"]["reset_api"][lang].format(new=api_actual)}')
+    #model
+    if modelo_actual not in modelos_disponibles:
+        modelo_actual = random.randint(1, len(modelos_disponibles))
+        db.set_chat_attribute(chat.id, "current_model", modelo_actual)
+        await update.effective_chat.send_message(f'{config.lang["errores"]["reset_model"][lang].format(api_actual_name=config.api["info"][api_actual]["name"], new_model_name=modelo_actual)}')
+    return mododechat_actual, api_actual, modelo_actual
 
 async def cambiar_idioma(update: Update, context: CallbackContext, chat=None, lang=None):
     if not chat:
@@ -205,7 +218,6 @@ async def retry_handle(update: Update, context: CallbackContext, chat=None, lang
     await releasemaphore(chat=chat)
     await message_handle(chat, lang, update, context, _message=last_dialog_message["user"])
 
-
 async def check_message(update: Update, _message=None):
     if update.effective_chat.type == "private":
         raw_msg = _message or update.effective_message
@@ -233,9 +245,9 @@ async def message_handle_wrapper(update, context):
     # check if bot was mentioned (for groups)
     if not await is_bot_mentioned(update, context): return
     if await is_previous_message_not_answered_yet(chat, lang, update): return
+    await parameters_check(chat, lang, update)
     task = bb(message_handle(chat, lang, update, context))
     bcs(handle_chat_task(chat, lang, task, update))
-
 async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
     if _message:
         raw_msg = await check_message(update, _message)
@@ -324,10 +336,8 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
 
 async def send_large_message(text, update):
     if len(text) <= 4096:
-        print("menos de 4096")
         await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     else:
-        print("más de 4096")
         # Divide el mensaje en partes más pequeñas
         message_parts = [text[i:i+4096] for i in range(0, len(text), 4096)]
         for part in message_parts:
@@ -620,38 +630,29 @@ async def cancel_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(f'{config.lang["mensajes"]["nadacancelado"][lang]}', parse_mode=ParseMode.HTML)
 
 async def get_menu(menu_type, update: Update, context: CallbackContext, chat):
+    lang = await lang_check(update, context, chat)
     menu_type_dict = getattr(config, menu_type)
-    api_antigua = db.get_chat_attribute(chat.id, 'current_api')
-    current_lang = db.get_chat_attribute(chat.id, 'current_lang')
-    if api_antigua not in apis_vivas:
-        db.set_chat_attribute(chat.id, "current_api", apis_vivas[0])
-        await update.effective_chat.send_message(f'{config.lang["errores"]["menu_api_no_disponible"][current_lang].format(api_antigua=api_antigua, api_nueva=config.api["info"][db.get_chat_attribute(chat.id, "current_api")]["name"])}')
-        pass
-    modelos_disponibles = config.api["info"][db.get_chat_attribute(chat.id, "current_api")]["available_model"]
-    if db.get_chat_attribute(chat.id, 'current_model') not in modelos_disponibles:
-        db.set_chat_attribute(chat.id, "current_model", modelos_disponibles[0])
-        await update.effective_chat.send_message(f'{config.lang["errores"]["model_no_compatible"][current_lang].format(api_actual_name=config.api["info"][db.get_chat_attribute(chat.id, "current_api")]["name"], new_model_name=config.model["info"][db.get_chat_attribute(chat.id, "current_model")]["name"])}')
-        pass
+    _, api_actual, _ = await parameters_check(chat, lang, update)
+    current_key = db.get_chat_attribute(chat.id, f"current_{menu_type}")
     if menu_type == "model":
-        item_keys = modelos_disponibles
+        item_keys = config.api["info"][api_actual]["available_model"]
     elif menu_type == "api":
         item_keys = apis_vivas
     else:
         item_keys = menu_type_dict[f"available_{menu_type}"]
-    current_key = db.get_chat_attribute(chat.id, f"current_{menu_type}")
     if menu_type == "chat_mode":
-        option_name = menu_type_dict["info"][current_key]["name"][current_lang]
+        option_name = menu_type_dict["info"][current_key]["name"][lang]
     elif menu_type == "lang":
-        option_name = menu_type_dict["info"]["name"][current_lang]
+        option_name = menu_type_dict["info"]["name"][lang]
     else:
         option_name = menu_type_dict["info"][current_key]["name"]
-    text = f"<b>{config.lang['info']['actual'][current_lang]}</b>\n\n{str(option_name)}, {config.lang['info']['description'][current_lang] if menu_type == 'lang' else menu_type_dict['info'][current_key]['description'][current_lang]}\n\n<b>{config.lang['info']['seleccion'][current_lang]}</b>:"
+    text = f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {config.lang['info']['description'][lang] if menu_type == 'lang' else menu_type_dict['info'][current_key]['description'][lang]}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
     num_cols = 2
     import math
     num_rows = math.ceil(len(item_keys) / num_cols)
     options = [
         [
-        menu_type_dict["info"][current_key]["name"][current_lang] if menu_type == "chat_mode" else (config.lang['info']['name'][current_key] if menu_type == 'lang' else menu_type_dict["info"][current_key]["name"]),
+        menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else (config.lang['info']['name'][current_key] if menu_type == 'lang' else menu_type_dict["info"][current_key]["name"]),
         f"set_{menu_type}|{current_key}",
         current_key,
         ]
@@ -686,12 +687,12 @@ async def chat_mode_callback_handle(update: Update, context: CallbackContext):
 async def set_chat_mode_handle(update: Update, context: CallbackContext):
     query = update.callback_query
     chat = await chat_check(update, context)
-    lang = await lang_check(update, context, chat)
     await query.answer()
     mode = query.data.split("|")[1]
     db.set_chat_attribute(chat.id, "current_chat_mode", mode)
     text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, chat=chat)
     try:
+        lang = await lang_check(update, context, chat)
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         await update.effective_chat.send_message(f"{config.chat_mode['info'][db.get_chat_attribute(chat.id, 'current_chat_mode')]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
         db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
@@ -879,6 +880,8 @@ def run_bot() -> None:
         application.add_error_handler(error_handle)
         application.run_polling()
     except Exception as e:
+        if "Timed out" in str(e):
+            e = config.lang["errores"]["tiempoagotado"][config.pred_lang]
         logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: {e}.')
 
 if __name__ == "__main__":

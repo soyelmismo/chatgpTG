@@ -1,4 +1,6 @@
 available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "g4f-you", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"]
+text_completions: ["text-davinci-003", "text-babbage-001", "text-ada-001"]
+
 # debes declarar los modelos en el apartado de acá arriba
 info:
   gpt-3.5-turbo:
@@ -45,6 +47,36 @@ info:
       pt: É um modelo desatualizado. Na verdade, <b>não há razão para usá-lo</b>, pois é mais caro e mais lento que o ChatGPT, mas em torno do mesmo nível de inteligência.
       it: È un modello obsoleto. In realtà, <b>non c'è motivo di usarlo</b>, poiché è più costoso e più lento di ChatGPT, ma circa allo stesso livello di intelligenza.
       nl: Het is een verouderd model. Er is eigenlijk <b>geen reden om het te gebruiken</b>, omdat het duurder en langzamer is dan ChatGPT, maar ongeveer op hetzelfde intelligentieniveau ligt.
+
+  text-babbage-001:
+    name: Babbage
+    description:
+      es: Capaz de realizar tareas sencillas, muy rápido y de menor coste.
+      ar: قادر على أداء المهام البسيطة بسرعة كبيرة وبتكلفة أقل.
+      en: Capable of performing simple tasks, very fast, and at a lower cost.
+      jp: シンプルなタスクを高速かつ低コストで実行できる能力を持っています。
+      zh: 能够以更快的速度和更低的成本执行简单的任务。
+      de: Fähig, einfache Aufgaben sehr schnell und kostengünstig zu erledigen.
+      fr: Capable d'effectuer des tâches simples, très rapidement et à moindre coût.
+      ru: Способен выполнять простые задачи очень быстро и с меньшими затратами.
+      pt: Capaz de realizar tarefas simples, muito rápido e com menor custo.
+      it: In grado di svolgere compiti semplici, molto velocemente e a costi inferiori.
+      nl: In staat om eenvoudige taken zeer snel en tegen lagere kosten uit te voeren.
+
+  text-ada-001:
+    name: Ada
+    description:
+      es: Capaz de realizar tareas muy sencillas, suele ser el modelo más rápido de la serie GPT-3 y el de menor coste.
+      ar: قادرة على تنفيذ المهام البسيطة جدًا، عادةً ما تكون Ada هي النموذج الأسرع في سلسلة GPT-3 والأقل تكلفة.
+      en: Capable of performing very simple tasks, Ada is usually the fastest model in the GPT-3 series and the least expensive.
+      jp: 非常にシンプルなタスクを実行することができます。Adaは、通常、GPT-3シリーズで最も速いモデルであり、最も低コストです。
+      zh: 能够执行非常简单的任务，Ada通常是GPT-3系列中最快的模型，也是最便宜的。
+      de: Fähig, sehr einfache Aufgaben zu erledigen, ist Ada in der Regel das schnellste Modell in der GPT-3-Serie und das kostengünstigste.
+      fr: Capable d'effectuer des tâches très simples, Ada est généralement le modèle le plus rapide de la série GPT-3 et le moins cher.
+      ru: Способна выполнять очень простые задачи, обычно Ada является самой быстрой моделью в серии GPT-3 и наименее затратной.
+      pt: Capaz de realizar tarefas muito simples, Ada é geralmente o modelo mais rápido da série GPT-3 e o menos caro.
+      it: In grado di svolgere compiti molto semplici, Ada è di solito il modello più veloce della serie GPT-3 e il meno costoso.
+      nl: In staat om zeer eenvoudige taken uit te voeren, is Ada meestal het snelste model in de GPT-3-serie en het minst duur.
 
   g4f-you:
     name: You
