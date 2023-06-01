@@ -904,10 +904,11 @@ def run_bot() -> None:
 
         application.add_error_handler(error_handle)
         application.run_polling()
+    except telegram.error.TimedOut:
+        e = config.lang["errores"]["tiempoagotado"][config.pred_lang]
     except Exception as e:
-        if "Timed out" in str(e):
-            e = config.lang["errores"]["tiempoagotado"][config.pred_lang]
-        logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: {e}.')
+        pass
+    logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: {e}.')
 
 if __name__ == "__main__":
     run_bot()
