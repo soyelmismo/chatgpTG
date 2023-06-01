@@ -209,15 +209,18 @@ async def retry_handle(update: Update, context: CallbackContext, chat=None, lang
     await releasemaphore(chat=chat)
     await message_handle(chat, lang, update, context, _message=last_dialog_message["user"])
 
+
 async def check_message(update: Update, _message=None):
-    raw_msg = _message or update.effective_message
-    if isinstance(raw_msg, str):
-        _message = raw_msg
-        raw_msg = update.effective_chat
-    elif hasattr(raw_msg, 'text'):
-        _message = raw_msg.text
-    else:
-        _message = _message
+    if update.effective_chat.type == "private":
+        raw_msg = _message or update.effective_message
+        if isinstance(raw_msg, str):
+            _message = raw_msg
+            raw_msg = update.effective_chat
+        elif hasattr(raw_msg, 'text'):
+            _message = raw_msg.text
+    else:  # En caso de que el mensaje provenga de un grupo
+        raw_msg = update.effective_message
+        _message = raw_msg.text if hasattr(raw_msg, 'text') else _message
     return raw_msg, _message
 
 async def add_dialog_message(chat, new_dialog_message):
@@ -239,7 +242,8 @@ async def message_handle_wrapper(update, context):
 
 async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
     if _message:
-        raw_msg = _message
+        raw_msg = await check_message(update, _message)
+        raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
         try:
@@ -259,7 +263,6 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
                     return
         except AttributeError:
             pass
-    
     dialog_messages = db.get_dialog_messages(chat.id, dialog_id=None)
     if (datetime.now() - db.get_chat_attribute(chat.id, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask == "True":
@@ -279,8 +282,6 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
     await releasemaphore(chat=chat)
     task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model))
     bcs(handle_chat_task(chat, lang, task, update))
-
-
 async def message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model):
     # in case of CancelledError
     try:
@@ -296,8 +297,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
             "html": ParseMode.HTML,
             "markdown": ParseMode.MARKDOWN
         }[config.chat_mode["info"][chat_mode]["parse_mode"]]
-        chatgpt_instance = openai_utils.ChatGPT(model=current_model)
-        gen = chatgpt_instance.send_message(_message, chat.id, lang, dialog_messages, chat_mode)     
+        gen = openai_utils.ChatGPT(chat, model=current_model).send_message(_message, lang, dialog_messages, chat_mode)
         prev_answer = ""
         async for status, gen_answer in gen:                                                         
             answer = gen_answer[:4096]  # telegram message limit                                     
@@ -310,7 +310,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
                 if str(e).startswith("Message is not modified"):                                     
                     continue                                                                         
                 else:                                                                                
-                    await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)                                                       
+                    await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
             await sleep(0.05)  # wait a bit to avoid flooding                                 
             prev_answer = answer
         # update chat data
@@ -321,7 +321,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
     except Exception as e:
         logger.error(f'{config.lang["errores"]["error"][lang]}: {e}')
         await releasemaphore(chat=chat)
-        await update.effective_chat.send_message(f'{config.lang["errores"]["error"][lang]}: {e}')
+        await context.bot.edit_message_text(f'{config.lang["errores"]["error"][lang]}: {e}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
     if chat_mode == "imagen":
         await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
@@ -346,6 +346,7 @@ async def url_handle(chat, lang, update, context, urls):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Edg/91.0.864.54"
     }
     for url in urls:
+        await update.effective_chat.send_action(ChatAction.TYPING)
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -373,6 +374,7 @@ async def document_handle(chat, lang, update, context):
     document = update.message.document
     file_size_mb = document.file_size / (1024 * 1024)
     if file_size_mb <= config.file_max_size:
+        await update.effective_chat.send_action(ChatAction.TYPING)
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_dir = Path(tmp_dir)
             ext = document.file_name.split(".")[-1]
@@ -424,42 +426,16 @@ async def ocr_image(chat, lang, update, context):
     from PIL import Image
     import pytesseract
     with tempfile.TemporaryDirectory() as tmp_dir:
-        # Descargar y convertir a MP3
+        await update.effective_chat.send_action(ChatAction.TYPING)
         tmp_dir = Path(tmp_dir)
         #ext = image.mime_type
         #ext = mimetypes.guess_extension(ext)
         img_path = tmp_dir / Path("ocrimagen.jpg")
         image_file = await context.bot.get_file(image.file_id)
         await image_file.download_to_drive(img_path)
-        #import cv2
-        #img = cv2.imread(str(img_path))
 
-        # Redimensionar la imagen a la mitad
-        #img = cv2.resize(img, None, fx=0.5, fy=0.5)
-
-        # Aplicar umbralización
-        #gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        #_, thresh_img = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-        # Reducción de ruido 
-        #denoised_img = cv2.fastNlMeansDenoisingColored(thresh_img, None, 10, 10, 7, 21)
-
-        # Mejora de contraste
-        #enhanced_img = cv2.equalizeHist(denoised_img)
-
-        # Obtener el texto de la imagen utilizando pytesseract
-        # Carga la imagen
         imagen = Image.open(str(img_path))
         imagen.info['dpi'] = (300, 300)
-        
-
-
-        # Detecta el idioma de la imagen usando el parámetro 'lang' y el valor 'osd' (Oriented Script Detection)
-        #datos_osd = pytesseract.image_to_osd(imagen)
-        #idioma_detectado = datos_osd.split("Script: ")[1].split("\n")[0]
-
-        # Lee el texto de la imagen usando el idioma detectado
-
         texto = pytesseract.image_to_string(str(img_path))
         
         db.set_chat_attribute(chat.id, "last_interaction", datetime.now())
@@ -483,6 +459,7 @@ async def transcribe_message_handle(chat, lang, update, context):
         audio = update.message.audio
     file_size_mb = audio.file_size / (1024 * 1024)
     if file_size_mb <= config.audio_max_size:
+        await update.effective_chat.send_action(ChatAction.TYPING)
         with tempfile.TemporaryDirectory() as tmp_dir:
             # Descargar y convertir a MP3
             tmp_dir = Path(tmp_dir)
@@ -503,7 +480,7 @@ async def transcribe_message_handle(chat, lang, update, context):
             # Transcribir
             with open(mp3_file_path, "rb") as f:
                 await releasemaphore(chat=chat)
-                transcribed_text = await openai_utils.transcribe_audio(chat.id, f)
+                transcribed_text = await openai_utils.ChatGPT(chat).transcribe_audio(f)
 
         # Enviar respuesta            
         text = f"🎤 {transcribed_text}"
@@ -539,7 +516,7 @@ async def generate_image_handle(chat, lang, update: Update, context: CallbackCon
     try:
         await releasemaphore(chat=chat)
         await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
-        image_urls = await openai_utils.generate_images(prompt, chat.id)
+        image_urls = await openai_utils.ChatGPT(chat).generate_images(prompt)
     except (openai.error.APIError, openai.error.InvalidRequestError) as e:
         if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
             text = f'{config.lang["errores"]["genimagen_rejected"][lang]}'
