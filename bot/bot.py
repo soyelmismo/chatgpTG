@@ -800,20 +800,28 @@ async def set_api_handle(update: Update, context: CallbackContext):
             raise
 
 async def error_handle(update: Update, context: CallbackContext) -> None:
-    logger.error(msg=f'{config.lang["errores"]["handler_excepcion"][config.pred_lang]}:', exc_info=context.error)
     try:
-        # collect error message
+        # Log the error with traceback
+        logger.error(f'{config.lang["errores"]["handler_excepcion"][config.pred_lang]}:', exc_info=context.error)
+
+        # Collect error message and traceback
         tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
         tb_string = "".join(tb_list)
-        update_str = update.to_dict() if isinstance(update, Update) else str(update)
+        update_str = json.dumps(update.to_dict(), indent=2, ensure_ascii=False)
         message = (
             f'{config.lang["errores"]["handler_excepcion"][config.pred_lang]}:\n'
-            f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
-            "</pre>\n\n"
-            f"<pre>{html.escape(tb_string)}</pre>"
+            f'<pre>update = {html.escape(update_str)}</pre>\n\n'
+            f'<pre>{html.escape(tb_string)}</pre>'
         )
+
+        # Send error message
+        await context.bot.send_message(chat_id=config.error_chat_id, text=message, parse_mode='HTML')
+
     except Exception as e:
-        await context.bot.send_message(f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}: {e}')
+        # Handle errors that may occur during error handling
+        error_message = f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}: {e}'
+        logger.error(error_message)
+        await context.bot.send_message(chat_id=config.error_chat_id, text=error_message)
 
 async def post_init(application: Application):
     bb(ejecutar_obtener_vivas())
