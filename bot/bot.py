@@ -249,21 +249,21 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
-        try:
-            if raw_msg.entities:
-                urls = []
-                for entity in raw_msg.entities:
-                    if entity.type == 'url':
-                        url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
-                        if "http://" in url_add or "https://" in url_add:
-                            urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-                if urls:
-                    await releasemaphore(chat=chat)
-                    task = bb(url_handle(chat, lang, update, urls))
-                    bcs(handle_chat_task(chat, lang, task, update))
-                    return
-        except AttributeError:
-            pass
+    try:
+        if raw_msg.entities:
+            urls = []
+            for entity in raw_msg.entities:
+                if entity.type == 'url':
+                    url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
+                    if "http://" in url_add or "https://" in url_add:
+                        urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
+            if urls:
+                await releasemaphore(chat=chat)
+                task = bb(url_handle(chat, lang, update, urls))
+                bcs(handle_chat_task(chat, lang, task, update))
+                return
+    except AttributeError:
+        pass
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
     if (datetime.now() - db.get_chat_attribute(chat, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask == "True":
@@ -272,14 +272,11 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         else:
             await new_dialog_handle(update, context, chat, lang)
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask_false"][lang].format(chatmode=config.chat_mode["info"][chat_mode]["name"][lang])}', parse_mode=ParseMode.HTML)
-
-    #remove bot mention (in group chats)
     if chat.type != "private":
         _message = _message.replace("@" + context.bot.username, "").strip()
         _message = f"{raw_msg.from_user.first_name}@{raw_msg.from_user.username}: {_message}"
     chat_mode = db.get_chat_attribute(chat, "current_chat_mode")
     current_model = db.get_chat_attribute(chat, "current_model")
-    #await message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model)
     await releasemaphore(chat=chat)
     task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model))
     bcs(handle_chat_task(chat, lang, task, update))
@@ -342,7 +339,6 @@ async def clean_text(doc):
     doc = re.sub(r'\n+', r' ', doc) # Reemplaza saltos de línea dentro de párrafos por un espacio  
     doc = re.sub(r' {2,}', ' ', doc) # Reemplaza dos o más espacios con uno solo
     doc = re.sub(r'\s+', ' ', doc).strip()
-    #doc = "\n".join(line.strip() for line in doc.split("\n"))
     return doc
 
 async def url_handle(chat, lang, update, urls):
@@ -379,48 +375,51 @@ async def url_handle(chat, lang, update, urls):
     await releasemaphore(chat=chat)
 
 async def document_handle(chat, lang, update, context):
-    document = update.message.document
-    file_size_mb = document.file_size / (1024 * 1024)
-    if file_size_mb <= config.file_max_size:
-        await update.effective_chat.send_action(ChatAction.TYPING)
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_dir = Path(tmp_dir)
-            ext = document.file_name.split(".")[-1]
-            doc_path = tmp_dir / Path(document.file_name)
-            # download
-            doc_file = await context.bot.get_file(document.file_id)
-            await doc_file.download_to_drive(doc_path)
-            if "pdf" in ext:
-                pdf_file = open(doc_path, 'rb')
-                import PyPDF2
-                read_pdf = PyPDF2.PdfReader(pdf_file)
-                doc = ''
-                paginas = len(read_pdf.pages)
-                if paginas > config.pdf_page_lim:
-                    text = f'{config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=paginas, pdf_page_lim=config.pdf_page_lim)}'
-                    paginas = config.pdf_page_lim - 1
-                    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
-                for i in range(paginas):
-                    text = read_pdf.pages[i].extract_text()
-                    text = text.replace(".\n", "|n_parraf|")  
-                    paras = text.split("|n_parraf|")
-                    parafo_count = 1
-                    for para in paras:
-                        if len(para) > 3:
-                            doc += f'{config.lang["metagen"]["paginas"][lang]}{i+1}_{config.lang["metagen"]["parrafos"][lang]}{parafo_count}: {para}\n\n'      
-                            parafo_count += 1
-            else:
-                with open(doc_path, 'r') as f:
-                    doc = f.read()
-            doc = await clean_text(doc)
-            new_dialog_message = {"documento": f'{document.file_name}: [{doc}]', "user": ".", "date": datetime.now()}
-            await add_dialog_message(chat, new_dialog_message)
-            text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
-            db.set_chat_attribute(chat, "last_interaction", datetime.now())
-    else:
-        text = f'{config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size))}'
-    await releasemaphore(chat=chat)
-    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+    try:
+        document = update.message.document
+        file_size_mb = document.file_size / (1024 * 1024)
+        if file_size_mb <= config.file_max_size:
+            await update.effective_chat.send_action(ChatAction.TYPING)
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                tmp_dir = Path(tmp_dir)
+                ext = document.file_name.split(".")[-1]
+                doc_path = tmp_dir / Path(document.file_name)
+                # download
+                doc_file = await context.bot.get_file(document.file_id)
+                await doc_file.download_to_drive(doc_path)
+                if "pdf" in ext:
+                    pdf_file = open(doc_path, 'rb')
+                    import PyPDF2
+                    read_pdf = PyPDF2.PdfReader(pdf_file)
+                    doc = ''
+                    paginas = len(read_pdf.pages)
+                    if paginas > config.pdf_page_lim:
+                        paginas = config.pdf_page_lim - 1
+                        raise Exception(config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=paginas, pdf_page_lim=config.pdf_page_lim))
+                    for i in range(paginas):
+                        text = read_pdf.pages[i].extract_text()
+                        text = text.replace(".\n", "|n_parraf|")  
+                        paras = text.split("|n_parraf|")
+                        parafo_count = 1
+                        for para in paras:
+                            if len(para) > 3:
+                                doc += f'{config.lang["metagen"]["paginas"][lang]}{i+1}_{config.lang["metagen"]["parrafos"][lang]}{parafo_count}: {para}\n\n'      
+                                parafo_count += 1
+                else:
+                    with open(doc_path, 'r') as f:
+                        doc = f.read()
+                doc = await clean_text(doc)
+                new_dialog_message = {"documento": f'{document.file_name}: [{doc}]', "user": ".", "date": datetime.now()}
+                await add_dialog_message(chat, new_dialog_message)
+                text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
+                db.set_chat_attribute(chat, "last_interaction", datetime.now())
+        else:
+            raise Exception(config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size)))
+    except Exception as e:
+        text = f'{config.lang["errores"]["error"][lang]}: {e}'
+    finally:
+        await releasemaphore(chat=chat)
+        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 async def document_wrapper(update, context):
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
@@ -789,8 +788,8 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
             "</pre>\n\n"
             f"<pre>{html.escape(tb_string)}</pre>"
         )
-    except:
-        await context.bot.send_message(f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}')
+    except Exception as e:
+        await context.bot.send_message(f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}: {e}')
 
 async def post_init(application: Application):
     bb(ejecutar_obtener_vivas())
@@ -891,11 +890,12 @@ def run_bot() -> None:
         application.add_handler(CallbackQueryHandler(set_lang_handle, pattern="^set_lang"))
 
         application.add_handler(CallbackQueryHandler(answer_timeout_handle, pattern="^new_dialog"))
-        application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern="^get_menu"))
+        mcbc = "^get_menu"
+        application.add_handler(CallbackQueryHandler(chat_mode_callback_handle, pattern=mcbc))
         application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
-        application.add_handler(CallbackQueryHandler(model_callback_handle, pattern="^get_menu"))
+        application.add_handler(CallbackQueryHandler(model_callback_handle, pattern=mcbc))
         application.add_handler(CallbackQueryHandler(set_model_handle, pattern="^set_model"))
-        application.add_handler(CallbackQueryHandler(api_callback_handle, pattern="^get_menu"))
+        application.add_handler(CallbackQueryHandler(api_callback_handle, pattern=mcbc))
         application.add_handler(CallbackQueryHandler(set_api_handle, pattern="^set_api"))
 
         application.add_error_handler(error_handle)

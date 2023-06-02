@@ -14,77 +14,77 @@ class ChatGPT:
         self.diccionario = {}
 
     async def send_message(self, _message, lang="es", dialog_messages=[], chat_mode="assistant"):
-        if (self.model in config.model["available_model"]):
-            self.diccionario.clear()
-            self.diccionario.update(config.completion_options)
-            answer = None
-            while answer is None:
-                try:
-                    answer = ""
-                    messages = self._generate_prompt_messages(_message, dialog_messages, chat_mode, lang)
-                    if self.api == "chatbase":
-                        from apis.opengpt import chatbase
-                        r = chatbase.GetAnswer(messages=messages, model=self.model)
-                        answer = r
-                        if "API rate limit exceeded" in answer:
-                            answer = f'{config.lang["errores"]["utils_chatbase_limit"][lang]}'
-                        yield "not_finished", answer
-                    elif self.api == "g4f":
-                        from apis.gpt4free import g4f
-                        provider_name = config.model['info'][self.model]['name']
-                        provider = getattr(g4f.Providers, provider_name)
-                        r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
-                        for chunk in r:
-                            answer += chunk
-                            yield "not_finished", answer
-                    elif self.api == "you":
-                        from apis.gpt4free.foraneo import you
-                        r = you.Completion.create(
-                            prompt=messages,
-                            chat=dialog_messages,
-                            detailed=False,
-                            include_links=True)
-                        r = dict(r)
-                        answer += r["text"].encode('utf-16', 'surrogatepass').decode('utf-16')  # Aquí aplicamos la codificación y decodificación
-                        if "Unable to fetch the response, Please try again." in answer:
-                            raise Exception(answer)
-                        if len(r["links"]) >= 1:
-                            answer += "\n\nLinks: \n"
-                            for link in r["links"]:
-                                 link_name = link['name']
-                                 answer += f"\n- [{link_name}]({link['url']})"
-                        yield "not_finished", answer
-                    else:
-                        api_info = config.api["info"].get(self.api, {})
-                        openai.api_key = str(api_info.get("key", ""))
-                        openai.api_base=str(config.api["info"][self.api].get("url"))
-                        if self.model not in config.model["text_completions"]:
-                            self.diccionario["messages"] = messages
-                            self.diccionario["model"] = self.model
-                            r = await openai.ChatCompletion.acreate(stream=True, **self.diccionario)
-                            async for r_item in r:
-                                delta = r_item.choices[0].delta
-                                if "content" in delta:
-                                    answer += delta.content
-                                    yield "not_finished", answer
-                        else:
-                            prompt = self._generate_prompt(_message, dialog_messages, chat_mode, lang)
-                            self.diccionario["prompt"] = prompt
-                            self.diccionario["model"] = self.model
-                            r = await openai.Completion.acreate(stream=True, **self.diccionario)
-                            async for r_item in r:
-                                answer += r_item.choices[0].text
-                                yield "not_finished", answer
-                    answer = self._postprocess_answer(answer)
-                except openai.error.InvalidRequestError as e:  # too many tokens
-                    if len(dialog_messages) == 0:
-                        raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]} [{self.api}]: {e}') from e
-                    # forget first message in dialog_messages
-                    dialog_messages = dialog_messages[1:]
-                except Exception as e:
-                    raise ValueError(f'[{self.api}]: {e}')
-        else:
+        if self.model not in config.model["available_model"]:
             raise ValueError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
+        self.diccionario.clear()
+        self.diccionario.update(config.completion_options)
+        answer = None
+        while answer is None:
+            try:
+                answer = ""
+                messages = self._generate_prompt_messages(_message, dialog_messages, chat_mode, lang)
+                if self.api == "chatbase":
+                    from apis.opengpt import chatbase
+                    r = chatbase.GetAnswer(messages=messages, model=self.model)
+                    answer = r
+                    if "API rate limit exceeded" in answer:
+                        raise ValueError(config.lang["errores"]["utils_chatbase_limit"][lang])
+                    yield "not_finished", answer
+                elif self.api == "g4f":
+                    from apis.gpt4free import g4f
+                    provider_name = config.model['info'][self.model]['name']
+                    provider = getattr(g4f.Providers, provider_name)
+                    r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
+                    for chunk in r:
+                        answer += chunk
+                        yield "not_finished", answer
+                elif self.api == "you":
+                    from apis.gpt4free.foraneo import you
+                    r = you.Completion.create(
+                        prompt=messages,
+                        chat=dialog_messages,
+                        detailed=False,
+                        include_links=True)
+                    r = dict(r)
+                    answer += r["text"].encode('utf-16', 'surrogatepass').decode('utf-16')  # Aquí aplicamos la codificación y decodificación
+                    if "Unable to fetch the response, Please try again." in answer:
+                        raise Exception(answer)
+                    if len(r["links"]) >= 1:
+                        answer += "\n\nLinks: \n"
+                        for link in r["links"]:
+                                link_name = link['name']
+                                answer += f"\n- [{link_name}]({link['url']})"
+                    yield "not_finished", answer
+                else:
+                    api_info = config.api["info"].get(self.api, {})
+                    openai.api_key = str(api_info.get("key", ""))
+                    openai.api_base=str(config.api["info"][self.api].get("url"))
+                    if self.model not in config.model["text_completions"]:
+                        self.diccionario["messages"] = messages
+                        self.diccionario["model"] = self.model
+                        fn = openai.ChatCompletion.acreate
+                    else:
+                        prompt = self._generate_prompt(_message, dialog_messages, chat_mode, lang)
+                        self.diccionario["prompt"] = prompt
+                        self.diccionario["model"] = self.model
+                        fn = openai.Completion.acreate
+                    r = await fn(stream=True, **self.diccionario)
+                    async for r_item in r:
+                        if self.model not in config.model["text_completions"]:
+                            delta = r_item.choices[0].delta
+                            if "content" in delta:
+                                answer += delta.content
+                        else:
+                            answer += r_item.choices[0].text
+                        yield "not_finished", answer
+                answer = self._postprocess_answer(answer)
+            except openai.error.InvalidRequestError as e:  # too many tokens
+                if len(dialog_messages) == 0:
+                    raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]} [{self.api}]: {e}') from e
+                # forget first message in dialog_messages
+                dialog_messages = dialog_messages[1:]
+            except Exception as e:
+                raise ValueError(f'[{self.api}]: {e}')
         yield "finished", answer
 
     def _generate_prompt(self, _message, dialog_messages, chat_mode, lang):
