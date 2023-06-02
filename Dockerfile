@@ -22,6 +22,8 @@ RUN apt-get -y install --no-install-recommends tesseract-ocr
 RUN apt-get -y install --no-install-recommends python3-opencv
 #Spanish Images
 RUN apt-get -y install --no-install-recommends tesseract-ocr-spa
+#Arabic Images
+RUN apt-get -y install --no-install-recommends tesseract-ocr-ara
 #English Images
 RUN apt-get -y install --no-install-recommends tesseract-ocr-eng
 #日本語 Images
