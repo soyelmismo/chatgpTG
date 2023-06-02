@@ -15,6 +15,10 @@
 - Lee el texto de imágenes
 - Transcribe audios
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=soyelmismo/chatgpTG&type=Date)](https://star-history.com/#soyelmismo/chatgpTG&Date)
+
 
 ## Nueva actualización:
 - *MultiLenguaje!*:
