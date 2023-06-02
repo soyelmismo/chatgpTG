@@ -693,7 +693,11 @@ async def chat_mode_callback_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def set_chat_mode_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -709,7 +713,11 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def model_handle(update: Update, context: CallbackContext):
     try:
@@ -727,7 +735,11 @@ async def model_callback_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def set_model_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -741,7 +753,11 @@ async def set_model_handle(update: Update, context: CallbackContext):
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def api_handle(update: Update, context: CallbackContext):
     try:
@@ -759,7 +775,11 @@ async def api_callback_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def set_api_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -773,7 +793,11 @@ async def set_api_handle(update: Update, context: CallbackContext):
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def error_handle(update: Update, context: CallbackContext) -> None:
     logger.error(msg=f'{config.lang["errores"]["handler_excepcion"][config.pred_lang]}:', exc_info=context.error)
@@ -821,7 +845,11 @@ async def lang_callback_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def set_lang_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -835,7 +863,11 @@ async def set_lang_handle(update: Update, context: CallbackContext):
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod):
+            # Ignorar esta excepción específica y continuar la ejecución normalmente
             pass
+        else:
+            # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
+            raise
 
 async def ejecutar_obtener_vivas():
     while True:
