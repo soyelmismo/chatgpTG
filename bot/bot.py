@@ -158,7 +158,7 @@ async def parameters_check(chat, lang, update):
     #api
     api_actual = db.get_chat_attribute(chat, 'current_api')
     if not apis_vivas:
-        raise Exception(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
+        raise LookupError(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
     if api_actual not in apis_vivas:
         api_actual = apis_vivas[random.randint(0, len(apis_vivas) - 1)]
         db.set_chat_attribute(chat, "current_api", api_actual)
@@ -355,7 +355,7 @@ async def url_handle(chat, lang, update, urls):
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             if len(response.content) > config.url_max_size * (1024 * 1024):
-                raise Exception(f'{config.lang["errores"]["url_size_exception"][lang]}')
+                raise ValueError(f'{config.lang["errores"]["url_size_exception"][lang]}')
             soup = BeautifulSoup(response.content, "html.parser")
             body_tag = soup.body
             if body_tag:
@@ -395,7 +395,7 @@ async def document_handle(chat, lang, update, context):
                     paginas = len(read_pdf.pages)
                     if paginas > config.pdf_page_lim:
                         paginas = config.pdf_page_lim - 1
-                        raise Exception(config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=paginas, pdf_page_lim=config.pdf_page_lim))
+                        raise ValueError(config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=paginas, pdf_page_lim=config.pdf_page_lim))
                     for i in range(paginas):
                         text = read_pdf.pages[i].extract_text()
                         text = text.replace(".\n", "|n_parraf|")  
@@ -414,7 +414,7 @@ async def document_handle(chat, lang, update, context):
                 text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
                 db.set_chat_attribute(chat, "last_interaction", datetime.now())
         else:
-            raise Exception(config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size)))
+            raise ValueError(config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size)))
     except Exception as e:
         text = f'{config.lang["errores"]["error"][lang]}: {e}'
     finally:

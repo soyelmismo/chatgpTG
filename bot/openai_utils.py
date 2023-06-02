@@ -15,7 +15,7 @@ class ChatGPT:
 
     async def send_message(self, _message, lang="es", dialog_messages=[], chat_mode="assistant"):
         if self.model not in config.model["available_model"]:
-            raise ValueError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
+            raise LookupError(f'{config.lang["errores"]["utils_modelo_desconocido"][lang]}: {self.model}')
         self.diccionario.clear()
         self.diccionario.update(config.completion_options)
         answer = None
@@ -28,7 +28,7 @@ class ChatGPT:
                     r = chatbase.GetAnswer(messages=messages, model=self.model)
                     answer = r
                     if "API rate limit exceeded" in answer:
-                        raise ValueError(config.lang["errores"]["utils_chatbase_limit"][lang])
+                        raise RuntimeError(config.lang["errores"]["utils_chatbase_limit"][lang])
                     yield "not_finished", answer
                 elif self.api == "g4f":
                     from apis.gpt4free import g4f
@@ -48,7 +48,7 @@ class ChatGPT:
                     r = dict(r)
                     answer += r["text"].encode('utf-16', 'surrogatepass').decode('utf-16')  # Aquí aplicamos la codificación y decodificación
                     if "Unable to fetch the response, Please try again." in answer:
-                        raise Exception(answer)
+                        raise RuntimeError(answer)
                     if len(r["links"]) >= 1:
                         answer += "\n\nLinks: \n"
                         for link in r["links"]:
@@ -80,7 +80,7 @@ class ChatGPT:
                 answer = self._postprocess_answer(answer)
             except openai.error.InvalidRequestError as e:  # too many tokens
                 if len(dialog_messages) == 0:
-                    raise ValueError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]} [{self.api}]: {e}') from e
+                    raise IndexError(f'{config.lang["errores"]["utils_dialog_messages_0"][lang]} [{self.api}]: {e}') from e
                 # forget first message in dialog_messages
                 dialog_messages = dialog_messages[1:]
             except Exception as e:
