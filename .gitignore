@@ -137,7 +137,7 @@ bot/config_dev.py
 docker-compose.dev.yml
 
 docker-compose.yml
-
+todo.txt
 bot/apis/OpenGPTtt/
 .vscode
 dummys/
