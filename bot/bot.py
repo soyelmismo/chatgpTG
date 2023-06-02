@@ -250,6 +250,7 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         await urls_wrapper(raw_msg, chat, lang, update)
         return
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
+    chat_mode = db.get_chat_attribute(chat, "current_chat_mode")
     if (datetime.now() - db.get_chat_attribute(chat, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask:
             await ask_timeout_handle(chat, lang, update, _message)
@@ -260,7 +261,6 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
     if chat.type != "private":
         _message = _message.replace("@" + context.bot.username, "").strip()
         _message = f"{raw_msg.from_user.first_name}@{raw_msg.from_user.username}: {_message}"
-    chat_mode = db.get_chat_attribute(chat, "current_chat_mode")
     current_model = db.get_chat_attribute(chat, "current_model")
     await releasemaphore(chat=chat)
     task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model))
