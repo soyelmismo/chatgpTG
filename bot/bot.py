@@ -246,25 +246,12 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
-    if config.switch_urls:
-        try:
-            if raw_msg.entities:
-                urls = []
-                for entity in raw_msg.entities:
-                    if entity.type == 'url':
-                        url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
-                        if "http://" in url_add or "https://" in url_add:
-                            urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-                if urls:
-                    await releasemaphore(chat=chat)
-                    task = bb(url_handle(chat, lang, update, urls))
-                    bcs(handle_chat_task(chat, lang, task, update))
-                    return
-        except AttributeError:
-            pass
+    if config.switch_urls and raw_msg.entities:
+        await urls_wrapper(raw_msg, chat, lang, update)
+        return
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
     if (datetime.now() - db.get_chat_attribute(chat, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
-        if config.timeout_ask == "True":
+        if config.timeout_ask:
             await ask_timeout_handle(chat, lang, update, _message)
             return
         else:
@@ -278,30 +265,23 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
     await releasemaphore(chat=chat)
     task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model))
     bcs(handle_chat_task(chat, lang, task, update))
+    
 async def message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model):
-    # in case of CancelledError
     try:
-        # send placeholder message to chat
         placeholder_message = await update.effective_chat.send_message("🤔")
-        # send typing action
-        if chat:
-            await update.effective_chat.send_action(ChatAction.TYPING)
-        if _message is None or len(_message) == 0:
+        if not _message:
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
             return
-        parse_mode = {
-            "html": ParseMode.HTML,
-            "markdown": ParseMode.MARKDOWN
-        }[config.chat_mode["info"][chat_mode]["parse_mode"]]
         gen = openai_utils.ChatGPT(chat, lang, model=current_model).send_message(_message, dialog_messages, chat_mode)
+        await update.effective_chat.send_action(ChatAction.TYPING)
         prev_answer = ""
-        #actualizaciones para chats y grupos
         if chat.type != "private":
             upd=150
             timer=0.4
         else:
             upd=75
             timer=0.04
+        parse_mode = ParseMode.HTML if config.chat_mode["info"][chat_mode]["parse_mode"] == "html" else ParseMode.MARKDOWN
         async for status, gen_answer in gen:
             answer = gen_answer[:4096]  # telegram message limit
             if abs(len(answer) - len(prev_answer)) < upd and status != "finished":  # Comparar con el valor de corte
@@ -325,9 +305,8 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
         await releasemaphore(chat=chat)
         await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
-    if config.switch_imgs:
-        if chat_mode == "imagen":
-            await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
+    if config.switch_imgs and chat_mode == "imagen":
+        await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
 
 async def send_large_message(text, update):
     if len(text) <= 4096:
@@ -378,6 +357,21 @@ async def url_handle(chat, lang, update, urls):
         await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     db.set_chat_attribute(chat, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
+async def urls_wrapper(raw_msg, chat, lang, update):
+    try:
+        urls = []
+        for entity in raw_msg.entities:
+            if entity.type == 'url':
+                url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
+                if "http://" in url_add or "https://" in url_add:
+                    urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
+        if urls:
+            await releasemaphore(chat=chat)
+            task = bb(url_handle(chat, lang, update, urls))
+            bcs(handle_chat_task(chat, lang, task, update))
+            return
+    except AttributeError:
+        pass
 
 async def document_handle(chat, lang, update, context):
     try:
@@ -630,7 +624,7 @@ async def cancel_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
     semaphore = chat_locks.get(chat.id)
-    if not semaphore and not semaphore.locked() or not chat.id in chat_tasks:
+    if not semaphore and not semaphore.locked() or chat.id not in chat_tasks:
         await update.message.reply_text(f'{config.lang["mensajes"]["nadacancelado"][lang]}', parse_mode=ParseMode.HTML)
     else:
         await releasemaphore(chat)
@@ -642,67 +636,81 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat, pa
     try:
         lang = await lang_check(update, context, chat)
         menu_type_dict = getattr(config, menu_type)
-        _, api_actual, _ = await parameters_check(chat, lang, update)
         current_key = db.get_chat_attribute(chat, f"current_{menu_type}")
-        if menu_type == "model":
-            item_keys = config.api["info"][api_actual]["available_model"]
-        elif menu_type == "api":
-            item_keys = apis_vivas
-        else:
-            item_keys = menu_type_dict[f"available_{menu_type}"]
-        if menu_type == "chat_mode":
-            if config.switch_imgs:
-                if "imagen" in item_keys:
-                    item_keys.remove("imagen")
-            option_name = menu_type_dict["info"][current_key]["name"][lang]
-        elif menu_type == "lang":
-            option_name = menu_type_dict["info"]["name"][lang]
-        else:
-            option_name = menu_type_dict["info"][current_key]["name"]
-        text = f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {config.lang['info']['description'][lang] if menu_type == 'lang' else menu_type_dict['info'][current_key]['description'][lang]}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
-        import math
-        per_page = config.itemspage
-        page_keys = item_keys[page_index * per_page:(page_index + 1) * per_page]
-        cols = config.columnpage
-        num_rows = math.ceil(len(page_keys) / cols)
-        indices = range(len(page_keys))
-        columns = [indices[i::num_rows] for i in range(num_rows)]
-        keyboard = []
-        for column in columns:
-            buttons = []
-            for index in column:
-                current_key = page_keys[index]
-                name = menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else (config.lang['info']['name'][current_key] if menu_type == 'lang' else menu_type_dict["info"][current_key]["name"])
-                buttons.append(InlineKeyboardButton(name, callback_data=f"set_{menu_type}|{current_key}|{page_index}"))
-            keyboard.append(buttons)
-        if len(item_keys) > per_page:
-            is_first_page = (page_index == 0)
-            is_last_page = ((page_index + 1) * per_page >= len(item_keys))
-            if is_first_page:
-                keyboard.append([
-                    InlineKeyboardButton("»", callback_data=f"set_{menu_type}|paginillas|{page_index + 1}")
-                ])
-            elif is_last_page:
-                keyboard.append([
-                    InlineKeyboardButton("«", callback_data=f"set_{menu_type}|paginillas|{page_index - 1}"),
-                ])
-            else:
-                keyboard.append([
-                    InlineKeyboardButton("«", callback_data=f"set_{menu_type}|paginillas|{page_index - 1}"),
-                    InlineKeyboardButton("»", callback_data=f"set_{menu_type}|paginillas|{page_index + 1}")
-                ])
+        item_keys = await get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update)
+        if not config.switch_imgs and "imagen" in item_keys:
+            item_keys.remove("imagen")
+        option_name = await get_menu_option_name(current_key, menu_type, menu_type_dict, lang)
+        text = await get_menu_text(lang, option_name, menu_type, menu_type_dict, current_key)
+        keyboard = await get_menu_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
     except Exception as e:
         logger.error(f'<get_menu> {config.lang["errores"]["error"][lang]}: {e}')
-
-async def chat_mode_handle(update: Update, context: CallbackContext):
-    try:
-        chat = await chat_check(update, context)
-        text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, chat=chat, page_index=0)
-        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except TypeError:
-        logger.error(f'<chat_mode_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
+    _, api_actual, _ = await parameters_check(chat, lang, update)
+    if menu_type == "model":
+        item_keys = config.api["info"][api_actual]["available_model"]
+    elif menu_type == "api":
+        item_keys = apis_vivas
+    else:
+        item_keys = menu_type_dict[f"available_{menu_type}"]
+    return item_keys
+async def get_menu_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
+    per_page = config.itemspage
+    page_keys = item_keys[page_index * per_page:(page_index + 1) * per_page]
+    cols = config.columnpage
+    import math
+    num_rows = math.ceil(len(page_keys) / cols)
+    indices = range(len(page_keys))
+    columns = [indices[i::num_rows] for i in range(num_rows)]
+    keyboard = []
+    for column in columns:
+        buttons = []
+        for index in column:
+            current_key = page_keys[index]
+            name = await get_menu_item_name(menu_type, menu_type_dict, current_key, lang)
+            buttons.append(InlineKeyboardButton(name, callback_data=f"set_{menu_type}|{current_key}|{page_index}"))
+        keyboard.append(buttons)
+    if len(item_keys) > per_page:
+        is_first_page = (page_index == 0)
+        is_last_page = ((page_index + 1) * per_page >= len(item_keys))
+        if is_first_page:
+            keyboard.append([
+                InlineKeyboardButton("»", callback_data=f"set_{menu_type}|paginillas|{page_index + 1}")
+            ])
+        elif is_last_page:
+            keyboard.append([
+                InlineKeyboardButton("«", callback_data=f"set_{menu_type}|paginillas|{page_index - 1}"),
+            ])
+        else:
+            keyboard.append([
+                InlineKeyboardButton("«", callback_data=f"set_{menu_type}|paginillas|{page_index - 1}"),
+                InlineKeyboardButton("»", callback_data=f"set_{menu_type}|paginillas|{page_index + 1}")
+            ])
+    return keyboard
+async def get_menu_item_name(menu_type, menu_type_dict, current_key, lang):
+    if menu_type == "chat_mode":
+        name = menu_type_dict["info"][current_key]["name"][lang]
+    elif menu_type == 'lang':
+        name = menu_type_dict['info']['name'][current_key]
+    else:
+        name = menu_type_dict["info"][current_key]["name"]
+    return name
+async def get_menu_text(lang, option_name, menu_type, menu_type_dict, current_key):
+    if menu_type == "lang":
+        description = menu_type_dict['info']['description'][lang]
+    else:
+        description = menu_type_dict['info'][current_key]['description'][lang]
+    return f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {description}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
+async def get_menu_option_name(current_key, menu_type, menu_type_dict, lang):
+    if menu_type == "chat_mode":
+        option_name = menu_type_dict["info"][current_key]["name"][lang]
+    elif menu_type == "lang":
+        option_name = menu_type_dict["info"]["name"][lang]
+    else:
+        option_name = menu_type_dict["info"][current_key]["name"]
+    return option_name
 
 async def menu_handler(update: Update):
     query = update.callback_query
@@ -713,6 +721,13 @@ async def menu_handler(update: Update):
         return
     return query, page_index, seleccion
 
+async def chat_mode_handle(update: Update, context: CallbackContext):
+    try:
+        chat = await chat_check(update, context)
+        text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, chat=chat, page_index=0)
+        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except TypeError:
+        logger.error(f'<chat_mode_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
 async def chat_mode_callback_handle(update: Update, context: CallbackContext):
     query, page_index, _ = await menu_handler(update)
     text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, page_index=page_index)
@@ -725,7 +740,6 @@ async def chat_mode_callback_handle(update: Update, context: CallbackContext):
         else:
             # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
             raise
-
 async def set_chat_mode_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
@@ -752,7 +766,6 @@ async def model_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         logger.error(f'<model_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-
 async def model_callback_handle(update: Update, context: CallbackContext):
     query, page_index, _ = await menu_handler(update)
     text, reply_markup = await get_menu(menu_type="model", update=update, context=context, page_index=page_index)
@@ -765,7 +778,6 @@ async def model_callback_handle(update: Update, context: CallbackContext):
         else:
             # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
             raise
-
 async def set_model_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
@@ -790,7 +802,6 @@ async def api_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         logger.error(f'<api_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-
 async def api_callback_handle(update: Update, context: CallbackContext):
     query, page_index, _ = await menu_handler(update)
     text, reply_markup = await get_menu(menu_type="api", update=update, context=context, page_index=page_index)
@@ -803,7 +814,6 @@ async def api_callback_handle(update: Update, context: CallbackContext):
         else:
             # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
             raise
-
 async def set_api_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
@@ -828,7 +838,6 @@ async def lang_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         logger.error(f'<lang_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-
 async def lang_callback_handle(update: Update, context: CallbackContext):
     query, page_index, _ = await menu_handler(update)
     text, reply_markup = await get_menu(menu_type="lang", update=update, context=context, page_index=page_index)
@@ -841,7 +850,6 @@ async def lang_callback_handle(update: Update, context: CallbackContext):
         else:
             # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
             raise
-
 async def set_lang_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)

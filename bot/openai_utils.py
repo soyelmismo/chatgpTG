@@ -82,10 +82,7 @@ class ChatGPT:
             raise Exception(e)
 
     def _handle_exception(self, error):
-        try:
-            raise ValueError(f'<{self.api}> {error}')
-        except Exception:
-            raise
+        raise ValueError(f'<{self.api}> {error}')
 
     async def _get_openai_answer(self, _message, messages, dialog_messages, chat_mode):
         try:
@@ -144,7 +141,6 @@ class ChatGPT:
                 if "API rate limit exceeded" in self.answer:
                     raise RuntimeError(config.lang["errores"]["utils_chatbase_limit"][self.lang])
                 yield "not_finished", self.answer
-            
         except Exception as e:
             e = f'_get_chatbase_answer: {e}'
             raise Exception(e)
