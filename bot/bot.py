@@ -118,7 +118,6 @@ async def new_dialog_handle(update: Update, context: CallbackContext, chat=None,
             db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
         print(f'{config.lang["errores"]["error"][lang]}: {e}')
-        pass
     finally:
         await releasemaphore(chat=chat)
 
@@ -243,7 +242,6 @@ async def message_handle_wrapper(update, context):
         bcs(handle_chat_task(chat, lang, task, update))
     except Exception as e:
         print(f'{config.lang["errores"]["error"][lang]}: {e}')
-        pass
 async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
     if _message:
         raw_msg = await check_message(update, _message)
@@ -483,8 +481,7 @@ async def ocr_image(chat, lang, update, context):
                 new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{doc}"', "date": datetime.now()}
                 await add_dialog_message(chat, new_dialog_message)
     except RuntimeError:
-        text = "**Error**: La imagen tardó mucho en procesarse... 😔"
-        pass
+        text = f'{config.lang["errores"]["error"][lang]}: {config.lang["errores"]["tiempoagotado"][lang]}'
     await update.message.reply_text(f'{text}', parse_mode=ParseMode.MARKDOWN)
     await releasemaphore(chat=chat)
 async def ocr_image_wrapper(update, context):
@@ -591,11 +588,8 @@ async def generate_image_handle(chat, lang, update: Update, context: CallbackCon
         image_group.append(image)
         document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
         document_group.append(document)
-    try:
         await update.message.reply_media_group(image_group)
         await update.message.reply_media_group(document_group)
-    except "Timed out" in telegram.error.TimedOut:
-        pass
     db.set_chat_attribute(chat, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
 async def generate_image_wrapper(update, context, _message=None, chat=None, lang=None):
@@ -698,7 +692,6 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat):
         return text, reply_markup
     except Exception as e:
         print(f'{config.lang["errores"]["error"][lang]}: {e}')
-        pass
 
 async def chat_mode_handle(update: Update, context: CallbackContext):
     try:
@@ -707,7 +700,6 @@ async def chat_mode_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-        pass
 
 async def chat_mode_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -742,7 +734,6 @@ async def model_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-        pass
 
 async def model_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -775,7 +766,6 @@ async def api_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-        pass
 
 async def api_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -838,7 +828,6 @@ async def lang_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
         print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
-        pass
 
 async def lang_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
