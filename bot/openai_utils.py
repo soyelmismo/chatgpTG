@@ -138,9 +138,7 @@ class ChatGPT:
         return answer
     
     async def transcribe_audio(self, audio_file):
-        if self.api in config.api["available_transcript"]:
-            pass
-        else:
+        if self.api not in config.api["available_transcript"]:
             index = random.randint(1, len(config.api["available_transcript"]))
             self.api = config.api["available_transcript"][index]
         openai.api_key = config.api["info"][self.api]["key"]
@@ -149,9 +147,7 @@ class ChatGPT:
         return r["text"]
 
     async def generate_images(self, prompt):
-        if self.api in config.api["available_imagen"]:
-            pass
-        else:
+        if self.api not in config.api["available_imagen"]:
             index = random.randint(1, len(config.api["available_imagen"]))
             self.api = config.api["available_imagen"][index]
         openai.api_key = config.api["info"][self.api]["key"]

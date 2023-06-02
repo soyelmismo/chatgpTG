@@ -1079,6 +1079,18 @@ errores:
     pt: Limite de tempo excedido.
     it: Tempo scaduto.
     nl: Tijdslimiet overschreden.
+  ocr_no_extract:
+    es: No se pudo extraer el texto de la imagen... 😔
+    ar: تعذر استخراج النص من الصورة... 😔
+    en: Failed to extract text from the image... 😔
+    jp: 画像からテキストを抽出できませんでした... 😔
+    zh: 无法从图像中提取文本... 😔
+    de: Text konnte nicht aus dem Bild extrahiert werden... 😔
+    fr: Impossible d'extraire le texte de l'image... 😔
+    ru: Не удалось извлечь текст из изображения... 😔
+    pt: Não foi possível extrair o texto da imagem... 😔
+    it: Impossibile estrarre il testo dall'immagine... 😔
+    nl: Het is niet gelukt om tekst uit de afbeelding te halen... 😔
   apis_vivas_not_ready_yet:
     es: APIs vivas no está listo aún...
     ar: واجهات برمجة التطبيقات الحية غير جاهزة بعد...

@@ -40,6 +40,8 @@ sleep = asyncio.sleep
 chat_locks = {}
 chat_tasks = {}
 apis_vivas = []
+msg_no_mod = "Message is not modified"
+
 
 async def obtener_vivas():
     from apistatus import estadosapi
@@ -117,7 +119,7 @@ async def new_dialog_handle(update: Update, context: CallbackContext, chat=None,
             await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
             db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
-        print(f'{config.lang["errores"]["error"][lang]}: {e}')
+        logger.error(f'<new_dialog_handle> {config.lang["errores"]["error"][lang]}: {e}')
     finally:
         await releasemaphore(chat=chat)
 
@@ -228,7 +230,6 @@ async def add_dialog_message(chat, new_dialog_message):
         db.get_dialog_messages(chat, dialog_id=None) + [new_dialog_message],
         dialog_id=None
     )
-    return
 
 async def message_handle_wrapper(update, context):
     try:
@@ -241,7 +242,7 @@ async def message_handle_wrapper(update, context):
         task = bb(message_handle(chat, lang, update, context))
         bcs(handle_chat_task(chat, lang, task, update))
     except Exception as e:
-        print(f'{config.lang["errores"]["error"][lang]}: {e}')
+        logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][lang]}: {e}')
 async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
     if _message:
         raw_msg = await check_message(update, _message)
@@ -266,7 +267,7 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
     if (datetime.now() - db.get_chat_attribute(chat, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask == "True":
-            await ask_timeout_handle(chat, lang, update, context, _message)
+            await ask_timeout_handle(chat, lang, update, _message)
             return
         else:
             await new_dialog_handle(update, context, chat, lang)
@@ -303,13 +304,13 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
             answer = gen_answer[:4096]  # telegram message limit                                     
             # update only when 100 new symbols are ready                                             
             if abs(len(answer) - len(prev_answer)) < 150 and status != "finished":                    
-                continue                                                                             
-            try:                                                                                     
-                await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, parse_mode=parse_mode)                                
+                continue
+            try:
+                await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, parse_mode=parse_mode)
             except telegram.error.BadRequest as e:                                                   
-                if str(e).startswith("Message is not modified"):                                     
-                    continue                                                                         
-                else:                                                                                
+                if str(e).startswith(msg_no_mod):                                     
+                    continue
+                else:
                     await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
             await sleep(0.02)  # wait a bit to avoid flooding                                 
             prev_answer = answer
@@ -319,7 +320,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
         await add_dialog_message(chat, new_dialog_message)
         await releasemaphore(chat=chat)
     except Exception as e:
-        logger.error(f'{config.lang["errores"]["error"][lang]}: {e}')
+        logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][lang]}: {e}')
         await releasemaphore(chat=chat)
         await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
@@ -438,43 +439,27 @@ async def ocr_image(chat, lang, update, context):
         with tempfile.TemporaryDirectory() as tmp_dir:
             await update.effective_chat.send_action(ChatAction.TYPING)
             tmp_dir = Path(tmp_dir)
-            #ext = image.mime_type
-            #ext = mimetypes.guess_extension(ext)
             img_path = tmp_dir / Path("ocrimagen.jpg")
             image_file = await context.bot.get_file(image.file_id)
             await image_file.download_to_drive(img_path)
-            
-            # Cargar imagen
             imagen = cv2.imread(str(img_path))
-            # Convertir imagen a escala de grises y binarizar
             gray = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
             _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-            
-            # Obtener coordenadas de todos los píxeles no negros
             coords = np.column_stack(np.where(binary > 0))
-            
-            # Ajustar un rectángulo (rotado) mínimo alrededor del texto
             rect = cv2.minAreaRect(coords)
-            
-            # Obtener ángulo de inclinación (en grados) del rectángulo ajustado
             angle = rect[-1]
-            
-            # Corregir  el ángulo
             if angle < -45:
                 angle = -(90 + angle)
             else:
                 angle = -angle
             (h, w) = imagen.shape[:2]
             center = (w // 2, h // 2)
-            
-            # Aplicar la rotación
             matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
             rotated = cv2.warpAffine(imagen, matrix, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
             doc = pytesseract.image_to_string(rotated, timeout=50, lang='eng+spa+jpn+chi+deu+fra+rus+por+ita+nld', config='--psm 1')
-
             db.set_chat_attribute(chat, "last_interaction", datetime.now())
             if len(doc) <= 1:
-                text = "**Error**: No se pudo extraer el texto de la imagen... 😔"
+                text = f'{config.lang["errores"]["error"][lang]}: {config.lang["errores"]["ocr_no_extract"][lang]}'
             else:
                 doc = await clean_text(doc)
                 text = config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=doc)
@@ -531,7 +516,7 @@ async def transcribe_message_handle(chat, lang, update, context):
             text = f"🎤 {transcribed_text}"
             db.set_chat_attribute(chat, "last_interaction", datetime.now())
         except Exception as e:
-            logger.error(f'{config.lang["errores"]["error"][lang]}: {e}')
+            logger.error(f'<transcribe_message_handle> {config.lang["errores"]["error"][lang]}: {e}')
             await releasemaphore(chat=chat)
             return
     else:
@@ -601,10 +586,10 @@ async def generate_image_wrapper(update, context, _message=None, chat=None, lang
     task = bb(generate_image_handle(chat, lang, update, context, _message))
     bcs(handle_chat_task(chat, lang, task, update))
 
-async def ask_timeout_handle(chat, lang, update: Update, context: CallbackContext, _message):
+async def ask_timeout_handle(chat, lang, update: Update, _message):
     keyboard = [[
-        InlineKeyboardButton("✅", callback_data=f"new_dialog|true"),
-        InlineKeyboardButton("❎", callback_data=f"new_dialog|false"),
+        InlineKeyboardButton("✅", callback_data="new_dialog|true"),
+        InlineKeyboardButton("❎", callback_data="new_dialog|false"),
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -691,7 +676,7 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat):
         )
         return text, reply_markup
     except Exception as e:
-        print(f'{config.lang["errores"]["error"][lang]}: {e}')
+        logger.error(f'<get_menu> {config.lang["errores"]["error"][lang]}: {e}')
 
 async def chat_mode_handle(update: Update, context: CallbackContext):
     try:
@@ -699,7 +684,7 @@ async def chat_mode_handle(update: Update, context: CallbackContext):
         text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, chat=chat)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
-        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        logger.error(f'<chat_mode_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
 
 async def chat_mode_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -708,7 +693,7 @@ async def chat_mode_callback_handle(update: Update, context: CallbackContext):
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def set_chat_mode_handle(update: Update, context: CallbackContext):
@@ -724,7 +709,7 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
         await update.effective_chat.send_message(f"{config.chat_mode['info'][db.get_chat_attribute(chat, 'current_chat_mode')]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def model_handle(update: Update, context: CallbackContext):
@@ -733,7 +718,7 @@ async def model_handle(update: Update, context: CallbackContext):
         text, reply_markup = await get_menu(menu_type="model", update=update, context=context,chat=chat)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
-        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        logger.error(f'<model_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
 
 async def model_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -742,7 +727,7 @@ async def model_callback_handle(update: Update, context: CallbackContext):
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def set_model_handle(update: Update, context: CallbackContext):
@@ -756,7 +741,7 @@ async def set_model_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def api_handle(update: Update, context: CallbackContext):
@@ -765,7 +750,7 @@ async def api_handle(update: Update, context: CallbackContext):
         text, reply_markup = await get_menu(menu_type="api", update=update, context=context, chat=chat)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
-        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        logger.error(f'<api_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
 
 async def api_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -774,7 +759,7 @@ async def api_callback_handle(update: Update, context: CallbackContext):
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def set_api_handle(update: Update, context: CallbackContext):
@@ -788,7 +773,7 @@ async def set_api_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def error_handle(update: Update, context: CallbackContext) -> None:
@@ -827,7 +812,7 @@ async def lang_handle(update: Update, context: CallbackContext):
         text, reply_markup = await get_menu(menu_type="lang", update=update, context=context, chat=chat)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except TypeError:
-        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        logger.error(f'<lang_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
 
 async def lang_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -836,7 +821,7 @@ async def lang_callback_handle(update: Update, context: CallbackContext):
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def set_lang_handle(update: Update, context: CallbackContext):
@@ -850,7 +835,7 @@ async def set_lang_handle(update: Update, context: CallbackContext):
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
-        if str(e).startswith("Message is not modified"):
+        if str(e).startswith(msg_no_mod):
             pass
 
 async def ejecutar_obtener_vivas():
@@ -916,10 +901,9 @@ def run_bot() -> None:
         application.add_error_handler(error_handle)
         application.run_polling()
     except telegram.error.TimedOut:
-        e = config.lang["errores"]["tiempoagotado"][config.pred_lang]
+        logger.error(f'{config.lang["errores"]["tiempoagotado"][config.pred_lang]}')
     except Exception as e:
-        pass
-    logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: {e}.')
+        logger.error(f'<run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')
 
 if __name__ == "__main__":
     run_bot()
