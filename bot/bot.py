@@ -246,21 +246,22 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
-    try:
-        if raw_msg.entities:
-            urls = []
-            for entity in raw_msg.entities:
-                if entity.type == 'url':
-                    url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
-                    if "http://" in url_add or "https://" in url_add:
-                        urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-            if urls:
-                await releasemaphore(chat=chat)
-                task = bb(url_handle(chat, lang, update, urls))
-                bcs(handle_chat_task(chat, lang, task, update))
-                return
-    except AttributeError:
-        pass
+    if config.switch_urls == "True":
+        try:
+            if raw_msg.entities:
+                urls = []
+                for entity in raw_msg.entities:
+                    if entity.type == 'url':
+                        url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
+                        if "http://" in url_add or "https://" in url_add:
+                            urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
+                if urls:
+                    await releasemaphore(chat=chat)
+                    task = bb(url_handle(chat, lang, update, urls))
+                    bcs(handle_chat_task(chat, lang, task, update))
+                    return
+        except AttributeError:
+            pass
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
     if (datetime.now() - db.get_chat_attribute(chat, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
         if config.timeout_ask == "True":
@@ -324,8 +325,9 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
         await releasemaphore(chat=chat)
         await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
-    if chat_mode == "imagen":
-        await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
+    if config.switch_imgs == True:
+        if chat_mode == "imagen":
+            await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
 
 async def send_large_message(text, update):
     if len(text) <= 4096:
@@ -480,9 +482,9 @@ async def ocr_image_wrapper(update, context):
     bcs(handle_chat_task(chat, lang, task, update))
 
 async def transcribe_message_handle(chat, lang, update, context):
-    # Procesar sea voz o audio         
+    # Procesar sea voz o audio
     if update.message.voice:
-        audio = update.message.voice     
+        audio = update.message.voice
     elif update.message.audio:
         audio = update.message.audio
     file_size_mb = audio.file_size / (1024 * 1024)
@@ -649,6 +651,9 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat, pa
         else:
             item_keys = menu_type_dict[f"available_{menu_type}"]
         if menu_type == "chat_mode":
+            if config.switch_imgs == False:
+                if "imagen" in item_keys:
+                    item_keys.remove("imagen")
             option_name = menu_type_dict["info"][current_key]["name"][lang]
         elif menu_type == "lang":
             option_name = menu_type_dict["info"]["name"][lang]
@@ -924,12 +929,15 @@ def run_bot() -> None:
         else:
             user_filter = filters.ALL
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle_wrapper))
-        application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_wrapper))
-        application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_wrapper))
-        application.add_handler(MessageHandler(filters.PHOTO & user_filter, ocr_image_wrapper))
-        docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
-        application.add_handler(MessageHandler(docfilter & user_filter, document_wrapper))
-        application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_wrapper))
+        if config.switch_voice == "True":
+            application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_wrapper))
+            application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_wrapper))
+        if config.switch_ocr == "True":
+            application.add_handler(MessageHandler(filters.PHOTO & user_filter, ocr_image_wrapper))
+        if config.switch_docs == "True":
+            docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
+            application.add_handler(MessageHandler(docfilter & user_filter, document_wrapper))
+            application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_wrapper))
         
         application.add_handler(CommandHandler("start", start_handle, filters=user_filter))
         application.add_handler(CommandHandler("help", help_handle, filters=user_filter))
@@ -940,7 +948,8 @@ def run_bot() -> None:
         application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
         application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
         application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-        application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
+        if config.switch_imgs == "True":
+            application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
         application.add_handler(CommandHandler("lang", lang_handle, filters=user_filter))
         application.add_handler(CallbackQueryHandler(set_lang_handle, pattern="^set_lang"))
 
