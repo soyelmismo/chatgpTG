@@ -56,22 +56,22 @@ async def checar_respuesta(nombre_api, respuesta):
             elif nombre_api == "g4f":
                 vivas.append(nombre_api)
             else:
-                print(f"{nombre_api} error check respuesta: string chatbase o g4f?", respuesta)
+                print(f'{nombre_api} {config.lang["errores"]["error"][config.pred_lang]} check respuesta: string chatbase o g4f?', respuesta)
                 malas.append(nombre_api)
         elif isinstance(respuesta, dict):
             if nombre_api == "you":
                 if respuesta["text"]:
                     vivas.append(nombre_api)
             else:
-                print(f"{nombre_api} error check respuesta: diccionario you?", respuesta)
+                print(f'{nombre_api} {config.lang["errores"]["error"][config.pred_lang]} check respuesta: diccionario you?', respuesta)
                 malas.append(nombre_api)
         elif respuesta.status_code == 200:
             vivas.append(nombre_api)
         else:
-            print(f"{nombre_api} error check respuesta: else final", respuesta)
+            print(f'{nombre_api} {config.lang["errores"]["error"][config.pred_lang]} check respuesta: else final', respuesta)
             malas.append(nombre_api)
     except requests.exceptions.RequestException as e:
-        print(f'error check respuesta: exception {e}')
+        print(f'{config.lang["errores"]["error"][config.pred_lang]} check respuesta: exception {e}')
         malas.append(nombre_api)
 
 async def check_api(nombre_api):
@@ -79,7 +79,7 @@ async def check_api(nombre_api):
         respuesta = await checar_api(nombre_api)
         await checar_respuesta(nombre_api, respuesta)
     except Exception as e:
-        print(f'Error en la API {nombre_api}: {e}')
+        print(f'{config.lang["errores"]["error"][config.pred_lang]} APISTATUS {nombre_api}: {e}')
         malas.append(nombre_api)
 
 async def estadosapi():

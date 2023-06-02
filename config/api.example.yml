@@ -73,7 +73,7 @@ info:
       nl: API van APIs.
     url: http://127.0.0.1:1337
     key: ""
-    available_model: ["g4f-you", "g4f-bing", "g4f-chatgpt", "g4f-yqcloud"]
+    available_model: ["g4f-bing", "g4f-chatgpt", "g4f-yqcloud"]
 
   # otra_api:
   #   name: Otra

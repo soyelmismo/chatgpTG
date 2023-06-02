@@ -1,1 +1,1 @@
-from . import Provider, Ails, Phind, You, Bing, Openai, Yqcloud
+from . import Provider, Ails, Phind, Bing, Openai, Yqcloud

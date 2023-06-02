@@ -1,5 +1,5 @@
-available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "g4f-you", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"]
-text_completions: ["text-davinci-003", "text-babbage-001", "text-ada-001"]
+available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "text-curie-001", "text-babbage-001", "text-ada-001", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"]
+text_completions: ["text-davinci-003", "text-curie-001", "text-babbage-001", "text-ada-001"]
 
 # debes declarar los modelos en el apartado de acá arriba
 info:
@@ -48,6 +48,21 @@ info:
       it: È un modello obsoleto. In realtà, <b>non c'è motivo di usarlo</b>, poiché è più costoso e più lento di ChatGPT, ma circa allo stesso livello di intelligenza.
       nl: Het is een verouderd model. Er is eigenlijk <b>geen reden om het te gebruiken</b>, omdat het duurder en langzamer is dan ChatGPT, maar ongeveer op hetzelfde intelligentieniveau ligt.
 
+  text-curie-001:
+    name: Curie
+    description:
+      es: Muy capaz, más rápido y más barato que Davinci.
+      ar: ذو قدرات كبيرة، أسرع وأرخص من دافنشي.
+      en: Highly capable, faster, and cheaper than Davinci.
+      jp: ダヴィンチよりも高性能で、より速く、より安価です。
+      zh: 比达芬奇更具能力，更快速和更便宜。
+      de: Sehr leistungsfähig, schneller und günstiger als Davinci.
+      fr: Très performant, plus rapide et moins cher que Davinci.
+      ru: Очень мощный, быстрый и дешевый по сравнению с Давинчи.
+      pt: Altamente capaz, mais rápido e mais barato que Davinci.
+      it: Molto capace, più veloce e più economico di Davinci.
+      nl: Zeer capabel, sneller en goedkoper dan Davinci.
+
   text-babbage-001:
     name: Babbage
     description:
@@ -77,21 +92,6 @@ info:
       pt: Capaz de realizar tarefas muito simples, Ada é geralmente o modelo mais rápido da série GPT-3 e o menos caro.
       it: In grado di svolgere compiti molto semplici, Ada è di solito il modello più veloce della serie GPT-3 e il meno costoso.
       nl: In staat om zeer eenvoudige taken uit te voeren, is Ada meestal het snelste model in de GPT-3-serie en het minst duur.
-
-  g4f-you:
-    name: You
-    description:
-      es: el buscador chatbot de You.com
-      ar: بوت الدردشة لمحرك البحث You.com
-      en: The chatbot search engine of You.com.
-      jp: You.comのチャットボット検索エンジン。
-      zh: You.com的聊天机器人搜索引擎。
-      de: Der Chatbot-Suchmaschine von You.com.
-      fr: Le moteur de recherche de chatbot de You.com.
-      ru: Чат-бот поисковой системы You.com.
-      pt: O mecanismo de busca de chatbot da You.com.
-      it: Il motore di ricerca chatbot di You.com.
-      nl: De chatbot-zoekmachine van You.com.
 
   g4f-ails:
     name: Ails
