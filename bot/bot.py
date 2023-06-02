@@ -104,41 +104,42 @@ async def start_handle(update: Update, context: CallbackContext):
     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
 
 async def new_dialog_handle(update: Update, context: CallbackContext, chat=None, lang=None):
-    if not chat:
-        chat  = await chat_check(update, context)
-    if not lang:
-        lang = await lang_check(update, context, chat)
-    if await is_previous_message_not_answered_yet(chat, lang, update): return
+    try:
+        if not chat:
+            chat  = await chat_check(update, context)
+        if not lang:
+            lang = await lang_check(update, context, chat)
+            if await is_previous_message_not_answered_yet(chat, lang, update): return
+            mododechat_actual, _, _ = await parameters_check(chat, lang, update)
+            db.new_dialog(chat)
+            db.delete_all_dialogs_except_current(chat)
+            #Bienvenido!
+            await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
+            db.set_chat_attribute(chat, "last_interaction", datetime.now())
+    except Exception as e:
+        print(f'{config.lang["errores"]["error"][lang]}: {e}')
+        pass
+    finally:
+        await releasemaphore(chat=chat)
 
-    mododechat_actual, _, _ = await parameters_check(chat, lang, update)
-
-    db.new_dialog(chat)
-    db.delete_all_dialogs_except_current(chat)
-    #Bienvenido!
-    await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
-    db.set_chat_attribute(chat, "last_interaction", datetime.now())
-    await releasemaphore(chat=chat)
-
-async def lang_check(update: Update, context: CallbackContext, chat=None, lang=None):
+async def lang_check(update: Update, context: CallbackContext, chat=None):
     if chat is None:
         chat = await chat_check(update, context)
-    if lang is None:
-        if db.chat_exists(chat):
-            lang = db.get_chat_attribute(chat, "current_lang")
+    if db.chat_exists(chat):
+        lang = db.get_chat_attribute(chat, "current_lang")
+    else:
+        if update.effective_user.language_code in config.lang["available_lang"]:
+            lang = update.effective_user.language_code
         else:
-            if update.effective_user.language_code in config.lang["available_lang"]:
-                lang = update.effective_user.language_code
-            else:
-                lang = str(config.pred_lang)
+            lang = str(config.pred_lang)
     return lang
-async def chat_check(update: Update, context: CallbackContext, chat=None, lang=None):
-    if not chat:
-        if update.message:
-            chat = update.message.chat
-        elif update.callback_query:
-            chat = update.callback_query.message.chat
+async def chat_check(update: Update, context: CallbackContext):
+    if update.message:
+        chat = update.message.chat
+    elif update.callback_query:
+        chat = update.callback_query.message.chat
+    lang = await lang_check(update, context, chat)
     if not db.chat_exists(chat):
-        lang = await lang_check(update, context, chat)
         db.add_chat(chat, lang)
         await cambiar_idioma(update, context, chat, lang)
         db.new_dialog(chat)
@@ -155,6 +156,8 @@ async def parameters_check(chat, lang, update):
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_chat_mode"][lang].format(new=mododechat_actual)}')
     #api
     api_actual = db.get_chat_attribute(chat, 'current_api')
+    if not apis_vivas:
+        raise Exception(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
     if api_actual not in apis_vivas:
         api_actual = apis_vivas[random.randint(0, len(apis_vivas) - 1)]
         db.set_chat_attribute(chat, "current_api", api_actual)
@@ -229,14 +232,18 @@ async def add_dialog_message(chat, new_dialog_message):
     return
 
 async def message_handle_wrapper(update, context):
-    chat = await chat_check(update, context)
-    lang = await lang_check(update, context, chat)
-    # check if bot was mentioned (for groups)
-    if not await is_bot_mentioned(update, context): return
-    if await is_previous_message_not_answered_yet(chat, lang, update): return
-    await parameters_check(chat, lang, update)
-    task = bb(message_handle(chat, lang, update, context))
-    bcs(handle_chat_task(chat, lang, task, update))
+    try:
+        chat = await chat_check(update, context)
+        lang = await lang_check(update, context, chat)
+        # check if bot was mentioned (for groups)
+        if not await is_bot_mentioned(update, context): return
+        if await is_previous_message_not_answered_yet(chat, lang, update): return
+        await parameters_check(chat, lang, update)
+        task = bb(message_handle(chat, lang, update, context))
+        bcs(handle_chat_task(chat, lang, task, update))
+    except Exception as e:
+        print(f'{config.lang["errores"]["error"][lang]}: {e}')
+        pass
 async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
     if _message:
         raw_msg = await check_message(update, _message)
@@ -253,7 +260,7 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
                             urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
                 if urls:
                     await releasemaphore(chat=chat)
-                    task = bb(url_handle(chat, lang, update, context, urls))
+                    task = bb(url_handle(chat, lang, update, urls))
                     bcs(handle_chat_task(chat, lang, task, update))
                     return
         except AttributeError:
@@ -339,8 +346,7 @@ async def clean_text(doc):
     #doc = "\n".join(line.strip() for line in doc.split("\n"))
     return doc
 
-async def url_handle(chat, lang, update, context, urls):
-    chat = await chat_check(update, context)
+async def url_handle(chat, lang, update, urls):
     import requests
     from bs4 import BeautifulSoup
     import warnings
@@ -651,49 +657,57 @@ async def cancel_handle(update: Update, context: CallbackContext):
         await update.message.reply_text(f'{config.lang["mensajes"]["nadacancelado"][lang]}', parse_mode=ParseMode.HTML)
 
 async def get_menu(menu_type, update: Update, context: CallbackContext, chat):
-    lang = await lang_check(update, context, chat)
-    menu_type_dict = getattr(config, menu_type)
-    _, api_actual, _ = await parameters_check(chat, lang, update)
-    current_key = db.get_chat_attribute(chat, f"current_{menu_type}")
-    if menu_type == "model":
-        item_keys = config.api["info"][api_actual]["available_model"]
-    elif menu_type == "api":
-        item_keys = apis_vivas
-    else:
-        item_keys = menu_type_dict[f"available_{menu_type}"]
-    if menu_type == "chat_mode":
-        option_name = menu_type_dict["info"][current_key]["name"][lang]
-    elif menu_type == "lang":
-        option_name = menu_type_dict["info"]["name"][lang]
-    else:
-        option_name = menu_type_dict["info"][current_key]["name"]
-    text = f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {config.lang['info']['description'][lang] if menu_type == 'lang' else menu_type_dict['info'][current_key]['description'][lang]}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
-    num_cols = 2
-    import math
-    num_rows = math.ceil(len(item_keys) / num_cols)
-    options = [
-        [
-        menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else (config.lang['info']['name'][current_key] if menu_type == 'lang' else menu_type_dict["info"][current_key]["name"]),
-        f"set_{menu_type}|{current_key}",
-        current_key,
-        ]
-        for current_key in item_keys
-    ]
-    reply_markup = InlineKeyboardMarkup(
-        [
+    try:
+        lang = await lang_check(update, context, chat)
+        menu_type_dict = getattr(config, menu_type)
+        _, api_actual, _ = await parameters_check(chat, lang, update)
+        current_key = db.get_chat_attribute(chat, f"current_{menu_type}")
+        if menu_type == "model":
+            item_keys = config.api["info"][api_actual]["available_model"]
+        elif menu_type == "api":
+            item_keys = apis_vivas
+        else:
+            item_keys = menu_type_dict[f"available_{menu_type}"]
+        if menu_type == "chat_mode":
+            option_name = menu_type_dict["info"][current_key]["name"][lang]
+        elif menu_type == "lang":
+            option_name = menu_type_dict["info"]["name"][lang]
+        else:
+            option_name = menu_type_dict["info"][current_key]["name"]
+        text = f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {config.lang['info']['description'][lang] if menu_type == 'lang' else menu_type_dict['info'][current_key]['description'][lang]}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
+        num_cols = 2
+        import math
+        num_rows = math.ceil(len(item_keys) / num_cols)
+        options = [
             [
-                InlineKeyboardButton(name, callback_data=data) 
-                for name, data, selected in options[i::num_rows]
+            menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else (config.lang['info']['name'][current_key] if menu_type == 'lang' else menu_type_dict["info"][current_key]["name"]),
+            f"set_{menu_type}|{current_key}",
+            current_key,
             ]
-            for i in range(num_rows)
+            for current_key in item_keys
         ]
-    )
-    return text, reply_markup
+        reply_markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(name, callback_data=data) 
+                    for name, data, selected in options[i::num_rows]
+                ]
+                for i in range(num_rows)
+            ]
+        )
+        return text, reply_markup
+    except Exception as e:
+        print(f'{config.lang["errores"]["error"][lang]}: {e}')
+        pass
 
 async def chat_mode_handle(update: Update, context: CallbackContext):
-    chat = await chat_check(update, context)
-    text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, chat=chat)
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    try:
+        chat = await chat_check(update, context)
+        text, reply_markup = await get_menu(menu_type="chat_mode", update=update, context=context, chat=chat)
+        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except TypeError:
+        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        pass
 
 async def chat_mode_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -722,9 +736,13 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
             pass
 
 async def model_handle(update: Update, context: CallbackContext):
-    chat = await chat_check(update, context)
-    text, reply_markup = await get_menu(menu_type="model", update=update, context=context,chat=chat)
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    try:
+        chat = await chat_check(update, context)
+        text, reply_markup = await get_menu(menu_type="model", update=update, context=context,chat=chat)
+        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except TypeError:
+        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        pass
 
 async def model_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -751,9 +769,13 @@ async def set_model_handle(update: Update, context: CallbackContext):
             pass
 
 async def api_handle(update: Update, context: CallbackContext):
-    chat = await chat_check(update, context)
-    text, reply_markup = await get_menu(menu_type="api", update=update, context=context, chat=chat)
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    try:
+        chat = await chat_check(update, context)
+        text, reply_markup = await get_menu(menu_type="api", update=update, context=context, chat=chat)
+        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except TypeError:
+        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        pass
 
 async def api_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -810,9 +832,13 @@ async def post_init(application: Application):
     await application.bot.set_my_commands(commandos)
 
 async def lang_handle(update: Update, context: CallbackContext):
-    chat = await chat_check(update, context)
-    text, reply_markup = await get_menu(menu_type="lang", update=update, context=context, chat=chat)
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    try:
+        chat = await chat_check(update, context)
+        text, reply_markup = await get_menu(menu_type="lang", update=update, context=context, chat=chat)
+        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    except TypeError:
+        print(f'{config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+        pass
 
 async def lang_callback_handle(update: Update, context: CallbackContext):
     query = update.callback_query
