@@ -120,14 +120,11 @@ class ChatGPT:
                 detailed=False,
                 include_links=False
             )
-            for chunk in r.text:
+            for chunk in r.text.encode('utf-16', 'surrogatepass').decode('utf-16'):
                 self.answer += chunk
                 if "Unable to fetch the response, Please try again." in self.answer:
                     raise RuntimeError(self.answer)
                 yield "not_finished", self.answer
-            #r = dict(r)
-            #self.answer += r["text"].encode('utf-16', 'surrogatepass').decode('utf-16')
-            #yield "not_finished", self.answer
         except Exception as e:
             e = f'_get_you_answer: {e}'
             raise Exception(e)
