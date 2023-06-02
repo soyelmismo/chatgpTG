@@ -246,7 +246,7 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
-    if config.switch_urls == "True":
+    if config.switch_urls:
         try:
             if raw_msg.entities:
                 urls = []
@@ -325,7 +325,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
         await releasemaphore(chat=chat)
         await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
-    if config.switch_imgs == True:
+    if config.switch_imgs:
         if chat_mode == "imagen":
             await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
 
@@ -651,7 +651,7 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat, pa
         else:
             item_keys = menu_type_dict[f"available_{menu_type}"]
         if menu_type == "chat_mode":
-            if config.switch_imgs == False:
+            if config.switch_imgs:
                 if "imagen" in item_keys:
                     item_keys.remove("imagen")
             option_name = menu_type_dict["info"][current_key]["name"][lang]
@@ -929,12 +929,12 @@ def run_bot() -> None:
         else:
             user_filter = filters.ALL
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle_wrapper))
-        if config.switch_voice == "True":
+        if config.switch_voice:
             application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_wrapper))
             application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_wrapper))
-        if config.switch_ocr == "True":
+        if config.switch_ocr:
             application.add_handler(MessageHandler(filters.PHOTO & user_filter, ocr_image_wrapper))
-        if config.switch_docs == "True":
+        if config.switch_docs:
             docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
             application.add_handler(MessageHandler(docfilter & user_filter, document_wrapper))
             application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_wrapper))
@@ -948,7 +948,7 @@ def run_bot() -> None:
         application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
         application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
         application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-        if config.switch_imgs == "True":
+        if config.switch_imgs:
             application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
         application.add_handler(CommandHandler("lang", lang_handle, filters=user_filter))
         application.add_handler(CallbackQueryHandler(set_lang_handle, pattern="^set_lang"))
