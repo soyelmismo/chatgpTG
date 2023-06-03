@@ -1,8 +1,6 @@
 import asyncio
 import requests
 import config
-vivas = []
-malas = []
 
 async def checar_api(nombre_api):
     url = config.api["info"][nombre_api]["url"]
@@ -43,9 +41,7 @@ async def checar_api(nombre_api):
         respuesta = await asyncio.to_thread(requests.post, f'{url}/chat/completions', headers=headers, json=json_data, timeout=10)
     return respuesta
 
-async def checar_respuesta(nombre_api, respuesta):
-    global vivas
-    global malas
+async def checar_respuesta(nombre_api, respuesta, vivas, malas):
     try:
         if isinstance(respuesta, str):
             if nombre_api == "chatbase":
@@ -73,23 +69,29 @@ async def checar_respuesta(nombre_api, respuesta):
     except requests.exceptions.RequestException as e:
         print(f'{config.lang["errores"]["error"][config.pred_lang]} check respuesta: exception {e}')
         malas.append(nombre_api)
+    finally:
+        return vivas, malas
 
-async def check_api(nombre_api):
+async def check_api(nombre_api, vivas, malas):
     try:
         respuesta = await checar_api(nombre_api)
-        await checar_respuesta(nombre_api, respuesta)
+        vivas, malas = await checar_respuesta(nombre_api, respuesta, vivas, malas)
     except Exception as e:
         print(f'{config.lang["errores"]["error"][config.pred_lang]} APISTATUS {nombre_api}: {e}')
         malas.append(nombre_api)
+    finally:
+        return vivas, malas
 
 async def estadosapi():
-    global vivas
-    global malas
+    vivas = []
+    malas = []
     test = False
     if test != True:
         print(f'{config.lang["apicheck"]["inicio"][config.pred_lang]}')
-        tasks = [check_api(nombre_api) for nombre_api in config.api["available_api"]]
-        await asyncio.gather(*tasks)
+        tasks = [check_api(nombre_api, vivas, malas) for nombre_api in config.api["available_api"]]
+        results = await asyncio.gather(*tasks)
+        for result in results:
+            vivas, malas = result
     else:
         vivas = config.api["available_api"]
     print(f'{config.lang["apicheck"]["connection"][config.pred_lang]}: {len(vivas)}, {config.lang["apicheck"]["bad"][config.pred_lang]}: {len(malas)}, {config.lang["apicheck"]["total"][config.pred_lang]}: {len(config.api["available_api"])}')
