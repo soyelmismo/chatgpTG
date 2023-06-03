@@ -246,9 +246,12 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
-    if config.switch_urls and raw_msg.entities:
-        await urls_wrapper(raw_msg, chat, lang, update)
-        return
+    try:
+        if config.switch_urls and raw_msg.entities:
+            await urls_wrapper(raw_msg, chat, lang, update)
+            return
+    except AttributeError:
+        pass
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
     chat_mode = db.get_chat_attribute(chat, "current_chat_mode")
     if (datetime.now() - db.get_chat_attribute(chat, "last_interaction")).seconds > config.dialog_timeout and len(dialog_messages) > 0:
@@ -358,20 +361,17 @@ async def url_handle(chat, lang, update, urls):
     db.set_chat_attribute(chat, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
 async def urls_wrapper(raw_msg, chat, lang, update):
-    try:
-        urls = []
-        for entity in raw_msg.entities:
-            if entity.type == 'url':
-                url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
-                if "http://" in url_add or "https://" in url_add:
-                    urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-        if urls:
-            await releasemaphore(chat=chat)
-            task = bb(url_handle(chat, lang, update, urls))
-            bcs(handle_chat_task(chat, lang, task, update))
-            return
-    except AttributeError:
-        pass
+    urls = []
+    for entity in raw_msg.entities:
+        if entity.type == 'url':
+            url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
+            if "http://" in url_add or "https://" in url_add:
+                urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
+    if urls:
+        await releasemaphore(chat=chat)
+        task = bb(url_handle(chat, lang, update, urls))
+        bcs(handle_chat_task(chat, lang, task, update))
+        return
 
 async def document_handle(chat, lang, update, context):
     try:
