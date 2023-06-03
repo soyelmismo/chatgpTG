@@ -56,6 +56,9 @@ async def handle_chat_task(chat, lang, task, update):
             await task
         except asyncio.CancelledError:
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["cancelado"][lang]}', parse_mode=ParseMode.HTML)
+        except RuntimeError as e:
+            if 'Event loop is closed' in str(e):
+                print("Error: el bucle de eventos ya finalizó")
         finally:
             await releasemaphore(chat=chat)
             if chat.id in chat_tasks:
@@ -229,9 +232,9 @@ async def add_dialog_message(chat, new_dialog_message):
     )
 
 async def message_handle_wrapper(update, context):
+    chat = await chat_check(update, context)
+    lang = await lang_check(update, context, chat)
     try:
-        chat = await chat_check(update, context)
-        lang = await lang_check(update, context, chat)
         # check if bot was mentioned (for groups)
         if not await is_bot_mentioned(update, context): return
         if await is_previous_message_not_answered_yet(chat, lang, update): return
@@ -247,9 +250,13 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
     else:
         raw_msg, _message = await check_message(update, _message)
     try:
-        if config.switch_urls and raw_msg.entities:
-            await urls_wrapper(raw_msg, chat, lang, update)
-            return
+        if raw_msg.entities and config.switch_urls == "True":
+            urls = await urls_wrapper(raw_msg, chat, lang, update)
+            if urls:
+                await releasemaphore(chat=chat)
+                task = bb(url_handle(chat, lang, update, urls))
+                bcs(handle_chat_task(chat, lang, task, update))
+                return
     except AttributeError:
         pass
     dialog_messages = db.get_dialog_messages(chat, dialog_id=None)
@@ -271,7 +278,6 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
     
 async def message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model):
     try:
-        placeholder_message = await update.effective_chat.send_message("🤔")
         if not _message:
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
             return
@@ -285,6 +291,7 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
             upd=75
             timer=0.04
         parse_mode = ParseMode.HTML if config.chat_mode["info"][chat_mode]["parse_mode"] == "html" else ParseMode.MARKDOWN
+        placeholder_message = await update.effective_chat.send_message("🤔")
         async for status, gen_answer in gen:
             answer = gen_answer[:4096]  # telegram message limit
             if abs(len(answer) - len(prev_answer)) < upd and status != "finished":  # Comparar con el valor de corte
@@ -303,12 +310,14 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         await add_dialog_message(chat, new_dialog_message)
         await releasemaphore(chat=chat)
+    except telegram.error.Forbidden as e:
+        logger.error(f"Error: El bot fue expulsado del chat {chat.title}@{chat.id}.")
     except Exception as e:
         logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][lang]}: {e}')
         await releasemaphore(chat=chat)
         await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id)
         return
-    if config.switch_imgs and chat_mode == "imagen":
+    if config.switch_imgs == "True" and chat_mode == "imagen":
         await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
 
 async def send_large_message(text, update):
@@ -367,11 +376,7 @@ async def urls_wrapper(raw_msg, chat, lang, update):
             url_add = raw_msg.text[entity.offset:entity.offset+entity.length]
             if "http://" in url_add or "https://" in url_add:
                 urls.append(raw_msg.text[entity.offset:entity.offset+entity.length])
-    if urls:
-        await releasemaphore(chat=chat)
-        task = bb(url_handle(chat, lang, update, urls))
-        bcs(handle_chat_task(chat, lang, task, update))
-        return
+    return urls
 
 async def document_handle(chat, lang, update, context):
     try:
@@ -638,7 +643,7 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat, pa
         menu_type_dict = getattr(config, menu_type)
         current_key = db.get_chat_attribute(chat, f"current_{menu_type}")
         item_keys = await get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update)
-        if not config.switch_imgs and "imagen" in item_keys:
+        if config.switch_imgs != "True" and "imagen" in item_keys:
             item_keys.remove("imagen")
         option_name = await get_menu_option_name(current_key, menu_type, menu_type_dict, lang)
         text = await get_menu_text(lang, option_name, menu_type, menu_type_dict, current_key)
@@ -894,15 +899,16 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
 async def post_init(application: Application):
     bb(ejecutar_obtener_vivas())
     commandos = [
-        BotCommand("/new", "🌟"),
-        BotCommand("/chat_mode", "💬"),
-        BotCommand("/retry", "🔄"),
-        BotCommand("/model", "🧠"),
-        BotCommand("/api", "🔌"),
-        BotCommand("/img", "🖼️"),
-        BotCommand("/lang", "🌍"),
-        BotCommand("/help", "ℹ️")
-    ]
+        ("/new", "🌟"),
+        ("/chat_mode", "💬"),
+        ("/retry", "🔄"),
+        ("/model", "🧠"),
+        ("/api", "🔌"),
+        ("/lang", "🌍"),
+        ("/help", "ℹ️")
+    ]  
+    if config.switch_imgs == "True":
+        commandos.insert(5, ("/img", "🖼️"))
     await application.bot.set_my_commands(commandos)
 
 async def ejecutar_obtener_vivas():
@@ -911,7 +917,7 @@ async def ejecutar_obtener_vivas():
             await obtener_vivas()
         except asyncio.CancelledError:
             break
-        await sleep(60 * config.apicheck_minutes)  # Cada 60 segundos * 60 minutos
+        await sleep(60 * config.apicheck_minutes)  # Cada 60 segundos * # minutos
 
 def run_bot() -> None:
     try:
@@ -937,12 +943,12 @@ def run_bot() -> None:
         else:
             user_filter = filters.ALL
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & user_filter, message_handle_wrapper))
-        if config.switch_voice:
+        if config.switch_voice == "True":
             application.add_handler(MessageHandler(filters.AUDIO & user_filter, transcribe_message_wrapper))
             application.add_handler(MessageHandler(filters.VOICE & user_filter, transcribe_message_wrapper))
-        if config.switch_ocr:
+        if config.switch_ocr == "True":
             application.add_handler(MessageHandler(filters.PHOTO & user_filter, ocr_image_wrapper))
-        if config.switch_docs:
+        if config.switch_docs == "True":
             docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
             application.add_handler(MessageHandler(docfilter & user_filter, document_wrapper))
             application.add_handler(MessageHandler(filters.Document.Category('text/') & user_filter, document_wrapper))
@@ -956,7 +962,7 @@ def run_bot() -> None:
         application.add_handler(CommandHandler("chat_mode", chat_mode_handle, filters=user_filter))
         application.add_handler(CommandHandler("model", model_handle, filters=user_filter))
         application.add_handler(CommandHandler("api", api_handle, filters=user_filter))
-        if config.switch_imgs:
+        if config.switch_imgs == "True":
             application.add_handler(CommandHandler("img", generate_image_wrapper, filters=user_filter))
         application.add_handler(CommandHandler("lang", lang_handle, filters=user_filter))
         application.add_handler(CallbackQueryHandler(set_lang_handle, pattern="^set_lang"))
