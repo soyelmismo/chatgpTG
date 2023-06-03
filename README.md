@@ -15,12 +15,20 @@
 - Lee el texto de imágenes
 - Transcribe audios
 
-## Star History
+# Historial de estrellas
 
 [![Star History Chart](https://api.star-history.com/svg?repos=soyelmismo/chatgpTG&type=Date)](https://star-history.com/#soyelmismo/chatgpTG&Date)
 
 
 ## Nueva actualización:
+- Código de verificador de APIs re hecho.
+- Código del menu re hecho y añadido paginación.
+- Código de peticiones a APIs re hecho.
+- Mejor gestión de errores.
+- Se añadieron variables a docker-compose para habilitar o deshabilitar características del bot a elección del administrador.
+- Se corrigió el streaming de algunas APIs
+
+## Cambios anteriores:
 - *MultiLenguaje!*:
     - "es": Español
     - "ar": عربي
@@ -39,8 +47,6 @@ Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
 - *Lectura de imágenes con OCR*
     - Gracias a Tesseract! Se agregó todos los lenguajes disponibles para el bot.
     - Si deseas desactivar lenguajes antes de construir el contenedor, estarán en Dockerfile.
-
-## Cambios anteriores:
 - Se cambió el diálogo de usuarios, por el diálogo de chatID para mejor contexto grupal.
 - Se mejoró el chequeo de APIs.
 - Añadido MongoDB compatible con CPUs antiguas.
