@@ -12,7 +12,7 @@ class ChatGPT:
         self.lang = lang
         self.answer = None
         assert model in config.model["available_model"], f"Unknown model: {model}"
-        self.api = db.get_chat_attribute(self.chat, "current_api")
+        self.api = None
         self.diccionario = {}
         self.diccionario.clear()
         self.diccionario.update(config.completion_options)
@@ -54,6 +54,7 @@ class ChatGPT:
     async def _make_api_request(self, _message, dialog_messages, chat_mode):
         try:
             self.answer = ""
+            self.api=await db.get_chat_attribute(self.chat, "current_api")
             messages = await self._generate_prompt_messages(_message, dialog_messages, chat_mode)
             if self.api == "chatbase":
                 async for status, self.answer in self._get_chatbase_answer(messages):
@@ -63,6 +64,9 @@ class ChatGPT:
                     yield status, self.answer
             elif self.api == "you":
                 async for status, self.answer in self._get_you_answer(messages, dialog_messages):
+                    yield status, self.answer
+            elif self.api == "evagpt4":
+                async for status, self.answer in self._get_evagpt4_answer(messages):
                     yield status, self.answer
             else:
                 async for status, self.answer in self._get_openai_answer(_message, messages, dialog_messages, chat_mode):
@@ -140,6 +144,16 @@ class ChatGPT:
                 yield "not_finished", self.answer
         except Exception as e:
             e = f'_get_chatbase_answer: {e}'
+            raise Exception(e)
+    async def _get_evagpt4_answer(self, messages):
+        try:
+            from apis.opengpt import evagpt4
+            r = evagpt4.Model(model=self.model).ChatCompletion(messages)
+            for chunk in r:
+                self.answer += chunk
+                yield "not_finished", self.answer
+        except Exception as e:
+            e = f'_get_evagpt4_answer: {e}'
             raise Exception(e)
 
     async def _get_g4f_answer(self, messages):

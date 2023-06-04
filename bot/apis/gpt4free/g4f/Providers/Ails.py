@@ -69,8 +69,7 @@ def _create_completion(model: str,messages: list, temperature: float = 0.6, stre
         'stream': True,
         'messages': messages} | sig)
 
-    response = requests.post('https://api.caipacity.com/v1/chat/completions?full=false',
-                             headers=headers, data=json_data, stream=True)
+    response = requests.post('https://api.caipacity.com/v1/chat/completions?full=false', headers=headers, data=json_data, stream=True)
 
     for token in response.iter_lines():
         yield token.decode()

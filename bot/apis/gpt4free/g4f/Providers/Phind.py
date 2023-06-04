@@ -1,6 +1,5 @@
 import os
 import json
-import time
 import subprocess
 
 from ..typing import sha256, Dict, get_type_hints
@@ -28,7 +27,6 @@ def _create_completion(model: str, messages: list, **kwargs):
         else:
             if b'ping - 2023-' in line:
                 continue
-            
             yield line.decode('utf-8')[:-1]
             
 params = f'g4f.Providers.{os.path.basename(__file__)[:-3]} supports: ' + \

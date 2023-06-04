@@ -10,10 +10,19 @@ itemspage = int(env['MAX_ITEMS_PER_PAGE'][0])
 columnpage = int(env['MAX_COLUMNS_PER_PAGE'][0])
 
 user_whitelist = env.get('USER_WHITELIST', [])
+chat_whitelist = env.get('CHAT_WHITELIST', [])
 dialog_timeout = int(env['DIALOG_TIMEOUT'][0])
 n_images = int(env['OUTPUT_IMAGES'][0])
-mongodb_uri = f"mongodb://{env['MONGODB_USERNAME'][0]}:{env['MONGODB_PASSWORD'][0]}@{env['MONGODB_HOST'][0]}/?retryWrites=true&w=majority"
+
+mongus = env["MONGODB_HOST"][0]
+if "mongodb.net" in mongus:
+    MONGODB_PROTO = "mongodb+srv"
+else:
+    MONGODB_PROTO = "mongodb"
+
+mongodb_uri = f"{MONGODB_PROTO}://{env['MONGODB_USERNAME'][0]}:{env['MONGODB_PASSWORD'][0]}@{mongus}/?retryWrites=true&w=majority"
 timeout_ask = env['TIMEOUT_ASK'][0]
+apichecker = env['APICHECK'][0]
 switch_voice = env['FEATURE_TRANSCRIPTION'][0]
 switch_ocr = env['FEATURE_IMAGE_READ'][0]
 switch_docs = env['FEATURE_DOCUMENT_READ'][0]
