@@ -3,7 +3,7 @@ import json
 import datetime
 import urllib.parse
 
-from curl_cffi import requests
+import httpx
 
 config = json.loads(sys.argv[1])
 prompt = config['messages'][-1]['content']
@@ -18,7 +18,9 @@ json_data = json.dumps({
         'language': 'en',
         'detailed': False,
         'creative': True,
-        'customLinks': []}}, separators=(',', ':'))
+        'customLinks': []
+    }
+}, separators=(',', ':'))
 
 headers = {
     'Content-Type': 'application/json',
@@ -37,7 +39,6 @@ headers = {
     'Sec-Fetch-Dest': 'empty'
 }
 
-
 def output(chunk):
     if chunk == b'data:  \r\ndata: \r\ndata: \r\n\r\n':
         chunk = b'data:  \n\r\n\r\n'
@@ -51,5 +52,8 @@ def output(chunk):
     print(chunk, flush=True)
 
 
-response = requests.post('https://www.phind.com/api/infer/answer',
-                         headers=headers, data=json_data, content_callback=output, timeout=999999, impersonate='safari15_5')
+client = httpx.Client(headers=headers, timeout=999999)
+response = client.post('https://www.phind.com/api/infer/answer', content=json_data, timeout=None)
+
+for chunk in response.iter_bytes():
+    output(chunk)

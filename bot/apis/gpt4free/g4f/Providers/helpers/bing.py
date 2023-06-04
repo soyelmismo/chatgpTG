@@ -6,7 +6,6 @@ import random
 import asyncio
 import certifi
 import httpx
-import websockets
 import os
 
 config = json.loads(sys.argv[1])

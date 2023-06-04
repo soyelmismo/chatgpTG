@@ -2,9 +2,6 @@ openai
 pydub
 python-telegram-bot[rate-limiter]
 PyYAML
-requests
-curl_cffi
-websockets
 tls_client
 retrying
 fake_useragent
