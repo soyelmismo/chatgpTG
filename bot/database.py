@@ -37,7 +37,6 @@ class Database:
 
     async def new_dialog(self, chat):
         await self.chat_exists(chat, raise_exception=True)
-
         dialog_id = str(uuid.uuid4())
         dialog_dict = {
             "_id": dialog_id,
