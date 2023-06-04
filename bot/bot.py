@@ -163,8 +163,6 @@ async def chat_check(update: Update, context: CallbackContext):
         chat = update.message.chat
     elif update.callback_query:
         chat = update.callback_query.message.chat
-    elif update.edited_message:
-        chat = update.edited_message.chat
     lang = await lang_check(update, context, chat)
     if not await db.chat_exists(chat):
         await db.add_chat(chat, lang)
@@ -277,6 +275,8 @@ async def add_dialog_message(chat, new_dialog_message):
     )
 
 async def message_handle_wrapper(update, context):
+    if update.edited_message:
+        return
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
     try:
