@@ -1,12 +1,13 @@
 import sys
 import uuid
 import json
-import httpx
+from curl_cffi import requests
 import os
 
 config = json.loads(sys.argv[1])
 
 def session_auth(cookies):
+
     headers = {
         'authority': 'chat.openai.com',
         'accept': '*/*',
@@ -23,11 +24,9 @@ def session_auth(cookies):
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
     }
 
-    with httpx.Client() as client:
-        headers['x-user-agent'] = 'chrome110'
-        response = client.get('https://chat.openai.com/api/auth/session', cookies=cookies, headers=headers)
-        return response.json()
-
+    return requests.get('https://chat.openai.com/api/auth/session', 
+                        cookies=cookies, headers=headers, impersonate='chrome110').json()
+    
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 try:
     cookies = {
@@ -54,7 +53,6 @@ headers = {
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
-    'x-user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
 }
 
 payload = {
@@ -93,7 +91,5 @@ def format(chunk):
     
         print(token, flush=True)
 
-with httpx.Client() as client:
-    headers['x-user-agent'] = 'chrome110'
-    response = client.post('https://chat.openai.com/backend-api/conversation', json=payload, headers=headers, content=client)
-    response.read(content_callback=format)
+response = requests.post('https://chat.openai.com/backend-api/conversation', 
+                         json=payload, headers=headers, content_callback=format, impersonate='chrome110')

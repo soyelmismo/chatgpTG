@@ -74,7 +74,7 @@ async def handle_chat_task(chat, lang, task, update):
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["cancelado"][lang]}', parse_mode=ParseMode.HTML)
         except RuntimeError as e:
             if 'Event loop is closed' in str(e):
-                print("Error: el bucle de eventos ya finalizó")
+                logger.error("Error: el bucle de eventos ya finalizó")
         finally:
             await releasemaphore(chat=chat)
             if chat.id in chat_tasks:
@@ -146,9 +146,9 @@ async def new_dialog_handle(update: Update, context: CallbackContext, chat=None,
 async def lang_check(update: Update, context: CallbackContext, chat=None):
     if chat is None:
         chat = await chat_check(update, context)
-    if chat.id in lang_cache:    
+    if chat.id in lang_cache:
         lang = lang_cache[chat.id][0]
-    else:     
+    else:
         if await db.chat_exists(chat):
             lang = await db.get_chat_attribute(chat, "current_lang")
         else:
@@ -163,6 +163,8 @@ async def chat_check(update: Update, context: CallbackContext):
         chat = update.message.chat
     elif update.callback_query:
         chat = update.callback_query.message.chat
+    elif update.edited_message:
+        chat = update.edited_message.chat
     lang = await lang_check(update, context, chat)
     if not await db.chat_exists(chat):
         await db.add_chat(chat, lang)
@@ -177,7 +179,7 @@ async def parameters_check(chat, lang, update):
     if chat.id in chat_mode_cache:  
         mododechat_actual = chat_mode_cache[chat.id][0]
     else:
-        mododechat_actual=await db.get_chat_attribute(chat, 'current_chat_mode')
+        mododechat_actual = await db.get_chat_attribute(chat, 'current_chat_mode')
         chat_mode_cache[chat.id] = (mododechat_actual, datetime.now())
     if mododechat_actual not in config.chat_mode["available_chat_mode"]:
         mododechat_actual = config.chat_mode["available_chat_mode"][1]
@@ -217,7 +219,7 @@ async def cambiar_idioma(update: Update, context: CallbackContext, chat=None, la
     if not lang:
         lang = await lang_check(update, context, chat)
     else:
-        if lang != lang_cache[chat.id][0]:
+        if lang_cache.get(chat.id)[0] if lang_cache.get(chat.id)[0] is not None else None != lang:
             await db.set_chat_attribute(chat, "current_lang", lang)
             lang_cache[chat.id] = (lang, datetime.now())
             await update.effective_chat.send_message(f'{config.lang["info"]["bienvenida"][lang]}')
@@ -275,10 +277,6 @@ async def add_dialog_message(chat, new_dialog_message):
     )
 
 async def message_handle_wrapper(update, context):
-    if update.edited_message:
-        print("mensaje editado",update.edited_message)
-        # Handle edited messages
-        return
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
     try:
@@ -852,7 +850,7 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
     lang = await lang_check(update, context, chat)
     query, page_index, seleccion = await menu_handler(update)
     if seleccion != "paginillas":
-        if chat_mode_cache.get(chat.id) != seleccion:
+        if chat_mode_cache.get(chat.id)[0] != seleccion:
             chat_mode_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, "current_chat_mode", seleccion)
             await update.effective_chat.send_message(f"{config.chat_mode['info'][seleccion]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
@@ -872,7 +870,7 @@ async def set_model_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
     if seleccion != "paginillas":
-        if model_cache.get(chat.id) != seleccion:
+        if model_cache.get(chat.id)[0] != seleccion:
             model_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, "current_model", seleccion)
     await menu_edit_handler(query, update, context, page_index, menu_type="model", chat=chat)
@@ -909,7 +907,7 @@ async def set_api_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
     if seleccion != "paginillas":
-        if api_cache.get(chat.id) != seleccion:
+        if api_cache.get(chat.id)[0] != seleccion:
             api_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, "current_api", seleccion)
     await menu_edit_handler(query, update, context, page_index, menu_type="api", chat=chat)
@@ -928,7 +926,7 @@ async def set_lang_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
     if seleccion != "paginillas":
-        if lang_cache.get(chat.id) != seleccion:
+        if lang_cache.get(chat.id)[0] != seleccion:
             lang_cache[chat.id] = (seleccion, datetime.now())
             await cambiar_idioma(update, context, chat, lang=seleccion)
     await menu_edit_handler(query, update, context, page_index, menu_type="lang", chat=chat)

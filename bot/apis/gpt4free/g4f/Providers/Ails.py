@@ -3,7 +3,7 @@ import time
 import json
 import uuid
 import hashlib
-from httpx import Client
+import requests
 
 from ..typing import sha256, Dict, get_type_hints
 from datetime import datetime
@@ -69,10 +69,10 @@ def _create_completion(model: str,messages: list, temperature: float = 0.6, stre
         'stream': True,
         'messages': messages} | sig)
 
-    with Client() as http_client:
-        response = http_client.post('https://api.caipacity.com/v1/chat/completions?full=false', headers=headers, content=json_data, stream=True)
-        for token in response.iter_raw():
-            yield token.decode()
+    response = requests.post('https://api.caipacity.com/v1/chat/completions?full=false', headers=headers, data=json_data, stream=True)
+
+    for token in response.iter_lines():
+        yield token.decode()
 
 params = f'g4f.Providers.{os.path.basename(__file__)[:-3]} supports: ' + \
     '(%s)' % ', '.join([f"{name}: {get_type_hints(_create_completion)[name].__name__}" for name in _create_completion.__code__.co_varnames[:_create_completion.__code__.co_argcount]])

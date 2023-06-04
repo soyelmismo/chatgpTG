@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from fake_useragent import UserAgent
 from pydantic import BaseModel
-from httpx import Client, RequestError
+from requests import RequestException
 from retrying import retry
 from tls_client import Session
 from tls_client.response import Response
@@ -23,7 +23,7 @@ class Completion:
         prompt: str,
         page: int = 1,
         count: int = 10,
-        safe_search: str = 'Off',
+        safe_search: str = 'Moderate',
         on_shopping_page: bool = False,
         mkt: str = '',
         response_filter: str = 'WebPages,Translations,TimeZone,Computation,RelatedSearches',
@@ -118,12 +118,10 @@ class Completion:
     @retry(
         wait_fixed=2000,
         stop_max_attempt_number=2,
-        retry_on_exception=lambda e: isinstance(e, RequestError),
+        retry_on_exception=lambda e: isinstance(e, RequestException),
     )
     def __make_request(client: Session, params: dict) -> Response:
-        with Client() as http_client:
-            response = http_client.get(f'https://you.com/api/streamingSearch', params=params)
-            response.raise_for_status()
-            if 'youChatToken' not in response.text:
-                raise RequestError('Unable to get the response from server')
-            return response
+        response = client.get(f'https://you.com/api/streamingSearch', params=params)
+        if 'youChatToken' not in response.text:
+            raise RequestException('Unable to get the response from server')
+        return response
