@@ -12,3 +12,6 @@ pytesseract
 httpx
 html2text
 motor
+requests
+curl_cffi
+websockets
