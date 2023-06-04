@@ -51,5 +51,4 @@ def output(chunk):
     print(chunk, flush=True)
 
 
-response = requests.post('https://www.phind.com/api/infer/answer',
-                         headers=headers, data=json_data, content_callback=output, timeout=999999, impersonate='safari15_5')
+response = requests.post('https://www.phind.com/api/infer/answer', headers=headers, data=json_data, content_callback=output, timeout=999999, impersonate='safari15_5')

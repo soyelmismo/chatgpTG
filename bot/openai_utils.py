@@ -65,6 +65,9 @@ class ChatGPT:
             elif self.api == "you":
                 async for status, self.answer in self._get_you_answer(messages, dialog_messages):
                     yield status, self.answer
+            elif self.api == "evagpt4":
+                async for status, self.answer in self._get_evagpt4_answer(messages):
+                    yield status, self.answer
             else:
                 async for status, self.answer in self._get_openai_answer(_message, messages, dialog_messages, chat_mode):
                     yield status, self.answer
@@ -141,6 +144,16 @@ class ChatGPT:
                 yield "not_finished", self.answer
         except Exception as e:
             e = f'_get_chatbase_answer: {e}'
+            raise Exception(e)
+    async def _get_evagpt4_answer(self, messages):
+        try:
+            from apis.opengpt import evagpt4
+            r = evagpt4.Model(model=self.model).ChatCompletion(messages)
+            for chunk in r:
+                self.answer += chunk
+                yield "not_finished", self.answer
+        except Exception as e:
+            e = f'_get_evagpt4_answer: {e}'
             raise Exception(e)
 
     async def _get_g4f_answer(self, messages):
