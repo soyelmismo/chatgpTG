@@ -25,7 +25,7 @@
 - 2 APIs nuevas, EvaGPT4 y Churchless
 - Mongo Async
 - Botones de Cancelar y Reintentar en los mensajes
-
+- variable APICHECK añadida, para dejar al apichecker como opcional
 
 
 # Importante:
