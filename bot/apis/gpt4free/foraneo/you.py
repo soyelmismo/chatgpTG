@@ -23,7 +23,7 @@ class Completion:
         prompt: str,
         page: int = 1,
         count: int = 10,
-        safe_search: str = 'Moderate',
+        safe_search: str = 'Off',
         on_shopping_page: bool = False,
         mkt: str = '',
         response_filter: str = 'WebPages,Translations,TimeZone,Computation,RelatedSearches',
