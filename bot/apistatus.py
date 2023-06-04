@@ -1,5 +1,5 @@
 import asyncio
-import requests
+import httpx
 import config
 
 async def checar_api(nombre_api):
@@ -38,7 +38,9 @@ async def checar_api(nombre_api):
             include_links=False)
         respuesta = dict(respuesta)
     else:
-        respuesta = await asyncio.to_thread(requests.post, f'{url}/chat/completions', headers=headers, json=json_data, timeout=10)
+        async with httpx.AsyncClient() as client:
+            response = await client.post(f'{url}/chat/completions', headers=headers, json=json_data, timeout=10)
+            respuesta = response.json()
     return respuesta
 
 async def checar_respuesta(nombre_api, respuesta, vivas, malas):
@@ -66,7 +68,7 @@ async def checar_respuesta(nombre_api, respuesta, vivas, malas):
         else:
             print(f'{nombre_api} {config.lang["errores"]["error"][config.pred_lang]} check respuesta: else final', respuesta)
             malas.append(nombre_api)
-    except requests.exceptions.RequestException as e:
+    except httpx.RequestError as e:
         print(f'{config.lang["errores"]["error"][config.pred_lang]} check respuesta: exception {e}')
         malas.append(nombre_api)
     finally:
@@ -85,8 +87,7 @@ async def check_api(nombre_api, vivas, malas):
 async def estadosapi():
     vivas = []
     malas = []
-    test = False
-    if test != True:
+    if config.apichecker == "True":
         print(f'{config.lang["apicheck"]["inicio"][config.pred_lang]}')
         tasks = [check_api(nombre_api, vivas, malas) for nombre_api in config.api["available_api"]]
         results = await asyncio.gather(*tasks)

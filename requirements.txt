@@ -1,6 +1,5 @@
 openai
 pydub
-pymongo
 python-telegram-bot[rate-limiter]
 PyYAML
 requests
@@ -13,3 +12,6 @@ pydantic
 PyPDF2
 beautifulsoup4
 pytesseract
+httpx
+html2text
+motor

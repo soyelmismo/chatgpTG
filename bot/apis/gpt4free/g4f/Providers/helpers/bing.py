@@ -5,7 +5,7 @@ import json
 import random
 import asyncio
 import certifi
-import requests
+import httpx
 import websockets
 import os
 
@@ -86,7 +86,7 @@ class AsyncCompletion:
         optionSets : list = None,
         token     : str = get_token()):
         
-        create = requests.get('https://edgeservices.bing.com/edgesvc/turing/conversation/create', 
+        create = await httpx.get('https://edgeservices.bing.com/edgesvc/turing/conversation/create', 
             headers = {
                 'host'       : 'edgeservices.bing.com',
                 'authority'  : 'edgeservices.bing.com',
@@ -95,14 +95,15 @@ class AsyncCompletion:
             }
         )
 
+
+
         conversationId        = create.json()['conversationId']
         clientId              = create.json()['clientId']
         conversationSignature = create.json()['conversationSignature']
 
-        wss: websockets.WebSocketClientProtocol or None = None
-
-        wss = await websockets.connect('wss://sydney.bing.com/sydney/ChatHub', max_size = None, ssl = ssl_context,
-            extra_headers = {
+        wss = httpx.AsyncWebSocket(
+            base_url='wss://sydney.bing.com/sydney/ChatHub',
+            headers={
                 'accept': 'application/json',
                 'accept-language': 'en-US,en;q=0.9',
                 'content-type': 'application/json',
@@ -125,9 +126,7 @@ class AsyncCompletion:
                 'x-forwarded-for': f'13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}'
             }
         )
-
-        await wss.send(format({'protocol': 'json', 'version': 1}))
-        await wss.recv()
+        await wss.__aenter__()
 
         struct = {
             'arguments': [
@@ -159,7 +158,7 @@ class AsyncCompletion:
         
         final = False
         while not final:
-            objects = str(await wss.recv()).split('\x1e')
+            objects = (await wss.recv()).split('\x1e')
             for obj in objects:
                 if obj is None or obj == '':
                     continue
@@ -177,10 +176,9 @@ class AsyncCompletion:
         await wss.close()
 
 async def run(optionSets, messages):
-    async for value in AsyncCompletion.create(prompt=messages[-1]['content'], 
-                                              optionSets=optionSets):
+    async for value in AsyncCompletion.create(prompt=messages[-1]['content'], optionSets=optionSets):
         
         print(value, flush=True)
 
 optionSet = conversationstyles[config['model']]
-asyncio.run(run(optionSet, config['messages']))
+asyncio.get_event_loop().run_until_complete(run(optionSet, config['messages']))

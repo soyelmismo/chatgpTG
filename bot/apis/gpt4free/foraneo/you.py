@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from fake_useragent import UserAgent
 from pydantic import BaseModel
-from requests import RequestException
+from httpx import Client, RequestError
 from retrying import retry
 from tls_client import Session
 from tls_client.response import Response
@@ -118,10 +118,12 @@ class Completion:
     @retry(
         wait_fixed=2000,
         stop_max_attempt_number=2,
-        retry_on_exception=lambda e: isinstance(e, RequestException),
+        retry_on_exception=lambda e: isinstance(e, RequestError),
     )
     def __make_request(client: Session, params: dict) -> Response:
-        response = client.get(f'https://you.com/api/streamingSearch', params=params)
-        if 'youChatToken' not in response.text:
-            raise RequestException('Unable to get the response from server')
-        return response
+        with Client() as http_client:
+            response = http_client.get(f'https://you.com/api/streamingSearch', params=params)
+            response.raise_for_status()
+            if 'youChatToken' not in response.text:
+                raise RequestError('Unable to get the response from server')
+            return response
