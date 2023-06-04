@@ -12,7 +12,7 @@ class ChatGPT:
         self.lang = lang
         self.answer = None
         assert model in config.model["available_model"], f"Unknown model: {model}"
-        self.api = db.get_chat_attribute(self.chat, "current_api")
+        self.api = await db.get_chat_attribute(self.chat, "current_api")
         self.diccionario = {}
         self.diccionario.clear()
         self.diccionario.update(config.completion_options)
