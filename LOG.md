@@ -1,5 +1,8 @@
 ## Cambios anteriores:
-- Código de verificador de APIs re hecho.
+- Sistema básico de caché.
+- 2 APIs nuevas, EvaGPT4 y Churchless
+- Mongo Async
+- Botones de Cancelar y Reintentar en los mensajes
 - Código del menu re hecho y añadido paginación.
 - Código de peticiones a APIs re hecho.
 - Mejor gestión de errores.
@@ -24,7 +27,6 @@ Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
     - Gracias a Tesseract! Se agregó todos los lenguajes disponibles para el bot.
     - Si deseas desactivar lenguajes antes de construir el contenedor, estarán en Dockerfile.
 - Se cambió el diálogo de usuarios, por el diálogo de chatID para mejor contexto grupal.
-- Se mejoró el chequeo de APIs.
 - Añadido MongoDB compatible con CPUs antiguas.
 - Soporte de lectura de archivos de texto, PDF y de enlaces.
 - Se reemplazó el modo "👩‍🎨 Artista básico" con el comando /img.

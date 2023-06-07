@@ -21,12 +21,9 @@
 
 
 ## Nueva actualización:
-- Sistema básico de caché.
-- 2 APIs nuevas, EvaGPT4 y Churchless
-- Mongo Async
-- Botones de Cancelar y Reintentar en los mensajes
-- variable APICHECK añadida, para dejar al apichecker como opcional
-
+- Optimizaciones
+- APICHECK fuera. muchos problemas
+- Modo de chat Karen y DAN agregados. funcionan bien con gpt-3/davinci
 
 # Importante:
 - Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."

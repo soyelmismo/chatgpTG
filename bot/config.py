@@ -5,7 +5,7 @@ import yaml
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 telegram_token = env['TELEGRAM_TOKEN'][0]
-apicheck_minutes = int(env['APICHECK_MINUTES'][0])
+#apicheck_minutes = int(env['APICHECK_MINUTES'][0])
 itemspage = int(env['MAX_ITEMS_PER_PAGE'][0])
 columnpage = int(env['MAX_COLUMNS_PER_PAGE'][0])
 
@@ -22,7 +22,7 @@ else:
 
 mongodb_uri = f"{MONGODB_PROTO}://{env['MONGODB_USERNAME'][0]}:{env['MONGODB_PASSWORD'][0]}@{mongus}/?retryWrites=true&w=majority"
 timeout_ask = env['TIMEOUT_ASK'][0]
-apichecker = env['APICHECK'][0]
+apichecker = False
 switch_voice = env['FEATURE_TRANSCRIPTION'][0]
 switch_ocr = env['FEATURE_IMAGE_READ'][0]
 switch_docs = env['FEATURE_DOCUMENT_READ'][0]

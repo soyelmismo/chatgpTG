@@ -26,8 +26,6 @@ services:
       - MONGODB_HOST=mongo
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=GDT9MbJUTFHpyJyeS2JxzgkpYTjnrU8v
-      - APICHECK=False
-      - APICHECK_MINUTES=60
       - TELEGRAM_TOKEN=yourbottoken
       - USER_WHITELIST = 89727e9, mamador,   rrjrj,6077244180
       - DIALOG_TIMEOUT=7200

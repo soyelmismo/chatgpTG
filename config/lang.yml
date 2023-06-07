@@ -111,18 +111,6 @@ metagen:
     pt: Usuário
     it: Utente
     nl: Gebruiker
-  robot:
-    es: Máquina
-    ar: روبوت
-    en: Machine
-    jp: マシン
-    zh: 机器
-    de: Maschine
-    fr: Machine
-    ru: Машина
-    pt: Máquina
-    it: Macchina
-    nl: Machine
   mensaje:
     es: Mensaje
     ar: رسالة

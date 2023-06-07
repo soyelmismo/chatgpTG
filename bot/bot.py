@@ -49,14 +49,14 @@ model_cache = {}
 menu_cache = {}
 interaction_cache = {}
 
-apis_vivas = []
+apis_vivas = config.api["available_api"]
 msg_no_mod = "Message is not modified"
 
 
-async def obtener_vivas():
-    from apistatus import estadosapi
-    global apis_vivas
-    apis_vivas = await estadosapi()
+#async def obtener_vivas():
+#    from apistatus import estadosapi
+#    global apis_vivas
+#    apis_vivas = await estadosapi()
 
 async def revisar_cache(cache):
     if isinstance(cache, dict):
@@ -612,7 +612,7 @@ async def generate_image_handle(chat, lang, update: Update, context: CallbackCon
         await type.reply_text(text, parse_mode=ParseMode.HTML)
         await releasemaphore(chat=chat)
         return
-    except telegram.error.BadRequest as e:
+    except telegram.error.BadRequest:
         text = f'{config.lang["errores"]["genimagen_badrequest"][lang]}'
         await type.reply_text(text, parse_mode=ParseMode.HTML)
         await releasemaphore(chat=chat)
@@ -620,24 +620,28 @@ async def generate_image_handle(chat, lang, update: Update, context: CallbackCon
     except Exception as e:
         if "Response payload is not completed" in str(e):
             print("PayloadError ImageGen")
-    image_group=[]
-    document_group=[]
-    await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
     try:
+        image_group=[]
+        document_group=[]
+        await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
         for i, image_url in enumerate(image_urls):
             image = InputMediaPhoto(image_url)
             image_group.append(image)
             document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
             document_group.append(document)
+        await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=image_group, reply_to_message_id=update.effective_message.message_id)
+        await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=document_group, reply_to_message_id=update.effective_message.message_id)
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
         if "referenced before assignment" in str(e):
             await type.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
             return
-    await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=image_group, reply_to_message_id=update.effective_message.message_id)
-    await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=document_group, reply_to_message_id=update.effective_message.message_id)
-    interaction_cache[chat.id] = ("visto", datetime.now())
-    await db.set_chat_attribute(chat, "last_interaction", datetime.now())
-    await releasemaphore(chat=chat)
+        else:
+            logger.error(e)
+            return
+    finally:
+        await releasemaphore(chat=chat)
 async def generate_image_wrapper(update, context, _message=None, chat=None, lang=None):
     chat = await chat_check(update, context) if not chat else chat
     lang = await lang_check(update, context, chat) if not lang else lang
@@ -920,13 +924,13 @@ async def post_init(application: Application):
 async def ejecutar_obtener_vivas():
     while True:
         try:
-            await obtener_vivas()
+            #await obtener_vivas()
             for cache_name in cache_index:
                 cache = locals().get(cache_name)
                 if cache is not None: await revisar_cache(cache)
         except asyncio.CancelledError:
             break
-        await sleep(60 * config.apicheck_minutes)
+        await sleep(60 * 60)
 
 def run_bot() -> None:
     try:

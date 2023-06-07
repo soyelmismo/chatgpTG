@@ -205,7 +205,7 @@ class ChatGPT:
             
                 bot_text = dialog_message.get("bot", "").strip()
                 if bot_text:
-                    prompt_lines.append(f'{config.lang["metagen"]["robot"][self.lang]}: {bot_text}\n')
+                    prompt_lines.append(f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}: {bot_text}\n')
             
             prompt += "".join(prompt_lines)
             
@@ -217,7 +217,7 @@ class ChatGPT:
             else:
                 # current message
                 prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {_message}\n'
-                prompt += f'{config.lang["metagen"]["robot"][self.lang]}:'
+                prompt += f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}:'
             return prompt
         except Exception as e:
             e = f'_generate_prompt: {e}'
