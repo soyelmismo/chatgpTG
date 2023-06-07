@@ -11,7 +11,7 @@ class ChatGPT:
         self.model = model
         self.lang = lang
         self.answer = None
-        assert model in config.model["available_model"], f"Unknown model: {model}"
+        assert self.model in config.model["available_model"], f'{config.lang["errores"]["utils_modelo_desconocido"][self.lang]}: {self.model}'
         self.api = None
         self.diccionario = {}
         self.diccionario.clear()
@@ -20,7 +20,6 @@ class ChatGPT:
     async def send_message(self, _message, dialog_messages=[], chat_mode="assistant"):
         while self.answer is None:
             try:
-                await self._validate_model()
                 async for status, self.answer in self._generate_answer(_message, dialog_messages, chat_mode):
                     yield status, self.answer
             except openai.error.InvalidRequestError as e:  # too many tokens
@@ -32,15 +31,6 @@ class ChatGPT:
                 e = f'send_message: {e}'
                 self._handle_exception(e)
         yield "finished", self.answer
-    
-    async def _validate_model(self):
-        try:
-            if self.model not in config.model["available_model"]:
-                raise LookupError(f'{config.lang["errores"]["utils_modelo_desconocido"][self.lang]}: {self.model}')
-        except Exception as e:
-            e = f'_validate_model: {e}'
-            raise Exception(e)
-
     async def _generate_answer(self, _message, dialog_messages, chat_mode):
         try:
             async for status, self.answer in self._make_api_request(_message, dialog_messages, chat_mode):
@@ -53,9 +43,36 @@ class ChatGPT:
 
     async def _make_api_request(self, _message, dialog_messages, chat_mode):
         try:
+            api_functions = {
+                "chatbase": self._get_chatbase_answer,
+                "g4f": self._get_g4f_answer,
+                "you": self._get_you_answer,
+                "evagpt4": self._get_evagpt4_answer
+            }
             self.answer = ""
             self.api=await db.get_chat_attribute(self.chat, "current_api")
-            messages = await self._generate_prompt_messages(_message, dialog_messages, chat_mode)
+            is_model_not_in_text_completions = self.model not in config.model["text_completions"]
+            api_function = api_functions.get(self.api, self._get_openai_answer)
+            messages, prompt = (await self._generate_prompt_messages(_message, dialog_messages, chat_mode), None) if is_model_not_in_text_completions else (None, await self._generate_prompt(_message, dialog_messages, chat_mode))
+            kwargs = {
+                "prompt": prompt,
+                "messages": messages
+            }
+            async for status, self.answer in api_function(**kwargs):
+                yield status, self.answer
+            self.answer = await self._postprocess_answer()
+        except Exception as e:
+            e = f'_make_api_request: {e}'
+            raise Exception(e)
+            
+    async def _make_api_requestete(self, _message, dialog_messages, chat_mode):
+        try:
+            self.answer = ""
+            self.api=await db.get_chat_attribute(self.chat, "current_api")
+            if self.model not in config.model["text_completions"]:
+                messages = await self._generate_prompt_messages(_message, dialog_messages, chat_mode)
+            else:
+                prompt = await self._generate_prompt(_message, dialog_messages, chat_mode)
             if self.api == "chatbase":
                 async for status, self.answer in self._get_chatbase_answer(messages):
                     yield status, self.answer
@@ -86,28 +103,22 @@ class ChatGPT:
             raise Exception(e)
 
     def _handle_exception(self, error):
-        raise ValueError(f'<{self.api}> {error}')
+        raise ValueError(f'{self.api}: {error}')
 
-    async def _get_openai_answer(self, _message, messages, dialog_messages, chat_mode):
+    async def _get_openai_answer(self, **kwargs):
         try:
             api_info = config.api["info"].get(self.api, {})
             openai.api_key = str(api_info.get("key", ""))
             openai.api_base=str(config.api["info"][self.api].get("url"))
-            if self.model not in config.model["text_completions"]:
-                self.diccionario["messages"] = messages
-                self.diccionario["model"] = self.model
-                fn = openai.ChatCompletion.acreate
-            else:
-                prompt = await self._generate_prompt(_message, dialog_messages, chat_mode)
-                self.diccionario["prompt"] = prompt
-                self.diccionario["engine"] = self.model
-                fn = openai.Completion.acreate
+            self.diccionario.update({"messages": kwargs["messages"], "model": self.model} if kwargs["messages"] != None else {"prompt": kwargs["prompt"], "engine": self.model})
+            fn = openai.ChatCompletion.acreate if kwargs["messages"] != None else openai.Completion.acreate
+
             r = await fn(stream=True, **self.diccionario)
             async for r_item in r:
-                if self.model not in config.model["text_completions"]:
+                if kwargs['messages'] != None:
                     delta = r_item.choices[0].delta
                     if "content" in delta:
-                        self.answer += delta.content
+                        self.answer += delta.get("content", "")
                 else:
                     self.answer += r_item.choices[0].text
                 yield "not_finished", self.answer
@@ -115,12 +126,12 @@ class ChatGPT:
             e = f'_get_openai_answer: {e}'
             raise Exception(e)
 
-    async def _get_you_answer(self, messages, dialog_messages):
+    async def _get_you_answer(self, **kwargs):
         try:
             from apis.gpt4free.foraneo import you
             r = you.Completion.create(
-                prompt=messages,
-                chat=dialog_messages,
+                prompt=kwargs['messages'],
+                chat=kwargs['dialog_messages'],
                 detailed=False,
                 include_links=False
             )
@@ -133,10 +144,10 @@ class ChatGPT:
             e = f'_get_you_answer: {e}'
             raise Exception(e)
             
-    async def _get_chatbase_answer(self, messages):
+    async def _get_chatbase_answer(self, **kwargs):
         try:
             from apis.opengpt import chatbase
-            r = chatbase.GetAnswer(messages=messages, model=self.model)
+            r = chatbase.GetAnswer(messages=kwargs['messages'], model=self.model)
             for chunk in r:
                 self.answer += chunk
                 if "API rate limit exceeded" in self.answer:
@@ -145,10 +156,10 @@ class ChatGPT:
         except Exception as e:
             e = f'_get_chatbase_answer: {e}'
             raise Exception(e)
-    async def _get_evagpt4_answer(self, messages):
+    async def _get_evagpt4_answer(self, **kwargs):
         try:
             from apis.opengpt import evagpt4
-            r = evagpt4.Model(model=self.model).ChatCompletion(messages)
+            r = evagpt4.Model(model=self.model).ChatCompletion(messages=kwargs['messages'])
             for chunk in r:
                 self.answer += chunk
                 yield "not_finished", self.answer
@@ -156,12 +167,12 @@ class ChatGPT:
             e = f'_get_evagpt4_answer: {e}'
             raise Exception(e)
 
-    async def _get_g4f_answer(self, messages):
+    async def _get_g4f_answer(self, **kwargs):
         try:
             from apis.gpt4free import g4f
             provider_name = config.model['info'][self.model]['name']
             provider = getattr(g4f.Providers, provider_name)
-            r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=messages, stream=True)
+            r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=kwargs['messages'], stream=True)
             for chunk in r:
                 self.answer += chunk
                 yield "not_finished", self.answer
@@ -173,24 +184,40 @@ class ChatGPT:
         try:
             prompt = f'{config.chat_mode["info"][chat_mode]["prompt_start"][self.lang]}'
             prompt += "\n\n"
-
             # add chat context
-            if len(dialog_messages) > 0:
-                prompt += f'{config.lang["metagen"]["log"][self.lang]}:\n'
-                for dialog_message in dialog_messages:
-                    if "documento" in dialog_message:
-                        prompt += f'{config.lang["metagen"]["documentos"][self.lang]}: [{dialog_message["documento"]}]'
-                    if "url" in dialog_message:
-                        prompt += f'{config.lang["metagen"]["urls"][self.lang]}: [{dialog_message["url"]}]'
-                    if "user" in dialog_message:
-                        prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {dialog_message["user"]}\n'
-                    if "bot" in dialog_message:
-                        prompt += f'{config.lang["metagen"]["robot"][self.lang]}: {dialog_message["bot"]}\n'
-
-            # current message
-            prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {_message}\n'
-            prompt += f'{config.lang["metagen"]["robot"][self.lang]}:'
-
+            prompt += f'{config.lang["metagen"]["log"][self.lang]}:\n'
+            documento_texts=[]
+            url_texts=[]
+            for dialog_message in dialog_messages:
+                documento_texts.append(dialog_message.get("documento", "").strip())
+                url_texts.append(dialog_message.get("url", "").strip())
+            documento_texts = "\n".join(documento_texts)
+            url_texts = "\n".join(url_texts)
+            if len(documento_texts) > 0 or len(url_texts) > 0:
+                prompt += f'{config.lang["metagen"]["documentos"][self.lang]}: [{documento_texts}]\n\n{config.lang["metagen"]["urls"][self.lang]}: [{url_texts}]\n\n{config.lang["metagen"]["mensaje"][self.lang]}: [{prompt}][{config.lang["metagen"]["contexto"][self.lang]}]'
+            
+            prompt_lines = []
+ 
+            for dialog_message in dialog_messages:
+                user_text = dialog_message.get("user", "").strip()
+                if user_text:
+                    prompt_lines.append(f'{config.lang["metagen"]["usuario"][self.lang]}: {user_text}\n')
+            
+                bot_text = dialog_message.get("bot", "").strip()
+                if bot_text:
+                    prompt_lines.append(f'{config.lang["metagen"]["robot"][self.lang]}: {bot_text}\n')
+            
+            prompt += "".join(prompt_lines)
+            
+            if _message == "Renounce€Countless€Unrivaled2€Banter":
+                _message = ""
+                #prompt+= "\nresumeLongGeneration\n:"
+                if prompt.endswith(".") or prompt.endswith("?"):
+                    prompt = prompt[:-1]
+            else:
+                # current message
+                prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {_message}\n'
+                prompt += f'{config.lang["metagen"]["robot"][self.lang]}:'
             return prompt
         except Exception as e:
             e = f'_generate_prompt: {e}'
@@ -203,21 +230,32 @@ class ChatGPT:
             documento_texts = []
             url_texts = []
             for dialog_message in dialog_messages:
-                if "documento" in dialog_message:
-                    documento_texts.append(f'{dialog_message["documento"]}\n')
-                if "url" in dialog_message:
-                    url_texts.append(f'{dialog_message["url"]}\n')
+                documento_texts.append(f'{dialog_message.get("documento", "")}\n')
+                url_texts.append(f'{dialog_message.get("url", "")}\n')
             if documento_texts or url_texts:
                 messages = [{"role": "system", "content": f'{config.lang["metagen"]["documentos"][self.lang]}: [{documento_texts}]\n\n{config.lang["metagen"]["urls"][self.lang]}: [{url_texts}]\n\n{config.lang["metagen"]["mensaje"][self.lang]}: [{prompt}][{config.lang["metagen"]["contexto"][self.lang]}]'}]
             else:
                 # Mantener el mensaje system original 
                 messages = [{"role": "system", "content": f'{prompt}'}]
             for dialog_message in dialog_messages:
-                if "user" in dialog_message:
-                    messages.append({"role": "user", "content": dialog_message["user"]})
-                if "bot" in dialog_message:
-                    messages.append({"role": "assistant", "content": dialog_message["bot"]})
-            messages.append({"role": "user", "content": _message})
+                messages.append({"role": "user", "content": dialog_message.get("user", "")})
+                messages.append({"role": "assistant", "content": dialog_message.get("bot", "")})
+            if _message == "Renounce€Countless€Unrivaled2€Banter":
+                _message = ""
+                # Encuentra el último mensaje de 'assistant'
+                last_assistant_message_index = -1
+                for index, message in reversed(list(enumerate(messages))):
+                    if message["role"] == "assistant":
+                        last_assistant_message_index = index
+                        break   
+                # Reemplaza el último punto con una coma en el último mensaje de 'assistant'
+                if last_assistant_message_index != -1:
+                    content = messages[last_assistant_message_index]["content"]
+                    if content.endswith("."):
+                        messages[last_assistant_message_index]["content"] = content[:-1] + ","
+            else:
+                messages.append({"role": "user", "content": _message})
+            messages = [message for message in messages if message["content"]]
             return messages
         except Exception as e:
             e = f'_generate_prompt_messages: {e}'
@@ -233,7 +271,7 @@ class ChatGPT:
 
     async def transcribe_audio(self, audio_file):
         if self.api not in config.api["available_transcript"]:
-            index = random.randint(1, len(config.api["available_transcript"]))
+            index = random.randint(0, len(config.api["available_transcript"]) - 1)
             self.api = config.api["available_transcript"][index]
         openai.api_key = config.api["info"][self.api]["key"]
         openai.api_base = config.api["info"][self.api]["url"]
@@ -242,7 +280,7 @@ class ChatGPT:
 
     async def generate_images(self, prompt):
         if self.api not in config.api["available_imagen"]:
-            index = random.randint(1, len(config.api["available_imagen"]))
+            index = random.randint(0, len(config.api["available_imagen"]) - 1)
             self.api = config.api["available_imagen"][index]
         openai.api_key = config.api["info"][self.api]["key"]
         openai.api_base = config.api["info"][self.api]["url"]
