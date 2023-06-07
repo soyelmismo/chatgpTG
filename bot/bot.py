@@ -138,8 +138,7 @@ async def lang_check(update: Update, context: CallbackContext, chat=None):
     return lang
 
 async def chat_check(update: Update, context: CallbackContext):
-    if update.message: chat = update.message.chat
-    elif update.callback_query: chat = update.callback_query.message.chat
+    chat = update.effective_chat
     lang = await lang_check(update, context, chat)
     if not await db.chat_exists(chat):
         await db.add_chat(chat, lang)
