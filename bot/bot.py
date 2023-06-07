@@ -42,7 +42,7 @@ chat_tasks = {}
 
 #cache testing
 cache_index = ["lang_cache", "chat_mode_cache", "api_cache", "model_cache", "menu_cache", "interaction_cache"]
-lang_cache = {}  
+lang_cache = {}
 chat_mode_cache = {}
 api_cache = {}
 model_cache = {}
@@ -61,8 +61,7 @@ async def obtener_vivas():
 async def revisar_cache(cache):
     if isinstance(cache, dict):
         for key, value in list(cache.items()):
-            if datetime.now() > value[1]:
-                del cache[key]
+            if datetime.now() > value[1]: del cache[key]
 
 async def handle_chat_task(chat, lang, task, update):
     async with chat_locks[chat.id]:
@@ -71,33 +70,28 @@ async def handle_chat_task(chat, lang, task, update):
             await acquiresemaphore(chat=chat)
             await task
         except asyncio.CancelledError:
+            task.cancel()
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["cancelado"][lang]}', parse_mode=ParseMode.HTML)
         except RuntimeError as e:
-            if 'Event loop is closed' in str(e):
-                logger.error("Error: el bucle de eventos ya finalizó")
+            if 'Event loop is closed' in str(e): logger.error("Error: el bucle de eventos ya finalizó")
         finally:
-            await releasemaphore(chat=chat)
-            if chat.id in chat_tasks:
-                del chat_tasks[chat.id]
+            await releasemaphore(chat)
+            if chat.id in chat_tasks: del chat_tasks[chat.id]
 async def acquiresemaphore(chat):
     lock = chat_locks.get(chat.id)
-    if lock is None:
-        lock = asyncio.Lock()  # Inicializa un nuevo bloqueo si no existe
-        chat_locks[chat.id] = lock
+    lock = asyncio.Lock() if lock is None else lock
+    chat_locks[chat.id] = lock
     await lock.acquire()
 async def releasemaphore(chat):
     lock = chat_locks.get(chat.id)
-    while lock and lock.locked():
-        lock.release()
+    lock.release() if lock and lock.locked() else None
 
-async def is_previous_message_not_answered_yet(chat, lang, update: Update, mensaje_actions=None):
-    semaphore = chat_locks.get(chat.id)
-    if semaphore and semaphore.locked():
+async def is_previous_message_not_answered_yet(chat, lang, update: Update):
+    lock = chat_locks.get(chat.id)
+    if lock and lock.locked():
         text = f'{config.lang["mensajes"]["mensaje_semaforo"][lang]}'
-        if update.callback_query:
-            await update.effective_chat.send_message(text, reply_to_message_id=update.callback_query.message.message_id, parse_mode=ParseMode.HTML)
-        else:
-            await update.effective_chat.send_message(text, reply_to_message_id=update.message.message_id, parse_mode=ParseMode.HTML)
+        id = update.callback_query.message.message_id if update.callback_query else update.message.message_id
+        await update.effective_chat.send_message(text, reply_to_message_id=id, parse_mode=ParseMode.HTML)
         return True
     else:
         return False
@@ -105,18 +99,12 @@ async def is_previous_message_not_answered_yet(chat, lang, update: Update, mensa
 async def is_bot_mentioned(update: Update, context: CallbackContext):
     message=update.message
     try:
-        if message.chat.type == "private":
-            return True
-
-        if message.text is not None and ("@" + context.bot.username) in message.text:
-            return True
-        
-        if message.reply_to_message and message.reply_to_message.from_user.id == context.bot.id:
-            return True
+        return (True if message.chat.type == "private"
+            or message.text is not None and ("@" + context.bot.username) in message.text
+            or message.reply_to_message and message.reply_to_message.from_user.id == context.bot.id
+            else False)
     except:
         return True
-    else:
-        return False
 
 async def start_handle(update: Update, context: CallbackContext):
     lang = await lang_check(update, context)
@@ -124,58 +112,46 @@ async def start_handle(update: Update, context: CallbackContext):
     reply_text += f'{config.lang["mensajes"]["mensaje_ayuda"][lang]}'
     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
 
-async def new_dialog_handle(update: Update, context: CallbackContext, chat=None, lang=None):
+async def new_dialog_handle(update: Update, context: CallbackContext, chat=None, lang=None, msgid=None):
     try:
-        if not chat:
-            chat  = await chat_check(update, context)
-        if not lang:
-            lang = await lang_check(update, context, chat)
+        chat  = await chat_check(update, context) if not chat else chat
+        lang = await lang_check(update, context, chat) if not lang else lang
         if await is_previous_message_not_answered_yet(chat, lang, update): return
         mododechat_actual, _, _ = await parameters_check(chat, lang, update)
         await db.new_dialog(chat)
         await db.delete_all_dialogs_except_current(chat)
         #Bienvenido!
-        await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
+        await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML) if not msgid else None
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
         logger.error(f'<new_dialog_handle> {config.lang["errores"]["error"][lang]}: {e}')
     finally:
         await releasemaphore(chat=chat)
-
 async def lang_check(update: Update, context: CallbackContext, chat=None):
-    if chat is None:
-        chat = await chat_check(update, context)
-    if chat.id in lang_cache:
-        lang = lang_cache[chat.id][0]
-    else:
-        if await db.chat_exists(chat):
-            lang = await db.get_chat_attribute(chat, "current_lang")
-        else:
-            if update.effective_user.language_code in config.lang["available_lang"]:
-                lang = update.effective_user.language_code
-            else:
-                lang = str(config.pred_lang)
-        lang_cache[chat.id] = (lang, datetime.now())
+    chat = await chat_check(update, context) if chat is None else chat
+    lang = (lang_cache[chat.id][0] if lang_cache.get(chat.id) != None else
+        await db.get_chat_attribute(chat, "current_lang") if await db.chat_exists(chat) else
+        update.effective_user.language_code if update.effective_user.language_code in config.lang["available_lang"] else
+        str(config.pred_lang))
+    lang_cache[chat.id] = (lang, datetime.now())
     return lang
+
 async def chat_check(update: Update, context: CallbackContext):
-    if update.message:
-        chat = update.message.chat
-    elif update.callback_query:
-        chat = update.callback_query.message.chat
+    if update.message: chat = update.message.chat
+    elif update.callback_query: chat = update.callback_query.message.chat
     lang = await lang_check(update, context, chat)
     if not await db.chat_exists(chat):
         await db.add_chat(chat, lang)
         await cambiar_idioma(update, context, chat, lang)
         await db.new_dialog(chat)
-    if chat.id not in chat_locks:
-        chat_locks[chat.id] = asyncio.Semaphore(1)
+    if chat.id not in chat_locks: chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat
+
 async def parameters_check(chat, lang, update):
     # Verificar si hay valores inválidos en el usuario
     #chatmode
-    if chat.id in chat_mode_cache:  
-        mododechat_actual = chat_mode_cache[chat.id][0]
+    if chat.id in chat_mode_cache: mododechat_actual = chat_mode_cache[chat.id][0]
     else:
         mododechat_actual = await db.get_chat_attribute(chat, 'current_chat_mode')
         chat_mode_cache[chat.id] = (mododechat_actual, datetime.now())
@@ -185,21 +161,18 @@ async def parameters_check(chat, lang, update):
         await db.set_chat_attribute(chat, "current_chat_mode", mododechat_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_chat_mode"][lang].format(new=mododechat_actual)}')
     #api
-    if chat.id in api_cache:
-        api_actual = api_cache[chat.id][0]
+    if chat.id in api_cache: api_actual = api_cache[chat.id][0]
     else:
         api_actual = await db.get_chat_attribute(chat, 'current_api')
         api_cache[chat.id] = (api_actual, datetime.now())
-    if not apis_vivas:
-        raise LookupError(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
+    if not apis_vivas: raise LookupError(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
     if api_actual not in apis_vivas:
         api_actual = apis_vivas[random.randint(0, len(apis_vivas) - 1)]
         api_cache[chat.id] = (api_actual, datetime.now())
         await db.set_chat_attribute(chat, "current_api", api_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_api"][lang].format(new=config.api["info"][api_actual]["name"])}')
     #model
-    if chat.id in model_cache:
-        modelo_actual = model_cache[chat.id][0]
+    if chat.id in model_cache: modelo_actual = model_cache[chat.id][0]
     else:
         modelo_actual = await db.get_chat_attribute(chat, 'current_model')
         model_cache[chat.id] = (modelo_actual, datetime.now())
@@ -212,15 +185,12 @@ async def parameters_check(chat, lang, update):
     return mododechat_actual, api_actual, modelo_actual
 
 async def cambiar_idioma(update: Update, context: CallbackContext, chat=None, lang=None):
-    if not chat:
-        chat = await chat_check(update, context)
-    if not lang:
-        lang = await lang_check(update, context, chat)
-    else:
-        if lang_cache.get(chat.id)[0] if lang_cache.get(chat.id)[0] is not None else None != lang:
-            await db.set_chat_attribute(chat, "current_lang", lang)
-            lang_cache[chat.id] = (lang, datetime.now())
-            await update.effective_chat.send_message(f'{config.lang["info"]["bienvenida"][lang]}')
+    chat = await chat_check(update, context) if not chat else chat
+    lang = await lang_check(update, context, chat) if not lang else lang
+    if lang_cache.get(chat.id) is None or lang_cache.get(chat.id)[0] != lang:
+        await db.set_chat_attribute(chat, "current_lang", lang)
+        lang_cache[chat.id] = (lang, datetime.now())
+        await update.effective_chat.send_message(f'{config.lang["info"]["bienvenida"][lang]}')
     return lang
 
 async def help_handle(update: Update, context: CallbackContext):
@@ -235,20 +205,16 @@ async def help_group_chat_handle(update: Update, context: CallbackContext):
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     await update.message.reply_video(config.help_group_chat_video_path)
 
-async def retry_handle(update: Update, context: CallbackContext, chat=None, lang=None, mensaje_actions=None):
-    if not chat:
-        chat = await chat_check(update, context)
-    if not lang:
-        lang = await lang_check(update, context, chat)
+async def retry_handle(update: Update, context: CallbackContext, chat=None, lang=None, msgid=None):
+    chat = await chat_check(update, context) if not chat else chat
+    lang = await lang_check(update, context, chat) if not lang else lang
     if await is_previous_message_not_answered_yet(chat, lang, update): return
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     if len(dialog_messages) == 0:
         await releasemaphore(chat=chat)
         text = config.lang["mensajes"]["no_retry_mensaje"][lang]
-        if mensaje_actions:
-            await mensaje_actions.reply_text(text, reply_to_message_id=mensaje_actions.message_id)
-        else:
-            await update.message.reply_text(text, reply_to_message_id=update.message.message_id)
+        #type = update.callback_query.message if msgid else update.message
+        await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id)
         return
     last_dialog_message = dialog_messages.pop()
     await db.set_dialog_messages(chat, dialog_messages, dialog_id=None)  # last message was removed from the context
@@ -260,11 +226,7 @@ async def retry_handle(update: Update, context: CallbackContext, chat=None, lang
 
 async def check_message(update: Update, _message=None):
     raw_msg = _message or update.effective_message
-    if not isinstance(raw_msg, str):
-        if raw_msg.text:
-            _message = raw_msg.text
-        else:
-            _message = raw_msg.reply_to_message.text
+    if not isinstance(raw_msg, str): _message = raw_msg.text if raw_msg.text else raw_msg.reply_to_message.text
     return raw_msg, _message
 
 async def add_dialog_message(chat, new_dialog_message):
@@ -275,8 +237,7 @@ async def add_dialog_message(chat, new_dialog_message):
     )
 
 async def message_handle_wrapper(update, context):
-    if update.edited_message:
-        return
+    if update.edited_message: return
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
     try:
@@ -285,10 +246,10 @@ async def message_handle_wrapper(update, context):
         if await is_previous_message_not_answered_yet(chat, lang, update): return
         await parameters_check(chat, lang, update)
         task = bb(message_handle(chat, lang, update, context))
-        bcs(handle_chat_task(chat, lang, task, update))
+        await handle_chat_task(chat, lang, task, update)
     except Exception as e:
         logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][lang]}: {e}')
-async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
+async def message_handle(chat, lang, update: Update, context: CallbackContext, _message=None, msgid=None):
     if _message:
         raw_msg = await check_message(update, _message)
         raw_msg = raw_msg[0]
@@ -303,16 +264,13 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
             if urls:
                 await releasemaphore(chat=chat)
                 task = bb(url_handle(chat, lang, update, urls))
-                bcs(handle_chat_task(chat, lang, task, update))
-                return
+                await handle_chat_task(chat, lang, task, update)
     except AttributeError:
         pass
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
-    if chat.id in chat_mode_cache:
-        chat_mode = chat_mode_cache[chat.id][0]
-    else:
-        chat_mode = await db.get_chat_attribute(chat, "current_chat_mode")
-        chat_mode_cache[chat.id] = (chat_mode, datetime.now())
+    chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
+                await db.get_chat_attribute(chat, "current_chat_mode"))
+    chat_mode_cache[chat.id] = (chat_mode, datetime.now())
     if chat.id in interaction_cache:
         last_interaction = interaction_cache[chat.id][1]
     else:
@@ -330,10 +288,10 @@ async def message_handle(chat, lang, update: Update, context: CallbackContext, _
         current_model = await db.get_chat_attribute(chat, "current_model")
         model_cache[chat.id] = (current_model, datetime.now())
     await releasemaphore(chat=chat)
-    task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model))
-    bcs(handle_chat_task(chat, lang, task, update))
-    
-async def message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model):
+    task = bb(message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
+    await handle_chat_task(chat, lang, task, update)
+
+async def message_handle_fn(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid):
     try:
         if not _message:
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
@@ -342,37 +300,34 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
             upd=250
             timer=0.04
         else:
-            upd=50
+            upd=75
             timer=0.02
-        parse_mode = ParseMode.HTML if config.chat_mode["info"][chat_mode]["parse_mode"] == "html" else ParseMode.MARKDOWN
+        parse_mode = {
+                    "html": ParseMode.HTML,
+                    "markdown": ParseMode.MARKDOWN
+                }[config.chat_mode["info"][chat_mode]["parse_mode"]]
         keyboard = []
         keyboard.append([])
         keyboard[0].append({"text": "🚫", "callback_data": "actions|cancel"})
         await update.effective_chat.send_action(ChatAction.TYPING)
-        placeholder_message = await update.effective_chat.send_message("🤔", reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        reply_val = msgid if msgid else update.effective_message.message_id if chat.type != "private" or _message == "Renounce€Countless€Unrivaled2€Banter" else None
+        placeholder_message = await update.effective_chat.send_message("🤔",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
         gen = openai_utils.ChatGPT(chat, lang, model=current_model).send_message(_message, dialog_messages, chat_mode)
         prev_answer = ""
-        # Segunda fila de botones con el botón de reintentar
-        keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
+        answer = ""
         async for status, gen_answer in gen:
             answer = gen_answer[:4096]  # telegram message limit
-            if abs(len(answer) - len(prev_answer)) < upd and status != "finished":  # Comparar con el valor de corte 
-                continue
+            if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
             try:
-                await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard})
             except telegram.error.BadRequest as e:
-                if str(e).startswith(msg_no_mod):
-                    continue
-                #else: #ocasiona errores
-                    #await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard})
+                if str(e).startswith(msg_no_mod): continue
+                else: await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard})   
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
+        keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
+        keyboard[0].append({"text": "▶️", "callback_data": "actions|continuar"})
         await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
-        # update chat data
-        interaction_cache[chat.id] = ("visto", datetime.now())
-        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
-        new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
-        await add_dialog_message(chat, new_dialog_message)
         await releasemaphore(chat=chat)
     except telegram.error.Forbidden as e:
         logger.error(f"Error: El bot fue expulsado del chat {chat.title}@{chat.id}.")
@@ -382,22 +337,33 @@ async def message_handle_fn(update, context, _message, chat, lang, dialog_messag
         keyboard = []
         keyboard.append([])
         keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
-        await context.bot.edit_message_text(f'{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        await context.bot.edit_message_text(f'{answer}\n\n{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         return
-    if config.switch_imgs == "True" and chat_mode == "imagen":
-        await generate_image_wrapper(update, context, _message=answer, chat=chat, lang=lang)
-
+    finally:
+        # update chat data
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+        _message = " " if _message == "Renounce€Countless€Unrivaled2€Banter" else _message
+        answer = " " if answer == None else answer
+        new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
+        await add_dialog_message(chat, new_dialog_message)
+        await releasemaphore(chat=chat)
+        if config.switch_imgs == "True" and chat_mode == "imagen":
+            task = bb(generate_image_handle(chat, lang, update, context, _message=answer))
+            await handle_chat_task(chat, lang, task, update)
 async def actions_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
     query = update.callback_query
     await query.answer()
     action = query.data.split("|")[1]
-    mensaje_actions = query.message
+    msgid = query.message.reply_to_message.message_id if query.message.reply_to_message is not None else None
     if action == "cancel":
-        await cancel_handle(update, context, mensaje_actions)
+        await cancel_handle(update, context)
+    elif action == "continuar":
+        await message_handle(chat, lang, update, context, _message="Renounce€Countless€Unrivaled2€Banter", msgid=msgid)
     else:
-        await retry_handle(update, context, chat, lang, mensaje_actions)
+        await retry_handle(update=update, context=context, chat=chat, lang=lang, msgid=msgid)
         
 async def send_large_message(text, update):
     if len(text) <= 4096:
@@ -475,10 +441,11 @@ async def document_handle(chat, lang, update, context):
                     import PyPDF2
                     read_pdf = PyPDF2.PdfReader(pdf_file)
                     doc = ''
-                    paginas = len(read_pdf.pages)
-                    if paginas > config.pdf_page_lim:
-                        paginas = config.pdf_page_lim - 1
-                        raise ValueError(config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=paginas, pdf_page_lim=config.pdf_page_lim))
+                    lim = int(config.pdf_page_lim)
+                    paginas = int(len(read_pdf.pages))
+                    if int(paginas) > int(lim):
+                        await update.message.reply_text(f'{config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=(paginas - lim), pdf_page_lim=int(lim))}', parse_mode=ParseMode.HTML)
+                        paginas = int(lim)
                     for i in range(paginas):
                         text = read_pdf.pages[i].extract_text()
                         text = text.replace(".\n", "|n_parraf|")  
@@ -498,7 +465,7 @@ async def document_handle(chat, lang, update, context):
                 interaction_cache[chat.id] = ("visto", datetime.now())
                 await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         else:
-            raise ValueError(config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size)))
+            text = config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size))
     except Exception as e:
         text = f'{config.lang["errores"]["error"][lang]}: {e}'
     finally:
@@ -510,7 +477,7 @@ async def document_wrapper(update, context):
     if not await is_bot_mentioned(update, context): return
     if await is_previous_message_not_answered_yet(chat, lang, update): return
     task = bb(document_handle(chat, lang, update, context))
-    bcs(handle_chat_task(chat, lang, task, update))
+    await handle_chat_task(chat, lang, task, update)
 
 async def ocr_image(chat, lang, update, context):
     image = update.message.photo[-1]
@@ -559,7 +526,7 @@ async def ocr_image_wrapper(update, context):
     if not await is_bot_mentioned(update, context): return
     if await is_previous_message_not_answered_yet(chat, lang, update): return
     task = bb(ocr_image(chat, lang, update, context))
-    bcs(handle_chat_task(chat, lang, task, update))
+    await handle_chat_task(chat, lang, task, update)
 
 async def transcribe_message_handle(chat, lang, update, context):
     # Procesar sea voz o audio
@@ -615,62 +582,69 @@ async def transcribe_message_wrapper(update, context):
     if not await is_bot_mentioned(update, context): return
     if await is_previous_message_not_answered_yet(chat, lang, update): return
     task = bb(transcribe_message_handle(chat, lang, update, context))
-    bcs(handle_chat_task(chat, lang, task, update))
+    await handle_chat_task(chat, lang, task, update)
 
 async def generate_image_handle(chat, lang, update: Update, context: CallbackContext, _message=None):
+    type = update.callback_query.message if update.callback_query else update.message
     if _message:
         prompt = _message
     else:
         if not context.args:
-            await update.message.reply_text(f'{config.lang["mensajes"]["genimagen_noargs"][lang]}', parse_mode=ParseMode.HTML)
+            await type.reply_text(f'{config.lang["mensajes"]["genimagen_noargs"][lang]}', parse_mode=ParseMode.HTML)
             await releasemaphore(chat=chat)
             return
         else:
             prompt = ' '.join(context.args)
     if prompt == None:
-        await update.message.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
+        await type.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
         await releasemaphore(chat=chat)
         return
     import openai
     try:
         await releasemaphore(chat=chat)
-        await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
-        image_urls = await openai_utils.ChatGPT(chat).generate_images(prompt)
+        await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
+        image_urls = await openai_utils.ChatGPT(chat).generate_images(prompt)    
     except (openai.error.APIError, openai.error.InvalidRequestError) as e:
         if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
             text = f'{config.lang["errores"]["genimagen_rejected"][lang]}'
         else:
             text = f'{config.lang["errores"]["genimagen_other"][lang]}'
-        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        await type.reply_text(text, parse_mode=ParseMode.HTML)
         await releasemaphore(chat=chat)
         return
     except telegram.error.BadRequest as e:
         text = f'{config.lang["errores"]["genimagen_badrequest"][lang]}'
-        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        await type.reply_text(text, parse_mode=ParseMode.HTML)
         await releasemaphore(chat=chat)
         return
-
+    except Exception as e:
+        if "Response payload is not completed" in str(e):
+            print("PayloadError ImageGen")
     image_group=[]
     document_group=[]
-    await update.message.chat.send_action(ChatAction.UPLOAD_PHOTO)
-    for i, image_url in enumerate(image_urls):
-        image = InputMediaPhoto(image_url)
-        image_group.append(image)
-        document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
-        document_group.append(document)
-    await update.message.reply_media_group(image_group)
-    await update.message.reply_media_group(document_group)
+    await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
+    try:
+        for i, image_url in enumerate(image_urls):
+            image = InputMediaPhoto(image_url)
+            image_group.append(image)
+            document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
+            document_group.append(document)
+    except Exception as e:
+        if "referenced before assignment" in str(e):
+            await type.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
+            return
+    await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=image_group, reply_to_message_id=update.effective_message.message_id)
+    await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=document_group, reply_to_message_id=update.effective_message.message_id)
     interaction_cache[chat.id] = ("visto", datetime.now())
     await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     await releasemaphore(chat=chat)
 async def generate_image_wrapper(update, context, _message=None, chat=None, lang=None):
-    if not chat:
-        chat = await chat_check(update, context)
-    if not lang:
-        lang = await lang_check(update, context, chat)
+    chat = await chat_check(update, context) if not chat else chat
+    lang = await lang_check(update, context, chat) if not lang else lang
     if await is_previous_message_not_answered_yet(chat, lang, update): return
     task = bb(generate_image_handle(chat, lang, update, context, _message))
-    bcs(handle_chat_task(chat, lang, task, update))
+    await releasemaphore(chat=chat)
+    await handle_chat_task(chat, lang, task, update)
 
 async def ask_timeout_handle(chat, lang, update: Update, _message):
     keyboard = [[
@@ -708,20 +682,18 @@ async def answer_timeout_handle(update: Update, context: CallbackContext):
         await releasemaphore(chat=chat)
         await retry_handle(update, context, chat, lang)
 
-async def cancel_handle(update: Update, context: CallbackContext, mensaje_actions=None):
+async def cancel_handle(update: Update, context: CallbackContext,):
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
-    semaphore = chat_locks.get(chat.id)
-    if not semaphore and not semaphore.locked() or chat.id not in chat_tasks:
+    lock = chat_locks.get(chat.id)
+    if not lock and not lock.locked() or chat.id not in chat_tasks:
         text = config.lang["mensajes"]["nadacancelado"][lang]
-        if mensaje_actions:
-            await mensaje_actions.reply_text(text, reply_to_message_id=mensaje_actions.message_id, parse_mode=ParseMode.HTML)
-        else:
-            await update.message.reply_text(text, reply_to_message_id=update.message.message_id, parse_mode=ParseMode.HTML)
+        #type = update.callback_query.effective_chat if update.callback_query else update.effective_chat
+        await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.HTML)
     else:
-        await releasemaphore(chat)
         task = chat_tasks[chat.id]
         task.cancel()
+        await releasemaphore(chat)
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
 
@@ -729,14 +701,11 @@ async def get_menu(menu_type, update: Update, context: CallbackContext, chat, pa
     try:
         lang = await lang_check(update, context, chat)
         menu_type_dict = getattr(config, menu_type)
-        if chat.id in globals()[f"{menu_type}_cache"]:
-            current_key = globals()[f"{menu_type}_cache"][chat.id][0]
-        else:
-            current_key = await db.get_chat_attribute(chat, f"current_{menu_type}")
-            globals()[f"{menu_type}_cache"][chat.id] = (current_key, datetime.now())
+        current_key = (globals()[f"{menu_type}_cache"][chat.id][0] if chat.id in globals()[f"{menu_type}_cache"] else
+                        await db.get_chat_attribute(chat, f"current_{menu_type}"))
+        globals()[f"{menu_type}_cache"][chat.id] = (current_key, datetime.now())
         item_keys = await get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update)
-        if config.switch_imgs != "True" and "imagen" in item_keys:
-            item_keys.remove("imagen")
+        item_keys.remove("imagen") if config.switch_imgs != "True" and "imagen" in item_keys else None
         option_name = await get_menu_option_name(current_key, menu_type, menu_type_dict, lang)
         text = await get_menu_text(lang, option_name, menu_type, menu_type_dict, current_key)
         keyboard = await get_menu_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
@@ -755,12 +724,9 @@ async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
     return item_keys
 
 def convert_dict_to_immutable(d):
-    if isinstance(d, dict):
-        return frozenset((k, convert_dict_to_immutable(v)) for k, v in d.items())
-    elif isinstance(d, list):
-        return tuple(convert_dict_to_immutable(x) for x in d)
-    else:
-        return d
+    return (frozenset((k, convert_dict_to_immutable(v)) for k, v in d.items()) if isinstance(d, dict) else
+            tuple(convert_dict_to_immutable(x) for x in d) if isinstance(d, list) else d
+            )
         
 async def get_menu_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
     
@@ -804,26 +770,18 @@ async def get_menu_keyboard(item_keys, page_index, menu_type, menu_type_dict, la
         return keyboard
         
 async def get_menu_item_name(menu_type, menu_type_dict, current_key, lang):
-    if menu_type != "lang" and menu_type != "chat_mode":
-        name = menu_type_dict["info"][current_key]["name"]
-    elif menu_type == "chat_mode":
-        name = menu_type_dict["info"][current_key]["name"][lang]
-    else:
-        name = menu_type_dict['info']['name'][current_key]
+    name = (menu_type_dict["info"][current_key]["name"] if menu_type != "lang" and menu_type != "chat_mode" else
+            menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else
+            menu_type_dict['info']['name'][current_key])
     return name
 async def get_menu_text(lang, option_name, menu_type, menu_type_dict, current_key):
-    if menu_type == "lang":
-        description = menu_type_dict['info']['description'][lang]
-    else:
-        description = menu_type_dict['info'][current_key]['description'][lang]
+    description = (menu_type_dict['info']['description'][lang] if menu_type == "lang" else
+                    menu_type_dict['info'][current_key]['description'][lang])
     return f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {description}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
 async def get_menu_option_name(current_key, menu_type, menu_type_dict, lang):
-    if menu_type != "chat_mode" and menu_type != "lang":
-        option_name = menu_type_dict["info"][current_key]["name"]
-    elif menu_type == "chat_mode":
-        option_name = menu_type_dict["info"][current_key]["name"][lang]
-    else:
-        option_name = menu_type_dict["info"]["name"][lang]  
+    option_name = (menu_type_dict["info"][current_key]["name"] if menu_type != "chat_mode" and menu_type != "lang" else
+                    menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else
+                    menu_type_dict["info"]["name"][lang])
     return option_name
 
 async def menu_handler(update: Update):
@@ -831,8 +789,7 @@ async def menu_handler(update: Update):
     await query.answer()
     seleccion = query.data.split("|")[1]
     page_index = int(query.data.split("|")[2])
-    if page_index < 0:
-        return
+    if page_index < 0: return
     return query, page_index, seleccion
 
 async def chat_mode_handle(update: Update, context: CallbackContext):
@@ -849,11 +806,10 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     lang = await lang_check(update, context, chat)
     query, page_index, seleccion = await menu_handler(update)
-    if seleccion != "paginillas":
-        if chat_mode_cache.get(chat.id)[0] != seleccion:
-            chat_mode_cache[chat.id] = (seleccion, datetime.now())
-            await db.set_chat_attribute(chat, "current_chat_mode", seleccion)
-            await update.effective_chat.send_message(f"{config.chat_mode['info'][seleccion]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
+    if seleccion != "paginillas" and (chat_mode_cache.get(chat.id) is None or chat_mode_cache.get(chat.id)[0] != seleccion):
+        chat_mode_cache[chat.id] = (seleccion, datetime.now())
+        await db.set_chat_attribute(chat, "current_chat_mode", seleccion)
+        await update.effective_chat.send_message(f"{config.chat_mode['info'][seleccion]['welcome_message'][lang]}", parse_mode=ParseMode.HTML)
     await menu_edit_handler(query, update, context, page_index, menu_type="chat_mode", chat=chat)
         
 async def model_handle(update: Update, context: CallbackContext):
@@ -869,26 +825,22 @@ async def model_callback_handle(update: Update, context: CallbackContext):
 async def set_model_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
-    if seleccion != "paginillas":
-        if model_cache.get(chat.id)[0] != seleccion:
-            model_cache[chat.id] = (seleccion, datetime.now())
-            await db.set_chat_attribute(chat, "current_model", seleccion)
+    if seleccion != "paginillas" and (model_cache.get(chat.id) is None or model_cache.get(chat.id)[0] != seleccion):
+        model_cache[chat.id] = (seleccion, datetime.now())
+        await db.set_chat_attribute(chat, "current_model", seleccion)
     await menu_edit_handler(query, update, context, page_index, menu_type="model", chat=chat)
     
 async def menu_edit_handler(query, update, context, page_index, menu_type, chat=None):
-    if chat:
-        argus = (menu_type, update, context, chat, page_index)
-    else:
-        argus = (menu_type, update, context, page_index)
+    argus = ((menu_type, update, context, chat, page_index) if chat else
+                (menu_type, update, context, page_index))
     text, reply_markup = await get_menu(*argus)
     try:
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
-        if str(e).startswith(msg_no_mod):
-            # Ignorar esta excepción específica y continuar la ejecución normalmente
-            pass
+        if str(e).startswith(msg_no_mod): pass
+            # Ignorar esta excepción específica y continuar la ejecución normalmente  
         else:
             # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario
             raise
@@ -906,10 +858,9 @@ async def api_callback_handle(update: Update, context: CallbackContext):
 async def set_api_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
-    if seleccion != "paginillas":
-        if api_cache.get(chat.id)[0] != seleccion:
-            api_cache[chat.id] = (seleccion, datetime.now())
-            await db.set_chat_attribute(chat, "current_api", seleccion)
+    if seleccion != "paginillas" and (api_cache.get(chat.id) is None or api_cache.get(chat.id)[0] != seleccion):
+        api_cache[chat.id] = (seleccion, datetime.now())
+        await db.set_chat_attribute(chat, "current_api", seleccion)
     await menu_edit_handler(query, update, context, page_index, menu_type="api", chat=chat)
 
 async def lang_handle(update: Update, context: CallbackContext):
@@ -925,10 +876,8 @@ async def lang_callback_handle(update: Update, context: CallbackContext):
 async def set_lang_handle(update: Update, context: CallbackContext):
     chat = await chat_check(update, context)
     query, page_index, seleccion = await menu_handler(update)
-    if seleccion != "paginillas":
-        if lang_cache.get(chat.id)[0] != seleccion:
-            lang_cache[chat.id] = (seleccion, datetime.now())
-            await cambiar_idioma(update, context, chat, lang=seleccion)
+    if seleccion != "paginillas" and (lang_cache.get(chat.id) is None or lang_cache.get(chat.id)[0] != seleccion):
+        await cambiar_idioma(update, context, chat, lang=seleccion)
     await menu_edit_handler(query, update, context, page_index, menu_type="lang", chat=chat)
 
 async def error_handle(update: Update, context: CallbackContext) -> None:
@@ -951,9 +900,7 @@ async def error_handle(update: Update, context: CallbackContext) -> None:
 
     except Exception as e:
         # Handle errors that may occur during error handling
-        error_message = f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}: {e}'
-        logger.error(error_message)
-        await update.effective_chat.send_message(error_message, parse_mode='HTML')
+        logger.error(f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}: {e}')
 
 async def post_init(application: Application):
     bb(ejecutar_obtener_vivas())
@@ -976,8 +923,7 @@ async def ejecutar_obtener_vivas():
             await obtener_vivas()
             for cache_name in cache_index:
                 cache = locals().get(cache_name)
-                if cache is not None:
-                    await revisar_cache(cache)
+                if cache is not None: await revisar_cache(cache)
         except asyncio.CancelledError:
             break
         await sleep(60 * config.apicheck_minutes)
@@ -998,10 +944,8 @@ def run_bot() -> None:
             user_ids = []
             for user in config.user_whitelist:
                 user = user.strip()
-                if user.isnumeric():
-                    user_ids.append(int(user))
-                else:
-                    usernames.append(user)
+                if user.isnumeric(): user_ids.append(int(user))
+                else: usernames.append(user)
             user_filter = filters.User(username=usernames) | filters.User(user_id=user_ids)
         else:
             user_filter = filters.ALL
@@ -1009,11 +953,9 @@ def run_bot() -> None:
             chat_ids = []
             for chat in config.chat_whitelist:
                 chat = chat.strip()
-                if chat[0] == "-" and chat[1:].isnumeric():
-                    chat_ids.append(int(chat))
+                if chat[0] == "-" and chat[1:].isnumeric(): chat_ids.append(int(chat))
             chat_filter = filters.Chat(chat_id=chat_ids)
-        else:
-            chat_filter = filters.ALL
+        else: chat_filter = filters.ALL
 
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & (user_filter | chat_filter), message_handle_wrapper))
 
@@ -1058,5 +1000,4 @@ def run_bot() -> None:
     except Exception as e:
         logger.error(f'<run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')
 
-if __name__ == "__main__":
-    run_bot()
+if __name__ == "__main__": run_bot()
