@@ -1,8 +1,8 @@
 from typing import Optional, Any
 import uuid
+from . import config
 from datetime import datetime
 import motor.motor_asyncio
-import config
 
 class Database:
     def __init__(self):

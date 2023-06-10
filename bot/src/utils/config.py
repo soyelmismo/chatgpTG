@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 import yaml
-
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 telegram_token = env['TELEGRAM_TOKEN'][0]
@@ -35,8 +34,7 @@ pdf_page_lim = int(env['PDF_PAGE_LIMIT'][0])
 pred_lang = str(env['AUTO_LANG'][0])
 
 # set config paths
-config_dir = Path(__file__).parent.parent.resolve() / "config"
-
+config_dir = Path(__file__).resolve().parents[3] / "config"
 # load config files
 
 #language
@@ -59,5 +57,5 @@ with open(config_dir / "model.yml", 'r') as f:
 with open(config_dir / "openai_completion_options.yml", 'r') as f:
     completion_options = yaml.safe_load(f)
 
-# set file paths
+# set file pathsfrom
 help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"
