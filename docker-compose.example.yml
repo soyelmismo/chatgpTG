@@ -14,7 +14,7 @@ services:
 
   chatgptg:
     container_name: chatgptg
-    command: python3 bot/bot.py
+    command: python3 -m bot
     restart: always
     build:
       context: "."

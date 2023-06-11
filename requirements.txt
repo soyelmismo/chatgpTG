@@ -16,3 +16,4 @@ requests
 curl_cffi
 websockets
 duckduckgo_search
+python-dotenv
