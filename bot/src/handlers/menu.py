@@ -10,7 +10,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
     #from bot.src.utils.proxies import (obtener_contextos as oc,logger,chat_mode_cache,model_cache,lang_cache,api_cache,menu_cache,db,config)
     cache_variable = getattr(proxies, f"{menu_type}_cache")
     try:
-        _, lang = await oc(update, context)
+        _, lang = await oc(update)
         menu_type_dict = getattr(config, menu_type)
         current_key = (cache_variable[chat.id][0] if chat.id in cache_variable else
                         await db.get_chat_attribute(chat, f"current_{menu_type}"))

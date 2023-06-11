@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 import yaml
+from dotenv import load_dotenv
+load_dotenv()
+
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 telegram_token = env['TELEGRAM_TOKEN'][0]

@@ -1,6 +1,7 @@
 from bot.src.utils import proxies
 import openai
 from . import make_transcription, make_image
+from bot.src.utils.constants import constant_db_api
 
 class ChatGPT:
     def __init__(self, chat, lang="es", model="gpt-3.5-turbo"):
@@ -33,7 +34,7 @@ class ChatGPT:
         from .make_messages import handle as mms
         from .make_prompt import handle as mpm
         try:
-            self.api=(proxies.api_cache[self.chat.id][0] if proxies.api_cache.get(self.chat.id)[0] is not None else await proxies.db.get_chat_attribute(self.chat, "current_api"))
+            self.api=(proxies.api_cache[self.chat.id][0] if self.chat.id in proxies.api_cache else await proxies.db.get_chat_attribute(self.chat, f'{constant_db_api}'))
             is_model_not_in_text_completions = self.model not in proxies.config.model["text_completions"]
             messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if is_model_not_in_text_completions else (None, await mpm(self, _message, dialog_messages, chat_mode))
             kwargs = {

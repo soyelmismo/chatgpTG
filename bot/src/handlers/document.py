@@ -56,7 +56,7 @@ async def handle(chat, lang, update, context):
         await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 async def wrapper(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (bb,obtener_contextos as oc, debe_continuar)
-    chat, lang = await oc(update, context)
+    chat, lang = await oc(update)
     if not await debe_continuar(chat, lang, update, context): return
     task = bb(handle(chat, lang, update, context))
     await tasks.handle(chat, lang, task, update)

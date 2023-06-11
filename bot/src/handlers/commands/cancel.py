@@ -6,7 +6,7 @@ async def handle(update: Update, context: CallbackContext):
     config, datetime, ParseMode,
     interaction_cache, db, chat_locks, chat_tasks
     )
-    chat, lang = await oc(update, context)
+    chat, lang = await oc(update)
     lock = chat_locks.get(chat.id)
     if not lock and not lock.locked() or chat.id not in chat_tasks:
         text = config.lang["mensajes"]["nadacancelado"][lang]

@@ -1,4 +1,4 @@
-async def handle(self, _message, dialog_messages, chat_mode):
+async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
     from bot.src.utils import config
 
     try:

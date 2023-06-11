@@ -29,7 +29,7 @@ apis_vivas = config.api["available_api"]
 msg_no_mod = "Message is not modified"
 
 #contexts and checkers
-async def obtener_contextos(update, context, chat=None, lang=None):
+async def obtener_contextos(update, chat=None, lang=None):
     from bot.src.utils.checks import c_chat, c_lang
     chat = await c_chat.check(update) if not chat else chat
     lang = await c_lang.check(update, chat) if not lang else lang

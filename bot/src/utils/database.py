@@ -3,7 +3,7 @@ import uuid
 from . import config
 from datetime import datetime
 import motor.motor_asyncio
-
+from .constants import constant_db_model, constant_db_chat_mode, constant_db_api, constant_db_lang
 class Database:
     def __init__(self):
         self.client = motor.motor_asyncio.AsyncIOMotorClient(config.mongodb_uri)
@@ -24,13 +24,11 @@ class Database:
         chat_dict = {
             "_id": chat.id,
             "last_interaction": datetime.now(),
-            "first_seen": datetime.now(),
-
             "current_dialog_id": None,
-            "current_lang": lang,
-            "current_chat_mode": config.chat_mode["available_chat_mode"][1],
-            "current_model": config.model["available_model"][0],
-            "current_api": config.api["available_api"][0],
+            f'{constant_db_lang}': lang,
+            f'{constant_db_chat_mode}': config.chat_mode["available_chat_mode"][1],
+            f'{constant_db_model}': config.model["available_model"][0],
+            f'{constant_db_api}': config.api["available_api"][0],
         }
         if not await self.chat_exists(chat):
             await self.chats.insert_one(chat_dict)
@@ -41,11 +39,6 @@ class Database:
         dialog_dict = {
             "_id": dialog_id,
             "chat_id": chat.id,
-            "chat_mode": await self.get_chat_attribute(chat, "current_chat_mode"),
-            "start_time": datetime.now(),
-            "model": await self.get_chat_attribute(chat, "current_model"),
-            "api": await self.get_chat_attribute(chat, "current_api"),
-            "lang": await self.get_chat_attribute(chat, "current_lang"),
             "messages": [],
         }
 
@@ -78,14 +71,14 @@ class Database:
         initial_api = config.api["available_api"][0]
 
         # Actualizar los valores en la base de datos
-        await self.set_chat_attribute(chat, 'current_chat_mode', initial_chat_mode)
-        await self.set_chat_attribute(chat, 'current_model', initial_model)
-        await self.set_chat_attribute(chat, 'current_api', initial_api)
+        await self.set_chat_attribute(chat, f'{constant_db_chat_mode}', initial_chat_mode)
+        await self.set_chat_attribute(chat, f'{constant_db_model}', initial_model)
+        await self.set_chat_attribute(chat, f'{constant_db_api}', initial_api)
         from .proxies import chat_mode_cache, model_cache, api_cache
         chat_mode_cache[chat.id] = (initial_chat_mode, datetime.now())
         model_cache[chat.id] = (initial_model, datetime.now())
         api_cache[chat.id] = (initial_api, datetime.now())
-        
+
     async def set_chat_attribute(self, chat, key: str, value: Any):
         await self.chat_exists(chat, raise_exception=True)
         await self.chats.update_one({"_id": chat.id}, {"$set": {key: value}})

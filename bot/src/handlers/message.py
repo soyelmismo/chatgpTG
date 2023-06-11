@@ -2,6 +2,7 @@ from bot.src.start import Update, CallbackContext
 from bot.src.utils.gen_utils.phase import ChatGPT
 from bot.src.utils.checks.c_message import check as check_message
 from bot.src.utils.misc import add_dialog_message
+from bot.src.utils.constants import constant_db_model, constant_db_chat_mode
 
 from bot.src.handlers import semaphore as tasks
 from datetime import datetime
@@ -12,7 +13,7 @@ from .commands import img, cancel, retry
 async def wrapper(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (debe_continuar,parametros,obtener_contextos as oc,bb,logger,config)
     if update.edited_message: return
-    chat, lang = await oc(update, context)
+    chat, lang = await oc(update)
     try:
         # check if bot was mentioned (for groups)
         if not await debe_continuar(chat, lang, update, context): return
@@ -42,7 +43,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
         pass
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
-                await db.get_chat_attribute(chat, "current_chat_mode"))
+                await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
     chat_mode_cache[chat.id] = (chat_mode, datetime.now())
     if chat.id in interaction_cache:
         last_interaction = interaction_cache[chat.id][1]
@@ -58,7 +59,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
     if chat.id in model_cache:
         current_model = model_cache[chat.id][0]
     else:
-        current_model = await db.get_chat_attribute(chat, "current_model")
+        current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
         model_cache[chat.id] = (current_model, datetime.now())
     await tasks.releasemaphore(chat=chat)
     task = bb(gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
@@ -131,7 +132,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
 
 async def actions(update, context):
     from bot.src.utils.proxies import (obtener_contextos as oc)
-    chat, lang = await oc(update, context)
+    chat, lang = await oc(update)
     query = update.callback_query
     await query.answer()
     action = query.data.split("|")[1]

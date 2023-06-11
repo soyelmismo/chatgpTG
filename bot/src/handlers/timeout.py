@@ -23,7 +23,7 @@ async def ask(chat, lang, update: Update, _message):
     await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask"][lang]}', reply_markup=reply_markup)
 async def answer(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (obtener_contextos as oc,db,config)
-    chat, lang = await oc(update, context)
+    chat, lang = await oc(update)
     query = update.callback_query
     await query.answer()
     new_dialog = query.data.split("|")[1]

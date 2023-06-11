@@ -54,7 +54,7 @@ async def handle(chat, lang, update, context):
     await message.handle(chat, lang, update, context, _message=transcribed_text)
 async def wrapper(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc, bb)
-    chat, lang = await oc(update, context)
+    chat, lang = await oc(update)
     if not await debe_continuar(chat, lang, update, context): return
     task = bb(handle(chat, lang, update, context))
     from . import semaphore as tasks
