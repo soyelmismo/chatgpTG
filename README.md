@@ -6,9 +6,13 @@
 - /model - Mostrar modelos IA.
 - /api - Mostrar APIs.
 - /lang - Ver idiomas disponibles.
+- /status - Ver la configuracion actual: Modelo, Modo de chat y API.
+- /reset - Reestablece la configuración a valores predeterminados.
+- /search - Busqueda en internet
 - /help – Mostrar este mensaje de nuevo.
 
 ## Características:
+- Haz que GPT acceda a Internet usando /search!
 - Envía un archivo de texto, PDF o URL y el bot los podrá analizar!
 - Añade proxies reversos de OpenAI y sus respectivos modelos cuanto quieras!
 - Multi lenguaje.
@@ -22,7 +26,8 @@
 
 ## Nueva actualización:
 - Reestructuración de código.
-- 2 comandos nuevos. /status y /reset
+- La generación de imágenes ahora pregunta si descargar o eliminar los documentos, tiempo de expiración por defecto: 5 minutos.
+- 3 comandos nuevos. /search, /status y /reset.
 - Los comandos /help y /start ahora llaman a la API de GPT para ser asistente en la ayuda del bot.
 
 # Importante:

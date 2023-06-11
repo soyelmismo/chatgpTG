@@ -403,6 +403,42 @@ commands:
     nl: Bekijk helpbericht
 
 mensajes:
+  preguntar_descargar_fotos:
+    es: ¿Quieres descargar las fotos en su máxima calidad? Expirarán en {expirationtime} minutos!
+    ar: هل تريد تنزيل الصور بأقصى جودة؟ ستنتهي صلاحيتها خلال {expirationtime} دقائق!
+    en: Do you want to download the photos in their maximum quality? They will expire in {expirationtime} minutes!
+    jp: 最高品質で写真をダウンロードしますか？ {expirationtime} 分で期限が切れます！
+    zh: 您想以最高质量下载照片吗？ 它们将在{expirationtime}分钟后过期！
+    de: Möchten Sie die Fotos in ihrer maximalen Qualität herunterladen? Sie laufen in {expirationtime} Minuten ab!
+    fr: Voulez-vous télécharger les photos dans leur qualité maximale? Ils expireront dans {expirationtime} minutes!
+    ru: Вы хотите скачать фотографии в максимальном качестве? Они истечут через {expirationtime} минут!
+    pt: Você quer baixar as fotos na sua qualidade máxima? Eles expirarão em {expirationtime} minutos!
+    it: Vuoi scaricare le foto nella loro massima qualità? Scadranno in {expirationtime} minuti!
+    nl: Wil je de foto's in hun maximale kwaliteit downloaden? Ze vervallen na {expirationtime} minuten!
+  fotos_ya_expiraron:
+    es: Lo siento, las fotos expiraron.
+    ar: للأسف، انتهت صلاحية الصور.
+    en: Sorry, the photos have expired.
+    jp: 申し訳ありませんが、写真は期限切れになりました。
+    zh: 对不起，照片已过期。
+    de: Entschuldigung, die Fotos sind abgelaufen.
+    fr: Désolé, les photos ont expiré.
+    ru: Извините, фотографии истекли.
+    pt: Desculpe, as fotos expiraram.
+    it: Siamo spiacenti, le foto sono scadute.
+    nl: Sorry, de foto's zijn verlopen.
+  fotos_borradas_listo:
+    es: Se borraron las fotos!
+    ar: تم حذف الصور!
+    en: The photos have been deleted!
+    jp: 写真が削除されました！
+    zh: 照片已被删除！
+    de: Die Fotos wurden gelöscht!
+    fr: Les photos ont été supprimées!
+    ru: Фотографии были удалены!
+    pt: As fotos foram excluídas!
+    it: Le foto sono state cancellate!
+    nl: De foto's zijn verwijderd!
   ayuda_grupos:
     es: |
       Puedes añadir un bot a cualquier <b>chat de grupo</b> para ayudar y entretener a sus participantes.
@@ -647,17 +683,17 @@ mensajes:
     it: Annotato 📝 Cosa vuoi sapere sulla pagina?
     nl: Geannoteerd 📝 Wat wil je weten over de pagina?
   genimagen_noargs:
-    es: Debes escribir algo después del comando /img
-    ar: يجب عليك كتابة شيء بعد الأمر /img
-    en: You must write something after the command /img
-    jp: /img コマンドの後に何かを入力する必要があります。
-    zh: 在使用 /img 命令后必须输入一些内容。
-    de: Du musst etwas nach dem Befehl /img schreiben.
-    fr: Vous devez écrire quelque chose après la commande /img
-    ru: После команды /img вы должны что-то написать.
-    pt: Você deve escrever algo depois do comando /img.
-    it: Devi scrivere qualcosa dopo il comando /img.
-    nl: Je moet iets schrijven na het commando /img.
+    es: Debes escribir algo después del comando
+    ar: يجب عليك كتابة شيء بعد الأمر
+    en: You must write something after the command
+    jp: コマンドの後に何かを入力する必要があります。
+    zh: 在使用 命令后必须输入一些内容。
+    de: Du musst etwas nach dem Befehl schreiben.
+    fr: Vous devez écrire quelque chose après la commande
+    ru: После команды вы должны что-то написать.
+    pt: Você deve escrever algo depois do comando.
+    it: Devi scrivere qualcosa dopo il comando.
+    nl: Je moet iets schrijven na het commando.
   genimagen_notext:
     es: No se detectó texto para generar las imágenes 😔
     ar: لم يتم اكتشاف نص لإنشاء الصور 😔

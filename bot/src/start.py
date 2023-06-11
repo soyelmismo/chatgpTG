@@ -11,7 +11,7 @@ from telegram.ext import (
     filters
 )
 from .handlers import message, voice, ocr_image, document, timeout, error
-from .handlers.commands import start, help, retry, new, cancel, chat_mode, model, api, img, lang, status, reset
+from .handlers.commands import start, help, retry, new, cancel, chat_mode, model, api, img, lang, status, reset, search
 from .tasks import cache
 from .utils import config
 from .utils.proxies import bb, logger
@@ -33,7 +33,9 @@ async def post_init(application: Application):
         ("/status", "📊"),
         ("/reset", "🪃"),
         ("/help", "ℹ️")
-    ]  
+    ]
+    if config.switch_search == "True":
+        commandos.insert(8, ("/search", "🔎"))
     if config.switch_imgs == "True":
         commandos.insert(5, ("/img", "🖼️"))
     await application.bot.set_my_commands(commandos)
@@ -101,6 +103,9 @@ def run_bot() -> None:
         application.add_handler(CommandHandler("api", api.handle, filters=(user_filter | chat_filter)))
         if config.switch_imgs == "True":
             application.add_handler(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))
+            application.add_handler(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
+        if config.switch_search == "True":
+            application.add_handler(CommandHandler("search", search.wrapper, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("lang", lang.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CallbackQueryHandler(lang.set, pattern="^set_lang"))
 

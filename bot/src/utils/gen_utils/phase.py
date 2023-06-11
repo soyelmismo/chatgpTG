@@ -76,3 +76,8 @@ class ChatGPT:
     async def imagen(self, prompt):
         image_urls = await make_image.gen(self, prompt)
         return image_urls
+    
+    async def busqueduck(self, prompt):
+        from .duckduckgo import search
+        resultados = await search(self, prompt)
+        return resultados
