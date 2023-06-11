@@ -31,12 +31,12 @@ async def handle(chat, lang, update, context, _message=None):
             text = f'{config.lang["errores"]["genimagen_other"][lang]}'
         await type.reply_text(text, parse_mode=ParseMode.HTML)
         await tasks.releasemaphore(chat=chat)
-        raise e
+        return
     except telegram.error.BadRequest as e:
         text = f'{config.lang["errores"]["genimagen_badrequest"][lang]}'
         await type.reply_text(text, parse_mode=ParseMode.HTML)
         await tasks.releasemaphore(chat=chat)
-        raise e
+        return
     except Exception as e:
         if "Response payload is not completed" in str(e):
             print("PayloadError ImageGen")

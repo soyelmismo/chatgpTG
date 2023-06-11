@@ -81,6 +81,10 @@ class Database:
         await self.set_chat_attribute(chat, 'current_chat_mode', initial_chat_mode)
         await self.set_chat_attribute(chat, 'current_model', initial_model)
         await self.set_chat_attribute(chat, 'current_api', initial_api)
+        from .proxies import chat_mode_cache, model_cache, api_cache
+        chat_mode_cache[chat.id] = (initial_chat_mode, datetime.now())
+        model_cache[chat.id] = (initial_model, datetime.now())
+        api_cache[chat.id] = (initial_api, datetime.now())
         
     async def set_chat_attribute(self, chat, key: str, value: Any):
         await self.chat_exists(chat, raise_exception=True)

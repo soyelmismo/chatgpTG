@@ -21,9 +21,9 @@
 
 
 ## Nueva actualización:
-- Optimizaciones
-- APICHECK fuera. muchos problemas
-- Modo de chat Karen y DAN agregados. funcionan bien con gpt-3/davinci
+- Reestructuración de código.
+- 2 comandos nuevos. /status y /reset
+- Los comandos /help y /start ahora llaman a la API de GPT para ser asistente en la ayuda del bot.
 
 # Importante:
 - Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."

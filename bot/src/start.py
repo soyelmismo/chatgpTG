@@ -11,7 +11,7 @@ from telegram.ext import (
     filters
 )
 from .handlers import message, voice, ocr_image, document, timeout, error
-from .handlers.commands import start, help, retry, new, cancel, chat_mode, model, api, img, lang
+from .handlers.commands import start, help, retry, new, cancel, chat_mode, model, api, img, lang, status, reset
 from .tasks import cache
 from .utils import config
 from .utils.proxies import bb, logger
@@ -30,6 +30,8 @@ async def post_init(application: Application):
         ("/model", "🧠"),
         ("/api", "🔌"),
         ("/lang", "🌍"),
+        ("/status", "📊"),
+        ("/reset", "🪃"),
         ("/help", "ℹ️")
     ]  
     if config.switch_imgs == "True":
@@ -94,6 +96,8 @@ def run_bot() -> None:
         application.add_handler(CommandHandler("cancel", cancel.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("chat_mode", chat_mode.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("model", model.handle, filters=(user_filter | chat_filter)))
+        application.add_handler(CommandHandler("status", status.handle, filters=(user_filter | chat_filter)))
+        application.add_handler(CommandHandler("reset", reset.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("api", api.handle, filters=(user_filter | chat_filter)))
         if config.switch_imgs == "True":
             application.add_handler(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))

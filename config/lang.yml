@@ -182,7 +182,42 @@ metagen:
     pt: Parágrafo
     it: Paragrafo
     nl: alinea
-
+  configuracion:
+    es: Configuración actual
+    ar: الإعدادات الحالية
+    en: Current settings
+    jp: 現在の設定
+    zh: 当前设置
+    de: Aktuelle Einstellungen
+    fr: Paramètres actuels
+    ru: Текущие настройки
+    pt: Configurações atuais
+    it: Impostazioni correnti
+    nl: Huidige instellingen
+  modelo:
+    es: Modelo
+    ar: النموذج
+    en: Model
+    jp: モデル
+    zh: 模型
+    de: Modell
+    fr: Modèle
+    ru: Модель
+    pt: Modelo
+    it: Modello
+    nl: Model
+  chatmode:
+    es: Modo de chat
+    ar: وضع المحادثة
+    en: Chat mode
+    jp: チャットモード
+    zh: 聊天模式
+    de: Chat-Modus
+    fr: Mode de chat
+    ru: Режим чата
+    pt: Modo de chat
+    it: Modalità chat
+    nl: Chatmodus
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs
@@ -368,184 +403,6 @@ commands:
     nl: Bekijk helpbericht
 
 mensajes:
-  mensaje_bienvenido:
-    es: Hola! Soy <b>ChatGPT</b> bot implementado con la API de OpenAI.
-    ar: مرحبًا! أنا <b>ChatGPT</b>، الروبوت المنفذ باستخدام واجهة برمجة التطبيقات من OpenAI.
-    en: Hi! I'm <b>ChatGPT</b> bot implemented with OpenAI API.
-    jp: OpenAIのAPIで実装された<b>ChatGPT</b>ボットです。
-    zh: 你好! 我是用OpenAI的API实现的<b>ChatGPT</b>机器人。
-    de: Hallo, ich bin ein <b>ChatGPT</b> Bot, der mit der OpenAI API implementiert wurde.
-    fr: Bonjour, je suis un bot <b>ChatGPT</b> implémenté avec l'API OpenAI.
-    ru: Привет, я <b>ChatGPT</b> бот, реализованный с помощью OpenAI API.
-    pt: Olá, sou o bot <b>ChatGPT</b> implementado com a API OpenAI.
-    it: Salve, sono un bot <b>ChatGPT</b> implementato con le API OpenAI.
-    nl: Hallo, ik ben <b>ChatGPT</b> bot geïmplementeerd met de OpenAI API.
-  mensaje_ayuda:
-    es: |
-      Comandos:
-      ⚪ /new - Iniciar nuevo diálogo.
-      ⚪ /img - Genera imágenes según lo que escribas.
-      ⚪ /retry - Regenera la última respuesta del bot.
-      ⚪ /chat_mode - Seleccionar el modo de conversación.
-      ⚪ /model - Mostrar configuración de API.
-      ⚪ /api - Mostrar APIs.
-      ⚪ /lang - Ver idiomas disponibles.
-      ⚪ /help – Mostrar este mensaje de nuevo.
-
-      🎨 Generar textos para imágenes con <b>🖼️ Generar imágenes</b> /chat_mode
-      👥 Añadir el bot a un <b>grupo</b>: /help_group_chat
-      🎤 Puedes enviar <b>Mensajes de voz</b> en lugar de texto.
-      📖 Envía <b>documentos</b> o <b>links</b> para <b>analizarlos</b> junto al bot!
-    ar: |
-      الأوامر:
-      ⚪ /new - بدء حوار جديد.
-      ⚪ /img - إنشاء صور وفقًا لما تكتبه.
-      ⚪ /retry - إعادة توليد آخر رد من الروبوت.
-      ⚪ /chat_mode - تحديد وضع المحادثة.
-      ⚪ /model - عرض إعدادات واجهة برمجة التطبيقات.
-      ⚪ /api - عرض واجهات البرمجة القابلة للاستخدام.
-      ⚪ /lang - عرض اللغات المتاحة.
-      ⚪ /help – عرض هذه الرسالة مرة أخرى.
-
-      🎨 إنشاء نصوص للصور مع <b>🖼️ إنشاء الصور</b> /chat_mode
-      👥 أضف الروبوت إلى <b>مجموعة</b>: /help_group_chat
-      🎤 يمكنك إرسال <b>رسائل صوتية</b> بدلاً من النص.
-      📖 أرسل <b>مستندات</b> أو <b>روابط</b> لتحليلها مع الروبوت!
-    en: |
-      Commands:
-      ⚪ /new - Start a new dialogue.
-      ⚪ /img - Generate images based on your input.
-      ⚪ /retry - Regenerate the bot's last response.
-      ⚪ /chat_mode - Select conversation mode.
-      ⚪ /model - Show API configuration.
-      ⚪ /api - Show APIs.
-      ⚪ /lang - View available languages.
-      ⚪ /help - Show this message again.
-
-      🎨 Generate text for images with <b>🖼️ Generate images</b> /chat_mode
-      👥 Add the bot to a <b>group</b>: /help_group_chat
-      🎤 You can send <b>Voice Messages</b> instead of text.
-      📖 Send <b>documents</b> or <b>links</b> to <b>analyze</b> them with the bot!
-    jp: |
-      コマンド:
-      ⚪️ /new - 新しい会話を開始します。
-      ⚪️ /img - 入力に基づいて画像を生成します。
-      ⚪️ /retry - ボットの最後の応答を再生成します。
-      ⚪️ /chat_mode - 会話モードを選択します。
-      ⚪️ /model - APIの構成を表示します。
-      ⚪️ /api - APIを表示します。
-      ⚪ /lang - 利用可能な言語を表示します。
-      ⚪️ /help - このメッセージを再度表示します。
-
-      🎨 🖼 Generate images /chat_modeで画像のテキストを生成します
-      👥 ボットをグループに追加する：/help_group_chat
-      🎤 テキストの代わりに音声メッセージを送信できます。
-      📖 ボットと一緒にドキュメントやリンクを送信して分析しましょう
-    zh: |
-      命令：
-      ⚪ /new - 开始一个新的对话。
-      ⚪ /img - 根据你的输入生成图像。
-      ⚪ /retry - 重新生成机器人的最后回应。
-      ⚪ /chat_mode - 选择对话模式。
-      ⚪ /model - 显示API配置。
-      ⚪ /api - 显示API。
-      ⚪ /lang - 查看可用语言。
-      ⚪ /help - 再次显示此信息.
-
-      🎨 用<b>🖼️ 生成图像的文本</b>。 /chat_mode
-      👥 将机器人添加到一个<b>组</b>: /help_group_chat
-      🎤 您可以发送<b>语音信息</b>而不是文字。
-      📖 发送文件或链接以便与机器人一起分析!
-    de: |
-      Kommandos:
-      ⚪️ /new - Starten Sie ein neues Gespräch.
-      ⚪️ /img - Erstellen Sie Bilder basierend auf Ihrer Eingabe.
-      ⚪️ /retry - Regenerieren Sie die letzte Antwort des Bots.
-      ⚪️ /chat_mode - Wählen Sie den Konversationsmodus.
-      ⚪️ /model - Zeige API-Konfiguration an.
-      ⚪️ /api - Zeige APIs an.
-      ⚪ /lang - Verfügbare Sprachen anzeigen.
-      ⚪️ /help - Zeige diese Nachricht erneut an.
-
-      🎨 Erstellen Sie Text für Bilder mit 🖼 Generate images /chat_mode
-      👥 Fügen Sie den Bot einer Gruppe hinzu: /help_group_chat
-      🎤 Sie können statt Text Sprachnachrichten senden.
-      📖 Senden Sie Dokumente oder Links, um sie mit dem Bot zu analysieren!
-    fr: |
-      Commandes:
-      ⚪️ /new - Démarrer une nouvelle conversation.
-      ⚪️ /img - Générer des images en fonction de votre saisie.
-      ⚪️ /retry - Régénérer la dernière réponse du bot.
-      ⚪️ /chat_mode - Sélectionner le mode de conversation.
-      ⚪️ /model - Afficher la configuration API.
-      ⚪️ /api - Afficher les API.
-      ⚪ /lang - Voir les langues disponibles.
-      ⚪️ /help - Afficher ce message à nouveau.
-
-      🎨 Générer du texte pour des images avec 🖼 Generate images /chat_mode
-      👥 Ajouter le bot à un groupe : /help_group_chat
-      🎤 Vous pouvez envoyer des Messages vocaux à la place du texte.
-      📖 Envoyez des documents ou des liens pour les analyser avec le bot!
-    ru: |
-      Команды:
-      ⚪️ /new - Начать новый диалог.
-      ⚪️ /img - Создавать изображения на основе вашего ввода.
-      ⚪️ /retry - Пересоздать последний ответ бота.
-      ⚪️ /chat_mode - Выбрать режим общения.
-      ⚪️ /model - Показать конфигурацию API.
-      ⚪️ /api - Показать API.
-      ⚪ /lang - Просмотр доступных языков.
-      ⚪️ /help - Показать это сообщение снова.
-
-      🎨 Создавайте текст для изображений с помощью 🖼 Generate images /chat_mode
-      👥 Добавьте бота в группу: /help_group_chat
-      🎤 Вы можете отправлять Голосовые сообщения вместо текста.
-      📖 Отправляйте документы или ссылки, чтобы анализировать их с помощью бота!
-    pt: |
-      Comandos:
-      ⚪️ /new - Iniciar uma nova conversa.
-      ⚪️ /img - Criar imagens com base na sua entrada.
-      ⚪️ /retry - Recriar a última resposta do bot.
-      ⚪️ /chat_mode - Selecionar o modo de conversação.
-      ⚪️ /model - Exibir a configuração da API.
-      ⚪️ /api - Exibir APIs.
-      ⚪ /lang - Ver idiomas disponíveis.
-      ⚪️ /help - Exibir esta mensagem novamente.
-
-      🎨 Crie texto para imagens com 🖼 Generate images /chat_mode
-      👥 Adicione o bot a um grupo: /help_group_chat
-      🎤 Você pode enviar Mensagens de voz em vez de texto.
-      📖 Envie documentos ou links para analisar com o bot!
-    it: |
-      Comandi:
-      ⚪️ /new - Avvia una nuova conversazione.
-      ⚪️ /img - Genera immagini in base all'input.
-      ⚪️ /retry - Ricrea l'ultima risposta del bot.
-      ⚪️ /chat_mode - Seleziona la modalità di conversazione.
-      ⚪️ /model - Visualizza la configurazione API.
-      ⚪️ /api - Visualizza le API.
-      ⚪ /lang - Visualizza le lingue disponibili.
-      ⚪️ /help - Visualizza nuovamente questo messaggio.
-
-      🎨 Crea testo per immagini con 🖼 Generate images /chat_mode
-      👥 Aggiungi il bot a un gruppo: /help_group_chat
-      🎤 Puoi inviare Messaggi vocali invece di testo.
-      📖 Invia documenti o link per analizzarli con il bot!
-    nl: |
-      Commando's:
-      ⚪️ /new - Start een nieuw gesprek.
-      ⚪️ /img - Genereer afbeeldingen op basis van uw invoer.
-      ⚪️ /retry - Genereer opnieuw de laatste reactie van de bot.
-      ⚪️ /chat_mode - Selecteer conversatiemodus.
-      ⚪️ /model - API-configuratie weergeven.
-      ⚪️ /api - API's weergeven.
-      ⚪ /lang - Bekijk beschikbare talen.
-      ⚪️ /help - Dit bericht opnieuw weergeven.
-
-      🎨 Genereer tekst voor afbeeldingen met 🖼 Afbeeldingen genereren /chat_mode
-      👥 Voeg de bot toe aan een groep: /help_group_chat
-      🎤 U kunt in plaats van tekst spraakberichten verzenden.
-      📖 Verzend documenten of links om ze te analyseren met de bot!
   ayuda_grupos:
     es: |
       Puedes añadir un bot a cualquier <b>chat de grupo</b> para ayudar y entretener a sus participantes.
@@ -900,17 +757,17 @@ errores:
     it: Errore... O non ci sono messaggi di dialogo, o hai selezionato un valore massimo di token eccessivamente alto
     nl: Fout... Er zijn geen dialoogberichten of je hebt een overdreven hoog maximum aantal tokens geselecteerd
   pdf_pages_limit:
-    es: 😬 ¡El documento se excede por {paginas - pdf_page_lim} páginas! Se leerán las primeras {pdf_page_lim} páginas.
-    ar: 😬 يتجاوز المستند الحد المسموح به بواقع {paginas - pdf_page_lim} صفحة! سيتم قراءة أول {pdf_page_lim} صفحة فقط.
-    en: 😬 The document exceeds the limit by {pages - pdf_page_lim} pages! Only the first {pdf_page_lim} pages will be read.
-    jp: 😬 ドキュメントが {pages - pdf_page_lim} ページ超過しています！最初の {pdf_page_lim} ページのみが読み込まれます。
-    zh: 😬 该文档超过了 {pages - pdf_page_lim} 页的限制！只会读取前 {pdf_page_lim} 页。
-    de: 😬 Das Dokument überschreitet das Limit um {pages - pdf_page_lim} Seiten! Es werden nur die ersten {pdf_page_lim} Seiten gelesen.
-    fr: 😬 Le document dépasse la limite de {pages - pdf_page_lim} pages ! Seules les {pdf_page_lim} premières pages seront lues.
-    ru: 😬 Документ превышает лимит на {pages - pdf_page_lim} страниц! Будут прочитаны только первые {pdf_page_lim} страниц.
-    pt: 😬 O documento excede o limite por {pages - pdf_page_lim} páginas! Apenas as primeiras {pdf_page_lim} páginas serão lidas.
-    it: 😬 Il documento supera il limite di {pages - pdf_page_lim} pagine! Verranno lette solo le prime {pdf_page_lim} pagine.
-    nl: 😬 Het document overschrijdt de limiet met {pages - pdf_page_lim} pagina's! Alleen de eerste {pdf_page_lim} pagina's worden gelezen.
+    es: 😬 ¡El documento se excede por {paginas} páginas! Se leerán las primeras {pdf_page_lim} páginas.
+    ar: 😬 يتجاوز المستند الحد المسموح به بواقع {paginas} صفحة! سيتم قراءة أول {pdf_page_lim} صفحة فقط.
+    en: 😬 The document exceeds the limit by {paginas} pages! Only the first {pdf_page_lim} pages will be read.
+    jp: 😬 ドキュメントが {paginas} ページ超過しています！最初の {pdf_page_lim} ページのみが読み込まれます。
+    zh: 😬 该文档超过了 {paginas} 页的限制！只会读取前 {pdf_page_lim} 页。
+    de: 😬 Das Dokument überschreitet das Limit um {paginas} Seiten! Es werden nur die ersten {pdf_page_lim} Seiten gelesen.
+    fr: 😬 Le document dépasse la limite de {paginas} pages ! Seules les {pdf_page_lim} premières pages seront lues.
+    ru: 😬 Документ превышает лимит на {paginas} страниц! Будут прочитаны только первые {pdf_page_lim} страниц.
+    pt: 😬 O documento excede o limite por {paginas} páginas! Apenas as primeiras {pdf_page_lim} páginas serão lidas.
+    it: 😬 Il documento supera il limite di {paginas} pagine! Verranno lette solo le prime {pdf_page_lim} pagine.
+    nl: 😬 Het document overschrijdt de limiet met {paginas} pagina's! Alleen de eerste {pdf_page_lim} pagina's worden gelezen.
   document_size_limit:
     es: El archivo es demasiado grande ({file_size_mb} MB). El límite es de {file_max_size} MB.
     ar: الملف كبير جدًا ({file_size_mb} ميجابايت). الحد الأقصى هو {file_max_size} ميجابايت.

@@ -1,4 +1,7 @@
 ## Cambios anteriores:
+- Optimizaciones
+- APICHECK fuera. muchos problemas
+- Modo de chat Karen y DAN agregados. funcionan bien con gpt-3/davinci
 - Sistema básico de caché.
 - 2 APIs nuevas, EvaGPT4 y Churchless
 - Mongo Async
