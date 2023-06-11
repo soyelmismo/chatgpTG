@@ -1,13 +1,13 @@
 async def send_large_message(text, update):
     from .proxies import ParseMode
     if len(text) <= 4096:
-        await update.effective_chat.send_message(f'{text}', reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.MARKDOWN)
+        await update.effective_chat.send_message(f'{text}', reply_to_message_id=update.effective_message.message_id, disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
         #await update.message.reply_text(text, parse_mode=ParseMode.HTML)
     else:
         # Divide el mensaje en partes más pequeñas
         message_parts = [text[i:i+4096] for i in range(0, len(text), 4096)]
         for part in message_parts:
-            await update.effective_chat.send_message(f'{part}', reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.MARKDOWN)
+            await update.effective_chat.send_message(f'{part}', reply_to_message_id=update.effective_message.message_id, disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
             #await update.message.reply_text(part, parse_mode=ParseMode.HTML)
 
 async def clean_text(doc):

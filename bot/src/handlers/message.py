@@ -97,15 +97,15 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             answer = gen_answer[:4096]  # telegram message limit
             if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
             try:
-                await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard})
+                await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=ParseMode.MARKDOWN_V2)
             except telegram.error.BadRequest as e:
                 if str(e).startswith(msg_no_mod): continue
-                else: await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard})   
+                else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=ParseMode.MARKDOWN_V2)   
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
         keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
         keyboard[0].append({"text": "▶️", "callback_data": "actions|continuar"})
-        await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard})
+        await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=ParseMode.MARKDOWN)
         await tasks.releasemaphore(chat=chat)
     except telegram.error.Forbidden as e:
         logger.error(f"Error: El bot fue expulsado del chat {chat.title}@{chat.id}.")

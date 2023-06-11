@@ -19,8 +19,8 @@ async def handle(chat, lang, update, context, _message=None):
         await tasks.releasemaphore(chat=chat)
         await update.effective_chat.send_action(ChatAction.TYPING)
         insta=ChatGPT(chat, lang)
-        resultados = await insta.busqueduck(prompt)
-        resultadosbot="""Explain the search results to the user, giving extra information only more than the actual. everything in the language: {language}:\n\n{resultados}\n\nExplain the previous search results to the user, giving extra information only more than the actual. everything in the next language: {language}."""
+        resultados = await insta.busqueduck(prompt.replace("-", " "))
+        resultadosbot="""{resultados}\n\n parameters[Now you have access to the Internet thanks to the previous searches,you will talk deeply about the search results in general,do not repeat the same search results text and structure,do not write urls,you need to write in the language: {language}]"""
         await type.chat.send_action(ChatAction.TYPING)
         from bot.src.utils.misc import send_large_message
         await send_large_message(resultados, update)

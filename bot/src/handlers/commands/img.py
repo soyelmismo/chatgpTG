@@ -13,7 +13,6 @@ async def remove_document_group(message_id, borrar=None, update=None, lang=None)
         if update:
             await update.effective_chat.send_message(text=f'{config.lang["mensajes"]["fotos_borradas_listo"][lang]}', reply_to_message_id=message_id)
 async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id):
-    from bot.src.utils.proxies import ParseMode
     document_groups[f'{mensaje_group_id}'] = document_group
 
     asyncio.create_task(remove_document_group(f'{mensaje_group_id}'))
@@ -44,7 +43,6 @@ async def handle(chat, lang, update, context, _message=None):
         return
     import openai
     try:
-        await tasks.releasemaphore(chat=chat)
         await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
         insta=ChatGPT(chat)
         image_urls = await insta.imagen(prompt)
