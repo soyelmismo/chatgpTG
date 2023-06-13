@@ -1,7 +1,7 @@
 from bot.src.start import Update, CallbackContext
 from bot.src.utils.gen_utils.phase import ChatGPT
 from bot.src.utils.checks.c_message import check as check_message
-from bot.src.utils.misc import add_dialog_message
+from bot.src.utils.misc import update_dialog_messages
 from bot.src.utils.constants import constant_db_model, constant_db_chat_mode
 
 from bot.src.handlers import semaphore as tasks
@@ -17,12 +17,13 @@ async def wrapper(update: Update, context: CallbackContext):
     try:
         # check if bot was mentioned (for groups)
         if not await debe_continuar(chat, lang, update, context): return
-        await parametros(chat, lang, update)
         task = bb(handle(chat, lang, update, context))
         await tasks.handle(chat, lang, task, update)
     except Exception as e:
         logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][lang]}: {e}')
 async def handle(chat, lang, update, context, _message=None, msgid=None):
+    from bot.src.utils.proxies import parametros
+    await parametros(chat, lang, update)
     from bot.src.utils.proxies import (bb,chat_mode_cache,db,interaction_cache,model_cache,config,ParseMode)
     if _message:
         raw_msg, _ = await check_message(update, _message)
@@ -36,11 +37,13 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
         if raw_msg.entities and config.switch_urls == "True":
             urls = await url.wrapper(raw_msg)
             if urls:
+                textomensaje = await url.handle(chat, lang, update, urls)
+                await update.effective_chat.send_message(textomensaje, reply_to_message_id=update.effective_message.message_id)
                 await tasks.releasemaphore(chat=chat)
-                task = bb(url.handle(chat, lang, update, urls))
-                await tasks.handle(chat, lang, task, update)
+                return
     except AttributeError:
         pass
+    await update_dialog_messages(chat)
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
                 await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
@@ -121,17 +124,17 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         # update chat data
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
-        _message = " " if _message == "Renounce€Countless€Unrivaled2€Banter" else _message
+        _message = " " if _message == "Renounce€Countless€Unrivaled2€Banter" or _message==None else _message
         answer = " " if answer == None else answer
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
-        await add_dialog_message(chat, new_dialog_message)
+        await update_dialog_messages(chat, new_dialog_message)
         await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == "True" and chat_mode == "imagen":
             task = bb(img.wrapper(chat, lang, update, context, _message=answer))
             await tasks.handle(chat, lang, task, update)
 
 async def actions(update, context):
-    from bot.src.utils.proxies import (obtener_contextos as oc)
+    from bot.src.utils.proxies import (obtener_contextos as oc, debe_continuar)
     chat, lang = await oc(update)
     query = update.callback_query
     await query.answer()
@@ -140,6 +143,7 @@ async def actions(update, context):
     if action == "cancel":
         await cancel.handle(update, context)
     elif action == "continuar":
+        if not await debe_continuar(chat, lang, update, context, bypassMention=True): return
         await handle(chat, lang, update, context, _message="Renounce€Countless€Unrivaled2€Banter", msgid=msgid)
     else:
         await retry.handle(update=update, context=context, chat=chat, lang=lang, msgid=msgid)

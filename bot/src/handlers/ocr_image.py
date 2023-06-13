@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 import tempfile
 from . import semaphore as tasks
-from ..utils.misc import clean_text, add_dialog_message
+from ..utils.misc import clean_text, update_dialog_messages
 async def handle(chat, lang, update, context):
     from bot.src.utils.proxies import (
     ChatAction, ParseMode, config,
@@ -42,18 +42,19 @@ async def handle(chat, lang, update, context):
             if len(doc) <= 1:
                 text = f'{config.lang["errores"]["error"][lang]}: {config.lang["errores"]["ocr_no_extract"][lang]}'
             else:
-                doc = await clean_text(doc)
+                doc = await clean_text(doc, chat)
                 text = config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=doc)
                 new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{doc}"', "date": datetime.now()}
-                await add_dialog_message(chat, new_dialog_message)
+                await update_dialog_messages(chat, new_dialog_message)
     except RuntimeError:
         text = f'{config.lang["errores"]["error"][lang]}: {config.lang["errores"]["tiempoagotado"][lang]}'
     await update.message.reply_text(f'{text}', parse_mode=ParseMode.MARKDOWN)
     await tasks.releasemaphore(chat=chat)
 async def wrapper(update: Update, context: CallbackContext):
-    from bot.src.utils.proxies import (bb,obtener_contextos as oc, debe_continuar)
+    from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc, parametros, bb)
     if not update.effective_message.photo: return
     chat, lang = await oc(update)
+    await parametros(chat, lang, update)
     if not await debe_continuar(chat, lang, update, context): return
     task = bb(handle(chat, lang, update, context))
     await tasks.handle(chat, lang, task, update)

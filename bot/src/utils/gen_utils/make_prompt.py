@@ -2,33 +2,40 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
     from bot.src.utils import config
 
     try:
-        prompt = f'{config.chat_mode["info"][chat_mode]["prompt_start"][self.lang]}'
-        prompt += "\n\n"
+        prompt = ""
         # add chat context
-        prompt += f'{config.lang["metagen"]["log"][self.lang]}:\n'
         documento_texts=[]
         url_texts=[]
+        search_texts=[]
         for dialog_message in dialog_messages:
-            documento_texts.append(dialog_message.get("documento", "").strip())
-            url_texts.append(dialog_message.get("url", "").strip())
-        documento_texts = "\n".join(documento_texts)
-        url_texts = "\n".join(url_texts)
-        if len(documento_texts) > 0 or len(url_texts) > 0:
-            prompt += f'{config.lang["metagen"]["documentos"][self.lang]}: [{documento_texts}]\n\n{config.lang["metagen"]["urls"][self.lang]}: [{url_texts}]\n\n{config.lang["metagen"]["mensaje"][self.lang]}: [{prompt}][{config.lang["metagen"]["contexto"][self.lang]}]'
-        
+            documento = dialog_message.get("documento", "")
+            url = dialog_message.get("url", "")
+            search = dialog_message.get("search", "")
+            if len(documento) >= 5:
+                documento_texts.append(dialog_message.get("documento", "").strip())
+            if len(url) >= 5:
+                url_texts.append(dialog_message.get("url", "").strip())
+            if len(search) >= 5:
+                search_texts.append(dialog_message.get("search", "").strip())
+        documento_texts = "\n".join(documento_texts) if documento_texts else ""
+        url_texts = "\n".join(url_texts) if url_texts else ""
+        search_texts = "\n".join(search_texts) if search_texts else ""
+        if documento_texts or url_texts or search_texts:
+            prompt += f'{config.lang["metagen"]["documentos"][self.lang]}: {documento_texts}\n\n{config.lang["metagen"]["urls"][self.lang]}: {url_texts}\n\n{config.lang["metagen"]["busquedaweb"][self.lang]}: {search_texts}\n\n{config.lang["metagen"]["mensaje"][self.lang]}: [{prompt}][{config.lang["metagen"]["contexto"][self.lang]}]'
+        prompt += f'{config.lang["metagen"]["log"][self.lang]}:\n'
         prompt_lines = []
-
         for dialog_message in dialog_messages:
             user_text = dialog_message.get("user", "").strip()
             if user_text:
                 prompt_lines.append(f'{config.lang["metagen"]["usuario"][self.lang]}: {user_text}\n')
-        
             bot_text = dialog_message.get("bot", "").strip()
             if bot_text:
                 prompt_lines.append(f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}: {bot_text}\n')
-        
         prompt += "".join(prompt_lines)
-        
+        if chat_mode == "nada":
+            pass
+        else:
+            prompt += f'\n\n{config.chat_mode["info"][chat_mode]["name"][self.lang]}: {config.chat_mode["info"][chat_mode]["prompt_start"][self.lang]}\n\n'
         if _message == "Renounce€Countless€Unrivaled2€Banter":
             _message = ""
             #prompt+= "\nresumeLongGeneration\n:"

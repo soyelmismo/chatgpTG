@@ -61,7 +61,7 @@ async def handle(chat, lang, update, context, _message=None):
         return
     except Exception as e:
         if "Response payload is not completed" in str(e):
-            print("PayloadError ImageGen")
+            logger.error("PayloadError ImageGen")
     try:
         image_group=[]
         document_group=[]

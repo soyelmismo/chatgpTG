@@ -3,7 +3,7 @@ import uuid
 from . import config
 from datetime import datetime
 import motor.motor_asyncio
-from .constants import constant_db_model, constant_db_chat_mode, constant_db_api, constant_db_lang
+from .constants import constant_db_model, constant_db_chat_mode, constant_db_api, constant_db_lang, constant_db_tokens
 class Database:
     def __init__(self):
         self.client = motor.motor_asyncio.AsyncIOMotorClient(config.mongodb_uri)
@@ -39,6 +39,7 @@ class Database:
         dialog_dict = {
             "_id": dialog_id,
             "chat_id": chat.id,
+            f'{constant_db_tokens}': 0,
             "messages": [],
         }
 
@@ -83,6 +84,14 @@ class Database:
         await self.chat_exists(chat, raise_exception=True)
         await self.chats.update_one({"_id": chat.id}, {"$set": {key: value}})
 
+    async def set_dialog_attribute(self, chat, key: str, value: Any):
+        dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
+
+        await self.dialogs.update_one(
+            {"_id": dialog_id},
+            {"$set": {key: value}}
+        )
+        
     async def get_dialog_messages(self, chat, dialog_id: Optional[str] = None):
         await self.chat_exists(chat, raise_exception=True)
 

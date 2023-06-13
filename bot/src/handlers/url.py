@@ -1,5 +1,5 @@
 from . import semaphore as tasks
-from bot.src.utils.misc import clean_text, add_dialog_message
+from bot.src.utils.misc import clean_text, update_dialog_messages
 async def extract_from_url(url: str) -> str:
     from bot.src.utils.proxies import config
     import httpx
@@ -18,8 +18,7 @@ async def extract_from_url(url: str) -> str:
     text_maker.ignore_links = True
     text_maker.ignore_images = True
     text_maker.single_line_break = True
-    raw_text = text_maker.handle(html_content)
-    doc = await clean_text(raw_text)
+    doc = text_maker.handle(html_content)
     return doc
 async def handle(chat, lang, update, urls):
     from bot.src.utils.proxies import config, datetime, ChatAction, ParseMode, interaction_cache, db
@@ -27,16 +26,16 @@ async def handle(chat, lang, update, urls):
         await update.effective_chat.send_action(ChatAction.TYPING)
         try:
             doc = await extract_from_url(url)
-            new_dialog_message = {"url": f'{url}: [{doc}]', "user": ".", "date": datetime.now()}
-            await add_dialog_message(chat, new_dialog_message)
-            text = f'{config.lang["mensajes"]["url_anotado_ask"][lang]}'
+            doc = await clean_text(doc, chat)
+            new_dialog_message = {"url": f"{url} - {doc}", "placeholder": ".", "date": datetime.now()}
+            await update_dialog_messages(chat, new_dialog_message)
+            textomensaje = f'{config.lang["mensajes"]["url_anotado_ask"][lang]}'
         except ValueError as e:
             if "lenghtexceed" in str(e):
-                text = f'{config.lang["errores"]["url_size_limit"][lang]}: {e}.'
-        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+                textomensaje = f'{config.lang["errores"]["url_size_limit"][lang]}: {e}'
     interaction_cache[chat.id] = ("visto", datetime.now())
     await db.set_chat_attribute(chat, "last_interaction", datetime.now())
-    await tasks.releasemaphore(chat=chat)
+    return textomensaje
 async def wrapper(raw_msg):
     urls = []
     for entity in raw_msg.entities:

@@ -3,7 +3,7 @@ from bot.src.start import Update, CallbackContext
 from . import semaphore as tasks
 import tempfile
 from pathlib import Path
-from bot.src.utils.misc import clean_text, add_dialog_message
+from bot.src.utils.misc import clean_text, update_dialog_messages
 
 async def handle(chat, lang, update, context):
     from bot.src.utils.proxies import (ChatAction, ParseMode, datetime, config,interaction_cache, db)
@@ -41,9 +41,9 @@ async def handle(chat, lang, update, context):
                 else:
                     with open(doc_path, 'r') as f:
                         doc = f.read()
-                doc = await clean_text(doc)
-                new_dialog_message = {"documento": f'{document.file_name}: [{doc}]', "user": ".", "date": datetime.now()}
-                await add_dialog_message(chat, new_dialog_message)
+                doc = await clean_text(doc, chat)
+                new_dialog_message = {"documento": f"{document.file_name} - {doc}", "placeholder": ".", "date": datetime.now()}
+                await update_dialog_messages(chat, new_dialog_message)
                 text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
                 interaction_cache[chat.id] = ("visto", datetime.now())
                 await db.set_chat_attribute(chat, "last_interaction", datetime.now())
@@ -55,8 +55,9 @@ async def handle(chat, lang, update, context):
         await tasks.releasemaphore(chat=chat)
         await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 async def wrapper(update: Update, context: CallbackContext):
-    from bot.src.utils.proxies import (bb,obtener_contextos as oc, debe_continuar)
+    from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc, parametros, bb)
     chat, lang = await oc(update)
+    await parametros(chat, lang, update)
     if not await debe_continuar(chat, lang, update, context): return
     task = bb(handle(chat, lang, update, context))
     await tasks.handle(chat, lang, task, update)

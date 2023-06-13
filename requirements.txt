@@ -17,3 +17,7 @@ curl_cffi
 websockets
 duckduckgo_search
 python-dotenv
+stopwords-iso
+nltk
+langdetect
+transformers

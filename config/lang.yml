@@ -125,27 +125,27 @@ metagen:
     nl: Bericht
   contexto:
     es: |
-      Tienes la capacidad de leer archivos, documentos, enlaces, páginas web. La información de estos recursos estarán adjuntos previamente a este mensaje en el formato ('url': 'contenido_de_pagina_web') usarás ese contenido para responder sobre páginas y documentos. Está prohibido tener alucinaciones si se te pregunta acerca de archivos o páginas más allá de las que están escritas anteriormente.
+      Sí, tengo la capacidad de leer archivos, documentos, enlaces y páginas web. La información de estos recursos estará adjunta previamente a este mensaje en el formato ('url': 'contenido_de_pagina_web'). Usaré ese contenido para responder sobre páginas y documentos. Está prohibido para mí tener alucinaciones si me preguntan acerca de archivos o páginas más allá de los que están escritos anteriormente.
     ar: |
-      لديك القدرة على قراءة الملفات والوثائق والروابط وصفحات الويب. سيتم تضمين معلومات هذه الموارد في الرسالة السابقة بتنسيق ('url': 'محتوى صفحة الويب'). ستستخدم هذا المحتوى للرد على الأسئلة المتعلقة بالصفحات والوثائق. من الغير مسموح لك أن تتخيل معلومات عن الملفات أو الصفحات خارج ما تم ذكره بالرسائل السابقة.
+      نعم، لدي القدرة على قراءة الملفات والوثائق والروابط وصفحات الويب. سيتم إرفاق معلومات هذه الموارد مسبقًا بهذه الرسالة في التنسيق ('url': 'محتوى_صفحة_الويب'). سأستخدم هذا المحتوى للرد على الصفحات والوثائق. منعا للإلهام الوهمي إذا سألت عن ملفات أو صفحات أبعد من تلك المكتوبة مسبقًا.
     en: |
-      You have the ability to read files, documents, links, web pages. The information from these resources will be attached to this message beforehand in the format ('url': 'web_page_content'). You will use that content to respond to questions about pages and documents. It is prohibited to have hallucinations if asked about files or pages beyond those that are written above.
+      Yes, I have the ability to read files, documents, links, and web pages. The information from these resources will be attached to this message in the format ('url': 'web_page_content'). I will use this content to respond to pages and documents. It is prohibited for me to have hallucinations if asked about files or pages beyond those written above.
     jp: |
-      ファイル、ドキュメント、リンク、ウェブページを読む能力があります。これらのリソースの情報は事前にこのメッセージに添付され、形式は ('url': 'web_page_content')です。それらのコンテンツを使用して、ページやドキュメントに関する質問に回答します。上記に書かれている以外のファイルやページに関する質問には幻覚を持ってはいけません。
+      はい、私はファイル、ドキュメント、リンク、ウェブページを読む能力を持っています。これらのリソースの情報は、このメッセージに('url': 'web_page_content')の形式で添付されます。私はこの内容を使用してページやドキュメントに対する回答をします。書かれているもの以上のファイルやページについての質問があっても、私には幻覚を見ることは禁止されています。
     zh: |
-      您有能力读取文件、文档、链接和网页。这些资源的信息将事先附加在此消息中，格式为('url': 'web_page_content')。您将使用该内容回答有关页面和文档的问题。严禁对超出上述范围的文件或页面产生幻觉。
+      是的，我有读取文件、文档、链接和网页的能力。这些资源的信息将以('url': 'web_page_content')的格式附加到此消息中。我将使用这些内容来回答有关页面和文档的问题。如果问及超出上述文件或页面的问题，我被禁止产生幻觉。
     de: |
-      Du hast die Fähigkeit, Dateien, Dokumente, Links und Webseiten zu lesen. Die Informationen dieser Ressourcen werden dieser Nachricht im Voraus im Format ('url': 'web_page_content') angehängt. Du verwendest diesen Inhalt, um Fragen zu Seiten und Dokumenten zu beantworten. Es ist verboten, Halluzinationen zu haben, wenn nach Dateien oder Seiten gefragt wird, die über das hinausgehen, was hier geschrieben steht.
+      Ja, ich habe die Fähigkeit, Dateien, Dokumente, Links und Webseiten zu lesen. Die Informationen aus diesen Ressourcen werden dieser Nachricht im Format ('url': 'web_page_content') angehängt. Ich werde diesen Inhalt verwenden, um auf Seiten und Dokumente zu antworten. Es ist mir untersagt, Halluzinationen zu haben, wenn ich nach Dateien oder Seiten gefragt werde, die über den oben genannten hinausgehen.
     fr: |
-      Vous avez la capacité de lire des fichiers, des documents, des liens et des pages web. Les informations de ces ressources seront attachées à ce message au préalable selon le format ('url': 'contenu_de_la_page_web'). Vous utiliserez ce contenu pour répondre aux questions concernant les pages et les documents. Il est interdit d'avoir des hallucinations si l'on vous demande des informations sur des fichiers ou des pages autres que celles qui sont écrites ci-dessus.
+      Oui, j'ai la capacité de lire des fichiers, des documents, des liens et des pages web. Les informations de ces ressources seront attachées à ce message au format ('url': 'contenu_de_la_page_web'). J'utiliserai ce contenu pour répondre aux pages et aux documents. Il m'est interdit d'avoir des hallucinations si l'on me demande des fichiers ou des pages au-delà de ceux qui sont écrits ci-dessus.
     ru: |
-      У вас есть возможность читать файлы, документы, ссылки, веб-страницы. Информация из этих ресурсов будет приложена к данному сообщению заранее в формате ('url': 'web_page_content'). Вы будете использовать этот контент для ответа на вопросы о страницах и документах. Запрещено иметь галлюцинации, если вас спросят о файлах или страницах, выходящих за рамки указанных выше.
+      Да, у меня есть возможность читать файлы, документы, ссылки и веб-страницы. Информация из этих ресурсов будет прикреплена к этому сообщению в формате ('url': 'содержание_веб-страницы'). Я буду использовать этот контент для ответа на страницы и документы. Мне запрещено видеть галлюцинации, если мне задают вопросы о файлах или страницах, находящихся за пределами написанного выше.
     pt: |
-      Você tem a capacidade de ler arquivos, documentos, links e páginas da web. As informações desses recursos serão anexadas a esta mensagem antecipadamente no formato ('url': 'conteúdo_da_página_web'). Você usará esse conteúdo para responder a perguntas sobre páginas e documentos. É proibido ter alucinações se questionado sobre arquivos ou páginas além das mencionadas anteriormente.
+      Sim, tenho a capacidade de ler arquivos, documentos, links e páginas da web. As informações desses recursos estarão anexadas a esta mensagem no formato ('url': 'conteúdo_da_página_web'). Usarei esse conteúdo para responder a páginas e documentos. É proibido para mim ter alucinações se me perguntarem sobre arquivos ou páginas além dos mencionados acima.
     it: |
-      Hai la capacità di leggere file, documenti, link, pagine web. Le informazioni di queste risorse saranno allegate a questo messaggio in anticipo nel formato ('url': 'contenuto_pagina_web'). Userai quel contenuto per rispondere alle domande su pagine e documenti. È vietato avere allucinazioni se ti viene chiesto di file o pagine al di là di quelli già citati.
+      Sì, ho la capacità di leggere file, documenti, collegamenti e pagine web. Le informazioni di queste risorse saranno allegate a questo messaggio nel formato ('url': 'contenuto_pagina_web'). Utilizzerò questo contenuto per rispondere a pagine e documenti. Mi è vietato avere allucinazioni se mi vengono poste domande su file o pagine al di là di quelli scritti precedentemente.
     nl: |
-      Je hebt de mogelijkheid om bestanden, documenten, links en webpaginas te lezen. De informatie van deze bronnen zal voorafgaand aan dit bericht worden bijgevoegd in het formaat ('url': 'webpagina_inhoud'). Je zult die inhoud gebruiken om vragen te beantwoorden over pagina's en documenten. Het is verboden om hallucinaties te hebben als er wordt gevraagd naar bestanden of pagina's die verder gaan dan wat hierboven is geschreven.
+      Ja, ik heb de mogelijkheid om bestanden, documenten, links en webpagina's te lezen. De informatie van deze bronnen wordt aan dit bericht toegevoegd in het formaat ('url': 'webpagina_inhoud'). Ik zal deze inhoud gebruiken om te reageren op pagina's en documenten. Het is verboden voor mij om hallucinaties te hebben als er wordt gevraagd naar bestanden of pagina's die verder gaan dan wat hierboven is geschreven.
   transcripcion_imagen:
     es: Transcripción de imagen
     ar: نص الصورة المحولة
@@ -218,6 +218,19 @@ metagen:
     pt: Modo de chat
     it: Modalità chat
     nl: Chatmodus
+  busquedaweb:
+    es: Busqueda web
+    ar: بحث ويب
+    en: Web search
+    jp: ウェブ検索
+    zh: 网络搜索
+    de: Web-Suche
+    fr: Recherche Web
+    ru: Веб-поиск
+    pt: Pesquisa na web
+    it: Ricerca web
+    nl: Webzoek
+
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs

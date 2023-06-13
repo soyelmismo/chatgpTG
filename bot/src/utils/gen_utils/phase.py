@@ -79,5 +79,5 @@ class ChatGPT:
     
     async def busqueduck(self, prompt):
         from .duckduckgo import search
-        resultados = await search(self, prompt)
-        return resultados
+        formatted_results_backend, formatted_results_string = await search(self, prompt)
+        return formatted_results_backend, formatted_results_string
