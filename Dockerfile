@@ -11,38 +11,8 @@ ENV PIP_DEFAULT_TIMEOUT=100
 
 RUN apt-get update
 
-#Python
-RUN apt-get -y install --no-install-recommends python3 python3-pip
-
-#For audios transcription
-RUN apt-get -y install --no-install-recommends ffmpeg
-
-#Image transcription
-RUN apt-get -y install --no-install-recommends tesseract-ocr
-#Image pre-processing
-RUN apt-get -y install --no-install-recommends python3-opencv
-#Spanish Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-spa
-#Arabic Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-ara
-#English Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-eng
-#日本語 Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-jpn tesseract-ocr-jpn-vert
-#中文 Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-chi-sim tesseract-ocr-chi-sim-vert tesseract-ocr-chi-tra tesseract-ocr-chi-tra-vert
-#Deutsch Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-deu
-#Français Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-fra
-#Русский Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-rus
-#Português Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-por
-#Italiano Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-ita
-#Nederlands Images
-RUN apt-get -y install --no-install-recommends tesseract-ocr-nld
+#all in a shot
+RUN apt-get -y install --no-install-recommends python3 python3-pip ffmpeg tesseract-ocr python3-opencv tesseract-ocr-spa tesseract-ocr-ara tesseract-ocr-eng tesseract-ocr-jpn tesseract-ocr-jpn-vert tesseract-ocr-chi-sim tesseract-ocr-chi-sim-vert tesseract-ocr-chi-tra tesseract-ocr-chi-tra-vert tesseract-ocr-deu tesseract-ocr-fra tesseract-ocr-rus tesseract-ocr-por tesseract-ocr-ita tesseract-ocr-nld
 
 WORKDIR /
 COPY bot/ /bot
