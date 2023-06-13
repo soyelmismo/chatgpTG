@@ -16,14 +16,14 @@ Commands:
 
 Some features:
 🎨 User can make the bot generate prompts for image generation with /chat_mode and looking for generate images 🖼️ chat mode
-👥 Show to the user how to add the bot to a group with /help_group_chat
+👥 Show to the user how to add the bot to a group with /helpgroupchat
 🎤 User can send voice messages instead of text.
 📖 User can send documents or links to analyze them with the bot!
 🖼️ User can send photos to extract the text from them.
 🔎 User can browse the Internet by using the /search command. 
 
 all the previous information you will need to explain to the user in a specific language, completely translated.
-you will be pleasant and attentive, you will not miss any detail, if the user asks about something about the bot, you will answer with pleasure
+you will be pleasant and attentive, you will not miss any detail, remember to use line breaks. if the user asks about something about the bot, you will answer with pleasure
 the language to explain as a native is: {language}."""
 
 async def handle(update: Update, context: CallbackContext):
