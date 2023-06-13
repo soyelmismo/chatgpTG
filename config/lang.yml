@@ -230,7 +230,18 @@ metagen:
     pt: Pesquisa na web
     it: Ricerca web
     nl: Webzoek
-
+  tokens:
+    es: Tokens
+    ar: الرموز
+    en: Tokens
+    jp: トークン
+    zh: 令牌
+    de: Token
+    fr: Jetons
+    ru: Токены
+    pt: Tokens
+    it: Token
+    nl: Tokens
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs

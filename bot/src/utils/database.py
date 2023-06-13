@@ -91,7 +91,13 @@ class Database:
             {"_id": dialog_id},
             {"$set": {key: value}}
         )
-        
+    async def get_dialog_attribute(self, chat, key: str):
+        dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
+        dialog_dict = await self.dialogs.find_one({"_id": dialog_id})
+        if key not in dialog_dict:
+            return None
+        return dialog_dict[key]
+
     async def get_dialog_messages(self, chat, dialog_id: Optional[str] = None):
         await self.chat_exists(chat, raise_exception=True)
 
