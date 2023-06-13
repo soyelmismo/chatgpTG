@@ -5,7 +5,8 @@ you will need to explain to the user in a specific language, completely translat
 the language to explain as a native is: {language}."""
 
 async def handle(update: Update, context: CallbackContext):
-    from bot.src.utils.proxies import config, obtener_contextos as oc, sleep
+    from bot.src.utils.proxies import config, obtener_contextos as oc, parametros
     chat, lang = await oc(update)
+    await parametros(chat, lang, update)
     from bot.src.handlers import message
     await message.handle(chat, lang, update, context, _message=welcomessage.format(botname=f'{context.bot.username}', language=f'{config.lang["info"]["name"][lang]}'))
