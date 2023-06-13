@@ -92,7 +92,7 @@ def run_bot() -> None:
 
         application.add_handler(CommandHandler("start", start.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("help", help.handle, filters=(user_filter | chat_filter)))
-        application.add_handler(CommandHandler("help_group_chat", help.group, filters=(user_filter | chat_filter)))
+        application.add_handler(CommandHandler("helpgroupchat", help.group, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("retry", retry.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("new", new.handle, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("cancel", cancel.handle, filters=(user_filter | chat_filter)))
