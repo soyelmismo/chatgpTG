@@ -13,22 +13,22 @@ async def send_large_message(text, update):
             await update.effective_chat.send_message(f'{part}', reply_to_message_id=update.effective_message.message_id, disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
             #await update.message.reply_text(part, parse_mode=ParseMode.HTML)
 
+from bot.src.utils.preprocess import remove_words
+
 async def clean_text(doc, chat):
     from .proxies import re
-    from .preprocess.remove_words import handle as removords
-    max_tokens = await ver_modelo_get_tokens(chat)
-    #patron = r"[^a-zA-Z0-9\s]|[^あ-んア-ン一-龯\s]|[^一-\u9FFF\s]|[^؀-ۿ\s]"
-    #doc = re.sub(r"[^a-zA-Z0-9\s]", '', doc)
-    doc, _ = await removords(texto=doc, max_tokens=max_tokens)
+    #patron = r"[^a-zA-Z0-9\s]|[^あ-んア-ン一-龯\s]|[^一-\u9FFF\s]|[^؀-ۿ\s]|[^á-úÁ-ÚñÑ\s]"
+    doc = re.sub(r"[^a-zA-Z0-9\s]", '', doc)
     doc = re.sub(r'[\n\r]+', ' ', doc)  # Eliminar saltos de línea
     doc = re.sub(r' {2,}', ' ', doc)  # Eliminar dos o más espacios seguidos
     doc = doc.strip()  # Eliminar espacios en blanco al principio y final del string
+    max_tokens = await ver_modelo_get_tokens(chat)
+    doc, _ =await remove_words.handle(texto=f'{doc}', max_tokens=max_tokens) 
     return doc
 
 async def update_dialog_messages(chat, new_dialog_message=None):
     from .proxies import db
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
-    from bot.src.utils.preprocess import remove_words
     max_tokens = await ver_modelo_get_tokens(chat)
     dialog_messages, tokencount=await remove_words.handle(texto=dialog_messages, max_tokens=max_tokens)
     if new_dialog_message is not None: dialog_messages += [new_dialog_message]

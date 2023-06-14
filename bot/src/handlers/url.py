@@ -7,7 +7,7 @@ async def extract_from_url(url: str) -> str:
     headers = {
         "User-Agent": "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/113.0 Firefox/113.0"
     }
-    async with httpx.AsyncClient(headers=headers) as client:
+    async with httpx.AsyncClient(headers=headers, follow_redirects=True) as client:
         response = await client.get(url)
     response.raise_for_status()
     content_length = int(response.headers.get('Content-Length', 0))
@@ -18,21 +18,23 @@ async def extract_from_url(url: str) -> str:
     text_maker.ignore_links = True
     text_maker.ignore_images = True
     text_maker.single_line_break = True
-    doc = text_maker.handle(html_content)
+    doc = str(text_maker.handle(html_content))
     return doc
 async def handle(chat, lang, update, urls):
     from bot.src.utils.proxies import config, datetime, ChatAction, ParseMode, interaction_cache, db
+    textomensaje=""
     for url in urls:
         await update.effective_chat.send_action(ChatAction.TYPING)
         try:
             doc = await extract_from_url(url)
-            doc = await clean_text(doc, chat)
-            new_dialog_message = {"url": f"{url} - {doc}", "placeholder": ".", "date": datetime.now()}
+            doc = await clean_text(f'{doc}', chat)
+            new_dialog_message = {"url": f"{url} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
             await update_dialog_messages(chat, new_dialog_message)
             textomensaje = f'{config.lang["mensajes"]["url_anotado_ask"][lang]}'
         except ValueError as e:
             if "lenghtexceed" in str(e):
                 textomensaje = f'{config.lang["errores"]["url_size_limit"][lang]}: {e}'
+            else: textomensaje = f'{config.lang["errores"]["error"][lang]}: {e}'
     interaction_cache[chat.id] = ("visto", datetime.now())
     await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     return textomensaje

@@ -242,6 +242,18 @@ metagen:
     pt: Tokens
     it: Token
     nl: Tokens
+  tokensmax:
+    es: Tokens máximos
+    ar: الرموز القصوى
+    en: Maximum tokens
+    jp: 最大トークン
+    zh: 最大标记
+    de: Maximale Tokens
+    fr: Jetons maximum
+    ru: Максимальные токены
+    pt: Tokens máximos
+    it: Massimi token
+    nl: Maximale tokens
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs

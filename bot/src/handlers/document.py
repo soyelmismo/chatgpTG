@@ -41,8 +41,10 @@ async def handle(chat, lang, update, context):
                 else:
                     with open(doc_path, 'r') as f:
                         doc = f.read()
-                doc = await clean_text(doc, chat)
-                new_dialog_message = {"documento": f"{document.file_name} - {doc}", "placeholder": ".", "date": datetime.now()}
+                excluir=["py", "php", "html", "js", "yml", "json"]
+                if ext not in excluir:
+                    doc = await clean_text(doc, chat)
+                new_dialog_message = {"documento": f"{document.file_name} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
                 await update_dialog_messages(chat, new_dialog_message)
                 text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
                 interaction_cache[chat.id] = ("visto", datetime.now())

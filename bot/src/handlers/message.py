@@ -43,7 +43,6 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
                 return
     except AttributeError:
         pass
-    await update_dialog_messages(chat)
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
                 await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))

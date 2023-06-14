@@ -68,9 +68,8 @@ class Database:
 
         # Obtener los valores iniciales para cada atributo
         initial_chat_mode = config.chat_mode["available_chat_mode"][0]
-        initial_model = config.model["available_model"][0]
         initial_api = config.api["available_api"][0]
-
+        initial_model = config.api["info"][initial_api]["available_model"][0]
         # Actualizar los valores en la base de datos
         await self.set_chat_attribute(chat, f'{constant_db_chat_mode}', initial_chat_mode)
         await self.set_chat_attribute(chat, f'{constant_db_model}', initial_model)

@@ -22,7 +22,7 @@ async def handle(chat, lang, update, context, _message=None):
         formatted_results_backend, formatted_results_string = await insta.busqueduck(prompt.replace("-", " "))
         await type.chat.send_action(ChatAction.TYPING)
         from bot.src.utils.misc import clean_text, update_dialog_messages, send_large_message
-        formatted_results_backend=await clean_text(formatted_results_backend, chat)
+        formatted_results_backend = await clean_text(doc=formatted_results_backend, chat=chat)
         resultadosbot="""{resultados}\n\n parameters[Now you have access to the Internet thanks to the previous searches,you will talk deeply about the search results in general,do not repeat the same search results text and structure,do not write urls,you need to write in the language: {language}]"""
         new_dialog_message = {"search": resultadosbot.format(resultados=f'{formatted_results_backend}', language=f'{config.lang["info"]["name"][lang]}'), "placeholder": ".", "date": datetime.now()}
         await update_dialog_messages(chat, new_dialog_message)
