@@ -12,7 +12,7 @@ ENV PIP_DEFAULT_TIMEOUT=100
 RUN apt-get update
 
 #all in a shot
-RUN apt-get -y install --no-install-recommends python3 python3-pip ffmpeg tesseract-ocr python3-opencv tesseract-ocr-spa tesseract-ocr-ara tesseract-ocr-eng tesseract-ocr-jpn tesseract-ocr-jpn-vert tesseract-ocr-chi-sim tesseract-ocr-chi-sim-vert tesseract-ocr-chi-tra tesseract-ocr-chi-tra-vert tesseract-ocr-deu tesseract-ocr-fra tesseract-ocr-rus tesseract-ocr-por tesseract-ocr-ita tesseract-ocr-nld
+RUN apt-get -y install --no-install-recommends python3 python3-pip ffmpeg tesseract-ocr python3-opencv tesseract-ocr-spa tesseract-ocr-ara tesseract-ocr-eng tesseract-ocr-jpn tesseract-ocr-jpn-vert tesseract-ocr-chi-sim tesseract-ocr-chi-sim-vert tesseract-ocr-chi-tra tesseract-ocr-chi-tra-vert tesseract-ocr-deu tesseract-ocr-fra tesseract-ocr-rus tesseract-ocr-por tesseract-ocr-ita tesseract-ocr-nld && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /
 COPY bot/ /bot
