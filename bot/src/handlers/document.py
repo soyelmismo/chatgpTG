@@ -6,7 +6,7 @@ from pathlib import Path
 from bot.src.utils.misc import clean_text, update_dialog_messages
 
 async def handle(chat, lang, update, context):
-    from bot.src.utils.proxies import (ChatAction, ParseMode, datetime, config,interaction_cache, db)
+    from bot.src.utils.proxies import (ChatAction, ParseMode, datetime, config, model_cache, interaction_cache, db)
     try:
         document = update.message.document
         file_size_mb = document.file_size / (1024 * 1024)
@@ -41,12 +41,14 @@ async def handle(chat, lang, update, context):
                 else:
                     with open(doc_path, 'r') as f:
                         doc = f.read()
-                excluir=["py", "php", "html", "js", "yml", "json"]
-                if ext not in excluir:
-                    doc = await clean_text(doc, chat)
-                new_dialog_message = {"documento": f"{document.file_name} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
-                await update_dialog_messages(chat, new_dialog_message)
+                doc, _, advertencia = await clean_text(doc, chat)
                 text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
+                if advertencia==True:
+                    text = f'{config.lang["metagen"]["advertencia"][lang]}: {config.lang["errores"]["advertencia_tokens_excedidos"][lang]}\n\n{text}'
+
+                new_dialog_message = {"documento": f"{document.file_name} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
+                _ = await update_dialog_messages(chat, new_dialog_message)
+
                 interaction_cache[chat.id] = ("visto", datetime.now())
                 await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         else:

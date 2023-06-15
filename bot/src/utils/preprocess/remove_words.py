@@ -2,7 +2,6 @@ import langdetect
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from bot.src.utils.preprocess.tokenizer import handle as tokenizer
 from bot.src.utils.proxies import logger
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -59,6 +58,11 @@ async def procesar_texto_normal(texto, idioma=None, lock=None):
 cached_stopwords = {}
 
 async def filtrar_palabras_irrelevantes(texto, idioma):
+    import re
+    texto = re.sub(r"[^a-zA-Z0-9\s]", '', texto)
+    texto = re.sub(r'[\n\r]+', ' ', texto)
+    texto = re.sub(r' {2,}', ' ', texto)
+    texto = texto.strip()
     if idioma in cached_stopwords:
         palabras_irrelevantes = cached_stopwords[idioma]
     elif languages_map.get(idioma) in stopwords.fileids():
@@ -66,13 +70,10 @@ async def filtrar_palabras_irrelevantes(texto, idioma):
         cached_stopwords[idioma] = palabras_irrelevantes
     else:
         return texto
-
     palabras = word_tokenize(texto)
     palabras_filtradas = [palabra for palabra in palabras if palabra.lower() not in palabras_irrelevantes]
-
     return " ".join(palabras_filtradas)
 
-async def handle(texto, max_tokens):
+async def handle(texto):
     resultado = await deteccion(texto)
-    tokens, tokencount = await tokenizer(input_data=resultado, max_tokens=max_tokens)
-    return tokens, tokencount
+    return resultado

@@ -26,11 +26,13 @@ async def handle(chat, lang, update, urls):
     for url in urls:
         await update.effective_chat.send_action(ChatAction.TYPING)
         try:
-            doc = await extract_from_url(url)
-            doc = await clean_text(f'{doc}', chat)
-            new_dialog_message = {"url": f"{url} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
-            await update_dialog_messages(chat, new_dialog_message)
             textomensaje = f'{config.lang["mensajes"]["url_anotado_ask"][lang]}'
+            doc = await extract_from_url(url)
+            doc, _, advertencia = await clean_text(doc, chat)
+            if advertencia==True:
+                textomensaje = f'{config.lang["metagen"]["advertencia"][lang]}: {config.lang["errores"]["advertencia_tokens_excedidos"][lang]}\n\n{textomensaje}'
+            new_dialog_message = {"url": f"{url} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
+            _ = await update_dialog_messages(chat, new_dialog_message)
         except ValueError as e:
             if "lenghtexceed" in str(e):
                 textomensaje = f'{config.lang["errores"]["url_size_limit"][lang]}: {e}'

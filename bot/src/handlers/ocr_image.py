@@ -42,10 +42,12 @@ async def handle(chat, lang, update, context):
             if len(doc) <= 1:
                 text = f'{config.lang["errores"]["error"][lang]}: {config.lang["errores"]["ocr_no_extract"][lang]}'
             else:
-                doc = await clean_text(doc, chat)
                 text = config.lang["mensajes"]["image_ocr_ask"][lang].format(ocresult=doc)
+                doc, _, advertencia = await clean_text(doc, chat)
+                if advertencia==True:
+                    text = f'{config.lang["metagen"]["advertencia"][lang]}: {config.lang["errores"]["advertencia_tokens_excedidos"][lang]}\n\n{text}'
                 new_dialog_message = {"user": f'{config.lang["metagen"]["transcripcion_imagen"][lang]}: "{doc}"', "date": datetime.now()}
-                await update_dialog_messages(chat, new_dialog_message)
+                _ = await update_dialog_messages(chat, new_dialog_message)
     except RuntimeError:
         text = f'{config.lang["errores"]["error"][lang]}: {config.lang["errores"]["tiempoagotado"][lang]}'
     await update.message.reply_text(f'{text}', parse_mode=ParseMode.MARKDOWN)

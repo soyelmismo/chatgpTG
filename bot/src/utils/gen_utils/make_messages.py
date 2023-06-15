@@ -30,8 +30,14 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
                 messages.append({"role": "assistant", "content": dialog_message.get("bot", "")})
         if chat_mode == "nada":
             pass
+        elif chat_mode == "imagen":
+            messages.append({"role": "system", "content": f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'})
         else:
-            messages.append({"role": "system", "content": f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}: {config.chat_mode["info"][chat_mode]["prompt_start"][self.lang]}'})
+            language = config.lang["info"]["name"][self.lang]
+            especificacionlang = config.lang["metagen"]["especificacionlang"].format(language=language)
+            prompter = config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)
+            injectprompt = """{especificarlang}\n\n{elprompt}\n\n{especificarlang}\n\n"""
+            messages.append({"role": "system", "content": injectprompt.format(especificarlang=especificacionlang, elprompt=prompter)})
         if _message == "Renounce€Countless€Unrivaled2€Banter":
             _message = ""
             # Encuentra el último mensaje de 'assistant'

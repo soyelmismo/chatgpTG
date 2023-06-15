@@ -1,55 +1,68 @@
 from transformers import OpenAIGPTTokenizer
-from typing import Union, List
+import bot.src.utils.preprocess.remove_words as remove_words
+from typing import List, Dict, Any, Union
+
 tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
-async def handle(input_data: Union[str, List[dict]], max_tokens):
+async def handle(input_data: Union[str, List[Dict[str, Any]]], max_tokens: int) -> List[str]:
     max_tokens = int(max_tokens)
     try:
         if isinstance(input_data, str):
             tokens = tokenizer.encode(input_data)
+            advertencia=None
             if len(tokens) > max_tokens:
-                buffer_tokens = 500
-                start_index = len(tokens) - (max_tokens - buffer_tokens)
-                tokens = tokens[start_index:]
-            return tokenizer.decode(tokens), len(tokens)
+                input_data = await remove_words.handle(texto=input_data)
+                tokens = tokenizer.encode(input_data)
+                if len(tokens) > max_tokens:
+                    buffer_tokens = 500
+                    start_index = len(tokens) - (max_tokens - buffer_tokens)
+                    tokens = tokens[start_index:]
+                    advertencia = True
+            return tokenizer.decode(tokens), len(tokens), advertencia
         elif isinstance(input_data, list):
-            total_tokens = 0
-            for i in range(len(input_data)-1, -1, -1):
-                message = input_data[i]
-                if message.get("user"):
-                    tokens = tokenizer.encode(message['user'])
-                    total_tokens += len(tokens)
-                if message.get("bot"):
-                    tokens = tokenizer.encode(message['bot'])
-                    total_tokens += len(tokens)
-                if message.get("url"):
-                    tokens = tokenizer.encode(message['url'])
-                    total_tokens += len(tokens)
-                if message.get("documento"):
-                    tokens = tokenizer.encode(message['documento'])
-                    total_tokens += len(tokens)
-                if message.get("search"):
-                    tokens = tokenizer.encode(message['search'])
-                    total_tokens += len(tokens)
-                if total_tokens > max_tokens:
-                    input_data = input_data[i+1:]
-                    break
-            text = '\n'.join([f"{message.get('user', '')} {message.get('bot', '')} {message.get('url', '')} {message.get('documento', '')} {message.get('search', '')}" for message in input_data])
-            output_data = []
-            token_index = 0
-            for item in input_data:
-                new_item = {}
-                for key, value in item.items():
-                    if key in ["user", "bot", "search", "documento", "url"]:
-                        if value is not None:  # Verifica si el valor no es None
-                            content_tokens = tokenizer.encode(value)
-                            content_length = len(content_tokens)
-                            new_item[key] = tokenizer.decode(content_tokens)
-                            token_index += content_length
-                        else:
-                            pass  # Opcional: asignar un valor predeterminado si el valor es None
-                    else:
-                        new_item[key] = value
-                output_data.append(new_item)
-            return output_data, token_index
+            output_data, total_tokens, advertencia = await process_input_data(input_data, max_tokens)
+            return output_data, total_tokens, advertencia
     except Exception as e:
-        raise ValueError("Solo se acepta string y listas", {e})
+        raise ValueError("tokenizer", {e})
+
+async def process_input_data(input_data, max_tokens):
+    output_data = []
+    total_tokens = 0
+    advertencia = None
+    for message in input_data:
+        new_message, tokens_in_message = await process_message(message, max_tokens)
+        
+        while total_tokens + tokens_in_message > max_tokens:
+            if len(output_data) == 0:
+                break
+            removed_message = output_data.pop(0)  # Elimina el mensaje más antiguo
+            removed_tokens = sum(len(tokenizer.encode(removed_message[key])) for key in ["user", "bot", "url", "documento", "search"] if removed_message.get(key))
+            total_tokens -= removed_tokens
+            advertencia = True
+
+        if total_tokens + tokens_in_message > max_tokens:
+            break
+
+        output_data.append(new_message)
+        total_tokens += tokens_in_message
+
+    return output_data, total_tokens, advertencia
+
+async def process_message(message, max_tokens):
+    keys = ["user", "bot", "url", "documento", "search"]
+    total_tokens = 0
+    new_message = {}
+
+    for key in keys:
+        if message.get(key):
+            content = str(message[key])
+            tokens = tokenizer.encode(content)
+            content_tokens = len(tokens)
+            if total_tokens + content_tokens > max_tokens:
+                new_content = await remove_words.handle(texto=content)
+                new_tokens = tokenizer.encode(new_content)
+                content_tokens = len(new_tokens)
+            else:
+                new_content = content
+            new_message[key] = str(new_content)
+            total_tokens += content_tokens
+    return new_message, total_tokens

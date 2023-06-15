@@ -34,8 +34,14 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
         prompt += "".join(prompt_lines)
         if chat_mode == "nada":
             pass
+        elif chat_mode == "imagen":
+            prompt += f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'
         else:
-            prompt += f'\n\n{config.chat_mode["info"][chat_mode]["name"][self.lang]}: {config.chat_mode["info"][chat_mode]["prompt_start"][self.lang]}\n\n'
+            language = config.lang["info"]["name"][self.lang]
+            especificacionlang = config.lang["metagen"]["especificacionlang"].format(language=language)
+            prompter = config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)
+            injectprompt = """{especificarlang}\n\n{elprompt}\n\n{especificarlang}\n\n"""
+            prompt += injectprompt.format(especificarlang=especificacionlang, elprompt=prompter)
         if _message == "Renounce€Countless€Unrivaled2€Banter":
             _message = ""
             #prompt+= "\nresumeLongGeneration\n:"
@@ -43,8 +49,11 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
                 prompt = prompt[:-3]
         else:
             # current message
-            prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {_message}\n'
-            prompt += f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}:'
+            prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {_message}'
+            if chat_mode == "nada":
+                pass
+            else:
+                prompt += f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}:'
         return prompt
     except Exception as e:
         e = f'_generate_prompt: {e}'

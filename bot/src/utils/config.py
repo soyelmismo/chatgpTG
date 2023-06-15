@@ -63,4 +63,4 @@ with open(config_dir / "openai_completion_options.yml", 'r') as f:
     completion_options = yaml.safe_load(f)
 
 # set file pathsfrom
-help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"
+help_group_chat_video_path = Path(__file__).resolve().parents[3] / "static" / "help_group_chat.mp4"

@@ -18,7 +18,7 @@ async def ask(chat, lang, update: Update, _message):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     new_dialog_message = {"user": _message, "date": datetime.now()}
-    await update_dialog_messages(chat, new_dialog_message)
+    _ = await update_dialog_messages(chat, new_dialog_message)
 
     await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask"][lang]}', reply_markup=reply_markup)
 async def answer(update: Update, context: CallbackContext):

@@ -126,7 +126,9 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         _message = " " if _message == "Renounce€Countless€Unrivaled2€Banter" or _message==None else _message
         answer = " " if answer == None else answer
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
-        await update_dialog_messages(chat, new_dialog_message)
+        advertencia = await update_dialog_messages(chat, new_dialog_message)
+        if advertencia==True:
+            await update.effective_chat.send_message(f'{config.lang["errores"]["advertencia_tokens_excedidos"][lang]}', reply_to_message_id=reply_val)
         await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == "True" and chat_mode == "imagen":
             task = bb(img.wrapper(chat, lang, update, context, _message=answer))

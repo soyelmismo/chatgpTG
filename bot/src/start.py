@@ -86,7 +86,7 @@ def run_bot() -> None:
         if config.switch_ocr == "True":
             application.add_handler(MessageHandler(filters.PHOTO & (user_filter | chat_filter), ocr_image.wrapper))
         if config.switch_docs == "True":
-            docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc"))
+            docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc") | filters.Document.FileExtension("json"))
             application.add_handler(MessageHandler(docfilter & (user_filter | chat_filter), document.wrapper))
             application.add_handler(MessageHandler(filters.Document.Category('text/') & (user_filter | chat_filter), document.wrapper))
 

@@ -254,6 +254,19 @@ metagen:
     pt: Tokens máximos
     it: Massimi token
     nl: Maximale tokens
+  advertencia:
+    es: Advertencia
+    ar: تحذير
+    en: Warning
+    jp: 警告
+    zh: 警告
+    de: Warnung
+    fr: Avertissement
+    ru: Предупреждение
+    pt: Aviso
+    it: Avvertimento
+    nl: Waarschuwing
+  especificacionlang: El bot debe responder a todos los mensajes exclusivamente en idioma {language}
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs
@@ -1032,3 +1045,15 @@ errores:
     pt: As opções de menu ainda não estão prontas...
     it: Le opzioni del menu non sono ancora disponibili...
     nl: Menuopties zijn nog niet beschikbaar...
+  advertencia_tokens_excedidos:
+    es: La cantidad de tokens excedió al máximo permitido por el modelo. Los mensajes se han optimizado o eliminado para poder continuar la conversación.
+    ar: تجاوز عدد الرموز المسموح به في النموذج. تم تحسين الرسائل أو حذفها لمتابعة المحادثة.
+    en: The number of tokens exceeded the maximum allowed by the model. Messages have been optimized or removed to continue the conversation.
+    jp: トークンの数がモデルで許可される最大数を超えました。会話を続けるために、メッセージが最適化されたり削除されています。
+    zh: 令牌数量超过了模型允许的最大值。为了继续对话，已优化或删除了消息。
+    de: Die Anzahl der Tokens überschritt das vom Modell zulässige Maximum. Nachrichten wurden optimiert oder entfernt, um das Gespräch fortzusetzen.
+    fr: Le nombre de jetons a dépassé le maximum autorisé par le modèle. Les messages ont été optimisés ou supprimés pour continuer la conversation.
+    ru: Количество токенов превысило максимально допустимое значение для модели. Сообщения были оптимизированы или удалены для продолжения разговора.
+    pt: A quantidade de tokens excedeu o máximo permitido pelo modelo. As mensagens foram otimizadas ou removidas para continuar a conversa.
+    it: Il numero di token ha superato il massimo consentito dal modello. I messaggi sono stati ottimizzati o rimossi per continuare la conversazione.
+    nl: Het aantal tokens overschreed het maximaal toegestane aantal door het model. Berichten zijn geoptimaliseerd of verwijderd om het gesprek voort te zetten.
