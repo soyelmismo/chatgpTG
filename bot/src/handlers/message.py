@@ -56,7 +56,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             await timeout.ask(chat, lang, update, _message)
             return
         else:
-            await new.handle(update, context, chat, lang)
+            await new.handle(update, context)
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask_false"][lang].format(chatmode=config.chat_mode["info"][chat_mode]["name"][lang])}', parse_mode=ParseMode.HTML)
     if chat.id in model_cache:
         current_model = model_cache[chat.id][0]
