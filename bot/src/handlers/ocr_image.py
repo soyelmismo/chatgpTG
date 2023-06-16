@@ -12,8 +12,6 @@ async def handle(chat, lang, update, context):
     image = update.message.photo[-1]
     from PIL import Image
     import pytesseract
-    #import cv2
-    import numpy as np
     try:
         with tempfile.TemporaryDirectory() as tmp_dir:
             await update.effective_chat.send_action(ChatAction.TYPING)
@@ -22,20 +20,6 @@ async def handle(chat, lang, update, context):
             image_file = await context.bot.get_file(image.file_id)
             await image_file.download_to_drive(img_path)
             imagen = Image.open(str(img_path))
-            #imagen = cv2.imread(str(img_path))
-            #gray = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
-            #_, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-            #coords = np.column_stack(np.where(binary > 0))
-            #rect = cv2.minAreaRect(coords)
-            #angle = rect[-1]
-            #if angle < -45:
-            #    angle = -(90 + angle)
-            #else:
-            #    angle = -angle
-            #(h, w) = imagen.shape[:2]
-            #center = (w // 2, h // 2)
-            #matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
-            #rotated = cv2.warpAffine(imagen, matrix, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
             doc = pytesseract.image_to_string(imagen, timeout=50, lang='spa+ara+eng+jpn+chi+deu+fra+rus+por+ita+nld', config='--psm 3')
             interaction_cache[chat.id] = ("visto", datetime.now())
             await db.set_chat_attribute(chat, "last_interaction", datetime.now())

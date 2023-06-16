@@ -3,8 +3,14 @@ async def check(chat, lang, update):
     lock = chat_locks.get(chat.id)
     if lock and lock.locked():
         text = f'{config.lang["mensajes"]["mensaje_semaforo"][lang]}'
-        id = update.callback_query.message.message_id if update.callback_query else update.message.message_id if update.message else update.effective_message.message_id
-        await update.effective_chat.send_message(text, reply_to_message_id=id, parse_mode=ParseMode.HTML)
+        # Extracted nested conditional into an independent statement
+        if update.callback_query:
+            msgid = update.callback_query.message.message_id
+        elif update.message:
+            msgid = update.message.message_id
+        else:
+            msgid = update.effective_message.message_id
+        await update.effective_chat.send_message(text, reply_to_message_id=msgid, parse_mode=ParseMode.HTML)
         return True
     else:
         return False

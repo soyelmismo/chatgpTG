@@ -21,7 +21,7 @@ async def check(chat, lang, update):
     )
     if not apis_vivas: raise LookupError(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
     if api_actual not in apis_vivas:
-        api_actual = apis_vivas[secrets.randbelow(len(apis_vivas) - 1)]
+        api_actual = apis_vivas[secrets.randbelow(len(apis_vivas))]
         api_cache[chat.id] = (api_actual, datetime.now())
         await db.set_chat_attribute(chat, f'{constant_db_api}', api_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_api"][lang].format(new=config.api["info"][api_actual]["name"])}')
@@ -33,7 +33,7 @@ async def check(chat, lang, update):
     )
     modelos_disponibles=config.api["info"][api_actual]["available_model"]
     if modelo_actual not in modelos_disponibles:
-        api_actual = apis_vivas[secrets.randbelow(len(apis_vivas) - 1)]
+        modelo_actual = modelos_disponibles[secrets.randbelow(len(modelos_disponibles))]
         await db.set_chat_attribute(chat, f'{constant_db_model}', modelo_actual)
         await update.effective_chat.send_message(f'{config.lang["errores"]["reset_model"][lang].format(api_actual_name=config.api["info"][api_actual]["name"], new_model_name=config.model["info"][modelo_actual]["name"])}')
     if model_cache.get(chat.id) is None or model_cache.get(chat.id)[0] != modelo_actual: model_cache[chat.id] = (modelo_actual, datetime.now())

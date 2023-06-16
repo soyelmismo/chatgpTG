@@ -7,5 +7,5 @@ async def check(update, context):
             or message.text is not None and ("@" + context.bot.username) in message.text
             or message.reply_to_message and message.reply_to_message.from_user.id == context.bot.id
             else False)
-    except:
+    except AttributeError:
         return True

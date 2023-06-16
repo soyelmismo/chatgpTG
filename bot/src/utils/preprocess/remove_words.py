@@ -10,8 +10,7 @@ languages_map={"ar": "arabic","bg": "bulgarian","ca": "catalan","cz": "czech","d
 
 async def deteccion(texto):
     try:
-        if isinstance(texto, list):
-            return await procesar_lista_multilingue(texto)
+        if isinstance(texto, list): return await procesar_lista_multilingue(texto)
         elif isinstance(texto, str):
             texto, _ = await procesar_texto_normal(texto)
             return texto
@@ -20,37 +19,35 @@ async def deteccion(texto):
 
 async def procesar_lista_multilingue(lista):
     resultados = []
-    idioma=None
+    idioma = None
     for item in lista:
         if isinstance(item, dict):
-            new_item = {}
-            for key, value in item.items():
-                try:
-                    if key in ["user", "bot", "search", "url", "documento"]:
-                        if not idioma:
-                            new_item[key], idioma = await procesar_texto_normal(value)
-                        else:
-                            new_item[key] = await procesar_texto_normal(value, idioma, lock=True)
-                    else:
-                        new_item[key] = value  
-                except KeyError:
-                    # Manejo de error por valor inexistente
-                    continue
+            new_item, idioma = await procesar_item(item, idioma)
             resultados.append(new_item)
     return resultados
+async def procesar_item(item, idioma):
+    new_item = {}
+    for key, value in item.items():
+        try:
+            if key in ["user", "bot", "search", "url", "documento"]: new_item[key], idioma = await procesar_texto(value, idioma)
+            else: new_item[key] = value  
+        except KeyError:
+            # Manejo de error por valor inexistente
+            continue
+    return new_item, idioma
+async def procesar_texto(value, idioma):
+    if not idioma:
+        processed_text, idioma = await procesar_texto_normal(value)
+        return processed_text, idioma
+    else: return await procesar_texto_normal(value, idioma, lock=True), idioma
 async def procesar_texto_normal(texto, idioma=None, lock=None):
     textofiltrr=None
     if texto:
-        if idioma:
-            pass
-        else:
-            idioma = langdetect.detect_langs(texto)[0].lang
+        if not idioma: idioma = langdetect.detect_langs(texto)[0].lang
         textofiltrr = await filtrar_palabras_irrelevantes(texto, idioma)
     if textofiltrr:
-        if lock:
-            return "".join(textofiltrr)
-        else:
-            return "".join(textofiltrr), idioma
+        if lock: return "".join(textofiltrr)
+        else: return "".join(textofiltrr), idioma
     else:
         logger.error("No se detectó ningún idioma en el texto.")
 
@@ -63,13 +60,11 @@ async def filtrar_palabras_irrelevantes(texto, idioma):
     texto = re.sub(r'[\n\r]+', ' ', texto)
     texto = re.sub(r' {2,}', ' ', texto)
     texto = texto.strip()
-    if idioma in cached_stopwords:
-        palabras_irrelevantes = cached_stopwords[idioma]
+    if idioma in cached_stopwords: palabras_irrelevantes = cached_stopwords[idioma]
     elif languages_map.get(idioma) in stopwords.fileids():
         palabras_irrelevantes = set(stopwords.words(languages_map[idioma]))
         cached_stopwords[idioma] = palabras_irrelevantes
-    else:
-        return texto
+    else: return texto
     palabras = word_tokenize(texto)
     palabras_filtradas = [palabra for palabra in palabras if palabra.lower() not in palabras_irrelevantes]
     return " ".join(palabras_filtradas)

@@ -7,7 +7,6 @@ load_dotenv()
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 telegram_token = env['TELEGRAM_TOKEN'][0]
-#apicheck_minutes = int(env['APICHECK_MINUTES'][0])
 itemspage = int(env['MAX_ITEMS_PER_PAGE'][0])
 columnpage = int(env['MAX_COLUMNS_PER_PAGE'][0])
 

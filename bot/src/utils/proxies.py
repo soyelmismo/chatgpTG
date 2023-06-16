@@ -41,10 +41,9 @@ async def obtener_contextos(update, chat=None, lang=None):
     if chat.id not in chat_locks: chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat, lang
 
-async def debe_continuar(chat, lang, update, context, bypassMention=None):
+async def debe_continuar(chat, lang, update, context, bypassmention=None):
     from bot.src.utils.checks import c_bot_mentioned, c_message_not_answered_yet
-    if not bypassMention:
-        if not await c_bot_mentioned.check(update, context): return False
+    if not bypassmention and not await c_bot_mentioned.check(update, context): return False
     if await c_message_not_answered_yet.check(chat, lang, update): return False
     return True
 async def parametros(chat, lang, update):

@@ -3,7 +3,7 @@ async def gen(self, prompt):
     import secrets
     import openai
     if self.api not in config.api["available_imagen"]:
-        index = secrets.randbelow(len(config.api["available_imagen"]) - 1)
+        index = secrets.randbelow(len(config.api["available_imagen"]))
         self.api = config.api["available_imagen"][index]
     openai.api_key = config.api["info"][self.api]["key"]
     openai.api_base = config.api["info"][self.api]["url"]

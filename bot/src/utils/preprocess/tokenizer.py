@@ -1,9 +1,9 @@
 from transformers import OpenAIGPTTokenizer
 import bot.src.utils.preprocess.remove_words as remove_words
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Tuple
 
 tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
-async def handle(input_data: Union[str, List[Dict[str, Any]]], max_tokens: int) -> List[str]:
+async def handle(input_data: Union[str, List[Dict[str, Any]]], max_tokens: int) -> Union[Tuple[str, int, bool], Tuple[List[Dict], int, bool]]:
     max_tokens = int(max_tokens)
     try:
         if isinstance(input_data, str):
@@ -17,10 +17,10 @@ async def handle(input_data: Union[str, List[Dict[str, Any]]], max_tokens: int) 
                     start_index = len(tokens) - (max_tokens - buffer_tokens)
                     tokens = tokens[start_index:]
                     advertencia = True
-            return tokenizer.decode(tokens), len(tokens), advertencia
+            return str(tokenizer.decode(tokens)), int(len(tokens)), bool(advertencia)
         elif isinstance(input_data, list):
             output_data, total_tokens, advertencia = await process_input_data(input_data, max_tokens)
-            return output_data, total_tokens, advertencia
+            return list(output_data), int(total_tokens), bool(advertencia)
     except Exception as e:
         raise ValueError("tokenizer", {e})
 

@@ -7,7 +7,6 @@ from telegram import (
 async def get(menu_type, update: Update, context: CallbackContext, chat, page_index):
     from bot.src.utils import proxies
     from bot.src.utils.proxies import config, db, obtener_contextos as oc, logger
-    #from bot.src.utils.proxies import (obtener_contextos as oc,logger,chat_mode_cache,model_cache,lang_cache,api_cache,menu_cache,db,config)
     cache_variable = getattr(proxies, f"{menu_type}_cache")
     try:
         _, lang = await oc(update)

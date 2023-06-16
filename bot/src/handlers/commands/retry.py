@@ -1,7 +1,7 @@
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers import semaphore as tasks
 import bot.src.handlers.message as message
-async def handle(update: Update, context: CallbackContext, msgid=None):
+async def handle(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (config, datetime, obtener_contextos as oc, debe_continuar, db, interaction_cache)
     chat, lang = await oc(update)
     if not await debe_continuar(chat, lang, update, context): return
@@ -9,7 +9,6 @@ async def handle(update: Update, context: CallbackContext, msgid=None):
     if len(dialog_messages) == 0:
         await tasks.releasemaphore(chat=chat)
         text = config.lang["mensajes"]["no_retry_mensaje"][lang]
-        #type = update.callback_query.message if msgid else update.message
         await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id)
         return
     last_dialog_message = dialog_messages.pop()
