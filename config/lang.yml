@@ -14,29 +14,29 @@ info:
     it: Attuale
     nl: Huidig
   name:
-    es: Español
-    ar: العربية
-    en: English
-    jp: 日本語
-    zh: 中文
-    de: Deutsch
-    fr: Français
-    ru: Русский
-    pt: Português
-    it: Italiano
-    nl: Nederlands
+    es: Español 🇪🇸
+    ar: العربية 🇦🇪
+    en: English 🇬🇧
+    jp: 日本語 🇯🇵
+    zh: 中文 🇨🇳
+    de: Deutsch 🇩🇪
+    fr: Français 🇫🇷
+    ru: Русский 🇷🇺
+    pt: Português 🇵🇹
+    it: Italiano 🇮🇹
+    nl: Nederlands 🇳🇱
   description:
-    es: Un abrazo lingüístico de pasión y expresividad, donde las palabras bailan con melodía y las frases se pintan de colores vivos.
-    ar: لغة غنية وشاعرية، حيث تكشف الكلمات عن تاريخ وثقافة حضارة قديمة.
-    en: A symphony of precision and versatility, where words weave tales with elegance and grammar unveils a world of possibilities.
-    jp: 日本語、美しい繊細さと奥深さのある言葉の芸術。音と意味が調和し、心に響く詩的な表現が生まれる。
-    zh: 一种充满韵律与活力的语言，文字如同画龙点睛，句子在千变万化中流淌。
-    de: Eine Sprache voller Präzision und Klarheit, in der Worte wie Bausteine zusammenpassen und die Grammatik die Basis für unendliche Möglichkeiten bietet.
-    fr: Une langue empreinte d'élégance et de raffinement, où les mots dansent avec grâce et les phrases s'épanouissent telles des fleurs en pleine floraison.
-    ru: Язык полный силы и выразительности, где слова создают мелодии, а фразы передают глубину эмоций и мыслей.
-    pt: Um abraço linguístico de paixão e expressividade, onde as palavras dançam com melodia e as frases são pintadas com cores vibrantes.
-    it: Una lingua ricca di passione ed espressività, dove le parole danzano con melodia e le frasi si colorano di tonalità vivaci.
-    nl: Een taal vol precisie en veelzijdigheid, waar woorden verhalen weven met elegantie en grammatica een wereld vol mogelijkheden onthult.
+    es: Un abrazo cálido donde la historia y la emoción se entrelazan, dando vida a palabras vibrantes y expresiones llenas de pasión.
+    ar: لغة تتغنى بالألوان والشعر، تجسد تاريخ ثري وثقافة عريقة تتألق بالرومانسية والشجاعة.
+    en: A tapestry of creativity and nuance, where words flow effortlessly and grammar is the loom of endless narratives.
+    jp: 優美で緻密な言葉が織り成す絵画のごとく、日本語は深い感情と独特の美意識を表現する。
+    zh: 一种犹如山水画般的流动与变幻，文字和句子在千姿百态间自由驰骋，展现出无尽的想象空间。
+    de: Eine Sprache voller Tiefe und Poesie, in der Worte wie Noten einer Symphonie erklingen und die Grammatik die Bühne für unzählige Geschichten bietet.
+    fr: Une langue où l'amour des mots et la richesse des expressions se conjuguent pour créer un univers plein de poésie et de finesse.
+    ru: Язык, где слова и фразы образуют многогранную мозаику, отражающую глубину культуры, истории и эмоций.
+    pt: Uma dança harmoniosa de palavras e expressões, onde a musicalidade e a riqueza cultural se encontram e florescem em cada frase.
+    it: Un linguaggio in cui l'arte e la passione si fondono, dando vita a parole e frasi che risuonano con la dolcezza della musica e il calore del sole.
+    nl: Een taal die sprankelt van levendigheid en creativiteit, waar woorden en zinnen zich verstrengelen in een speelse dans van klank en betekenis.
   seleccion:
     es: Por favor selecciona uno disponible.
     ar: من فضلك اختر واحداً متاحاً.
