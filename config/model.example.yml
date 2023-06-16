@@ -17,7 +17,8 @@ info:
       pt: Esse modelo bem conhecido. É <b>rápido</b> e <b>barato</b>. Ideal para tarefas diárias.
       it: Quel modello ben noto. È <b>veloce</b> e <b>a buon mercato</b>. Ideale per le attività quotidiane.
       nl: Dat bekende model. Het is <b>snel</b> en <b>goedkoop</b>. Ideaal voor dagelijkse taken.
-    
+    max_tokens: 2048
+  
   gpt-4:
     name: GPT-4
     description:
@@ -32,7 +33,7 @@ info:
       pt: É o modelo mais <b>inteligente</b> e avançado do mundo. Mas é mais lento e não tão eficiente em custos como o ChatGPT. A melhor opção para tarefas intelectuais <b>complexas</b>.
       it: È il modello più <b>intelligente</b> e avanzato al mondo. Ma è più lento e non così efficiente in termini di costi come ChatGPT. La migliore opzione per le attività intellettuali <b>complesse</b>.
       nl: Het is het meest <b>intelligente</b> en geavanceerde model ter wereld. Maar het is langzamer en niet zo kostenefficiënt als ChatGPT. De beste keuze voor <b>complexe</b> intellectuele taken.
-
+    max_tokens: 8192
   text-davinci-003:
     name: GPT-3
     description:
@@ -47,7 +48,7 @@ info:
       pt: É um modelo desatualizado. Na verdade, <b>não há razão para usá-lo</b>, pois é mais caro e mais lento que o ChatGPT, mas em torno do mesmo nível de inteligência.
       it: È un modello obsoleto. In realtà, <b>non c'è motivo di usarlo</b>, poiché è più costoso e più lento di ChatGPT, ma circa allo stesso livello di intelligenza.
       nl: Het is een verouderd model. Er is eigenlijk <b>geen reden om het te gebruiken</b>, omdat het duurder en langzamer is dan ChatGPT, maar ongeveer op hetzelfde intelligentieniveau ligt.
-
+    max_tokens: 4097
   text-curie-001:
     name: Curie
     description:
@@ -62,7 +63,7 @@ info:
       pt: Altamente capaz, mais rápido e mais barato que Davinci.
       it: Molto capace, più veloce e più economico di Davinci.
       nl: Zeer capabel, sneller en goedkoper dan Davinci.
-
+    max_tokens: 2049
   text-babbage-001:
     name: Babbage
     description:
@@ -77,7 +78,7 @@ info:
       pt: Capaz de realizar tarefas simples, muito rápido e com menor custo.
       it: In grado di svolgere compiti semplici, molto velocemente e a costi inferiori.
       nl: In staat om eenvoudige taken zeer snel en tegen lagere kosten uit te voeren.
-
+    max_tokens: 2049
   text-ada-001:
     name: Ada
     description:
@@ -92,7 +93,7 @@ info:
       pt: Capaz de realizar tarefas muito simples, Ada é geralmente o modelo mais rápido da série GPT-3 e o menos caro.
       it: In grado di svolgere compiti molto semplici, Ada è di solito il modello più veloce della serie GPT-3 e il meno costoso.
       nl: In staat om zeer eenvoudige taken uit te voeren, is Ada meestal het snelste model in de GPT-3-serie en het minst duur.
-
+    max_tokens: 2049
   g4f-ails:
     name: Ails
     description:
@@ -107,7 +108,7 @@ info:
       pt: Ai.ls é uma página da web que fornece acesso gratuito ao ChatGPT.
       it: Ai.ls è una pagina web che fornisce accesso gratuito a ChatGPT.
       nl: Ai.ls is een webpagina die gratis toegang biedt tot ChatGPT.
-
+    max_tokens: 4096
   g4f-bing:
     name: Bing
     description:
@@ -122,7 +123,7 @@ info:
       pt: O chatbot oficial do bing.com.
       it: Il chatbot ufficiale di bing.com.
       nl: De officiële chatbot van bing.com.
-
+    max_tokens: 4096
   g4f-chatgpt:
     name: Openai
     description:
@@ -137,7 +138,7 @@ info:
       pt: Atalho para acessar chat.openai.com.
       it: Scorciatoia per accedere a chat.openai.com.
       nl: Snelkoppeling om toegang te krijgen tot chat.openai.com.
-
+    max_tokens: 8192
   g4f-phind:
     name: Phind
     description:
@@ -152,7 +153,7 @@ info:
       pt: Phind.com é um mecanismo de busca para código de programação.
       it: Phind.com è un motore di ricerca per il codice di programmazione.
       nl: Phind.com is een zoekmachine voor programmeercode.
-
+    max_tokens: 2048
   g4f-yqcloud:
     name: Yqcloud
     description:
@@ -167,4 +168,4 @@ info:
       pt: Chat9.yqcloud.top é outro chatbot GPT gratuito.
       it: Chat9.yqcloud.top è un altro chatbot GPT gratuito.
       nl: Chat9.yqcloud.top is een andere gratis GPT-chatbot.
-  
+    max_tokens: 2048  

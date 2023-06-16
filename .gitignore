@@ -143,3 +143,4 @@ bot/apis/OpenGPTtt/
 dummys/
 mongodb/
 bot/test.py
+event_log.txt

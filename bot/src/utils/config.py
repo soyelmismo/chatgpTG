@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 import yaml
+from dotenv import load_dotenv
+load_dotenv()
 
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
@@ -27,16 +29,17 @@ switch_voice = env['FEATURE_TRANSCRIPTION'][0]
 switch_ocr = env['FEATURE_IMAGE_READ'][0]
 switch_docs = env['FEATURE_DOCUMENT_READ'][0]
 switch_imgs = env['FEATURE_IMAGE_GENERATION'][0]
+switch_search = env['FEATURE_BROWSING'][0]
 switch_urls = env['FEATURE_URL_READ'][0]
 audio_max_size = int(env['AUDIO_MAX_MB'][0])
+generatedimagexpiration = int(env['GENERATED_IMAGE_EXPIRATION_MINUTES'][0])
 file_max_size = int(env['DOC_MAX_MB'][0])
 url_max_size = int(env['URL_MAX_MB'][0])
 pdf_page_lim = int(env['PDF_PAGE_LIMIT'][0])
 pred_lang = str(env['AUTO_LANG'][0])
 
 # set config paths
-config_dir = Path(__file__).parent.parent.resolve() / "config"
-
+config_dir = Path(__file__).resolve().parents[3] / "config"
 # load config files
 
 #language
@@ -59,5 +62,5 @@ with open(config_dir / "model.yml", 'r') as f:
 with open(config_dir / "openai_completion_options.yml", 'r') as f:
     completion_options = yaml.safe_load(f)
 
-# set file paths
-help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"
+# set file pathsfrom
+help_group_chat_video_path = Path(__file__).resolve().parents[3] / "static" / "help_group_chat.mp4"

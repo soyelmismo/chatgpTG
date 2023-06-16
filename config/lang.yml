@@ -14,29 +14,29 @@ info:
     it: Attuale
     nl: Huidig
   name:
-    es: Español
-    ar: العربية
-    en: English
-    jp: 日本語
-    zh: 中文
-    de: Deutsch
-    fr: Français
-    ru: Русский
-    pt: Português
-    it: Italiano
-    nl: Nederlands
+    es: Español 🇪🇸
+    ar: العربية 🇦🇪
+    en: English 🇬🇧
+    jp: 日本語 🇯🇵
+    zh: 中文 🇨🇳
+    de: Deutsch 🇩🇪
+    fr: Français 🇫🇷
+    ru: Русский 🇷🇺
+    pt: Português 🇵🇹
+    it: Italiano 🇮🇹
+    nl: Nederlands 🇳🇱
   description:
-    es: Un abrazo lingüístico de pasión y expresividad, donde las palabras bailan con melodía y las frases se pintan de colores vivos.
-    ar: لغة غنية وشاعرية، حيث تكشف الكلمات عن تاريخ وثقافة حضارة قديمة.
-    en: A symphony of precision and versatility, where words weave tales with elegance and grammar unveils a world of possibilities.
-    jp: 日本語、美しい繊細さと奥深さのある言葉の芸術。音と意味が調和し、心に響く詩的な表現が生まれる。
-    zh: 一种充满韵律与活力的语言，文字如同画龙点睛，句子在千变万化中流淌。
-    de: Eine Sprache voller Präzision und Klarheit, in der Worte wie Bausteine zusammenpassen und die Grammatik die Basis für unendliche Möglichkeiten bietet.
-    fr: Une langue empreinte d'élégance et de raffinement, où les mots dansent avec grâce et les phrases s'épanouissent telles des fleurs en pleine floraison.
-    ru: Язык полный силы и выразительности, где слова создают мелодии, а фразы передают глубину эмоций и мыслей.
-    pt: Um abraço linguístico de paixão e expressividade, onde as palavras dançam com melodia e as frases são pintadas com cores vibrantes.
-    it: Una lingua ricca di passione ed espressività, dove le parole danzano con melodia e le frasi si colorano di tonalità vivaci.
-    nl: Een taal vol precisie en veelzijdigheid, waar woorden verhalen weven met elegantie en grammatica een wereld vol mogelijkheden onthult.
+    es: Un abrazo cálido donde la historia y la emoción se entrelazan, dando vida a palabras vibrantes y expresiones llenas de pasión.
+    ar: لغة تتغنى بالألوان والشعر، تجسد تاريخ ثري وثقافة عريقة تتألق بالرومانسية والشجاعة.
+    en: A tapestry of creativity and nuance, where words flow effortlessly and grammar is the loom of endless narratives.
+    jp: 優美で緻密な言葉が織り成す絵画のごとく、日本語は深い感情と独特の美意識を表現する。
+    zh: 一种犹如山水画般的流动与变幻，文字和句子在千姿百态间自由驰骋，展现出无尽的想象空间。
+    de: Eine Sprache voller Tiefe und Poesie, in der Worte wie Noten einer Symphonie erklingen und die Grammatik die Bühne für unzählige Geschichten bietet.
+    fr: Une langue où l'amour des mots et la richesse des expressions se conjuguent pour créer un univers plein de poésie et de finesse.
+    ru: Язык, где слова и фразы образуют многогранную мозаику, отражающую глубину культуры, истории и эмоций.
+    pt: Uma dança harmoniosa de palavras e expressões, onde a musicalidade e a riqueza cultural se encontram e florescem em cada frase.
+    it: Un linguaggio in cui l'arte e la passione si fondono, dando vita a parole e frasi che risuonano con la dolcezza della musica e il calore del sole.
+    nl: Een taal die sprankelt van levendigheid en creativiteit, waar woorden en zinnen zich verstrengelen in een speelse dans van klank en betekenis.
   seleccion:
     es: Por favor selecciona uno disponible.
     ar: من فضلك اختر واحداً متاحاً.
@@ -125,27 +125,27 @@ metagen:
     nl: Bericht
   contexto:
     es: |
-      Tienes la capacidad de leer archivos, documentos, enlaces, páginas web. La información de estos recursos estarán adjuntos previamente a este mensaje en el formato ('url': 'contenido_de_pagina_web') usarás ese contenido para responder sobre páginas y documentos. Está prohibido tener alucinaciones si se te pregunta acerca de archivos o páginas más allá de las que están escritas anteriormente.
+      Sí, tengo la capacidad de leer archivos, documentos, enlaces y páginas web. La información de estos recursos estará adjunta previamente a este mensaje en el formato ('url': 'contenido_de_pagina_web'). Usaré ese contenido para responder sobre páginas y documentos. Está prohibido para mí tener alucinaciones si me preguntan acerca de archivos o páginas más allá de los que están escritos anteriormente.
     ar: |
-      لديك القدرة على قراءة الملفات والوثائق والروابط وصفحات الويب. سيتم تضمين معلومات هذه الموارد في الرسالة السابقة بتنسيق ('url': 'محتوى صفحة الويب'). ستستخدم هذا المحتوى للرد على الأسئلة المتعلقة بالصفحات والوثائق. من الغير مسموح لك أن تتخيل معلومات عن الملفات أو الصفحات خارج ما تم ذكره بالرسائل السابقة.
+      نعم، لدي القدرة على قراءة الملفات والوثائق والروابط وصفحات الويب. سيتم إرفاق معلومات هذه الموارد مسبقًا بهذه الرسالة في التنسيق ('url': 'محتوى_صفحة_الويب'). سأستخدم هذا المحتوى للرد على الصفحات والوثائق. منعا للإلهام الوهمي إذا سألت عن ملفات أو صفحات أبعد من تلك المكتوبة مسبقًا.
     en: |
-      You have the ability to read files, documents, links, web pages. The information from these resources will be attached to this message beforehand in the format ('url': 'web_page_content'). You will use that content to respond to questions about pages and documents. It is prohibited to have hallucinations if asked about files or pages beyond those that are written above.
+      Yes, I have the ability to read files, documents, links, and web pages. The information from these resources will be attached to this message in the format ('url': 'web_page_content'). I will use this content to respond to pages and documents. It is prohibited for me to have hallucinations if asked about files or pages beyond those written above.
     jp: |
-      ファイル、ドキュメント、リンク、ウェブページを読む能力があります。これらのリソースの情報は事前にこのメッセージに添付され、形式は ('url': 'web_page_content')です。それらのコンテンツを使用して、ページやドキュメントに関する質問に回答します。上記に書かれている以外のファイルやページに関する質問には幻覚を持ってはいけません。
+      はい、私はファイル、ドキュメント、リンク、ウェブページを読む能力を持っています。これらのリソースの情報は、このメッセージに('url': 'web_page_content')の形式で添付されます。私はこの内容を使用してページやドキュメントに対する回答をします。書かれているもの以上のファイルやページについての質問があっても、私には幻覚を見ることは禁止されています。
     zh: |
-      您有能力读取文件、文档、链接和网页。这些资源的信息将事先附加在此消息中，格式为('url': 'web_page_content')。您将使用该内容回答有关页面和文档的问题。严禁对超出上述范围的文件或页面产生幻觉。
+      是的，我有读取文件、文档、链接和网页的能力。这些资源的信息将以('url': 'web_page_content')的格式附加到此消息中。我将使用这些内容来回答有关页面和文档的问题。如果问及超出上述文件或页面的问题，我被禁止产生幻觉。
     de: |
-      Du hast die Fähigkeit, Dateien, Dokumente, Links und Webseiten zu lesen. Die Informationen dieser Ressourcen werden dieser Nachricht im Voraus im Format ('url': 'web_page_content') angehängt. Du verwendest diesen Inhalt, um Fragen zu Seiten und Dokumenten zu beantworten. Es ist verboten, Halluzinationen zu haben, wenn nach Dateien oder Seiten gefragt wird, die über das hinausgehen, was hier geschrieben steht.
+      Ja, ich habe die Fähigkeit, Dateien, Dokumente, Links und Webseiten zu lesen. Die Informationen aus diesen Ressourcen werden dieser Nachricht im Format ('url': 'web_page_content') angehängt. Ich werde diesen Inhalt verwenden, um auf Seiten und Dokumente zu antworten. Es ist mir untersagt, Halluzinationen zu haben, wenn ich nach Dateien oder Seiten gefragt werde, die über den oben genannten hinausgehen.
     fr: |
-      Vous avez la capacité de lire des fichiers, des documents, des liens et des pages web. Les informations de ces ressources seront attachées à ce message au préalable selon le format ('url': 'contenu_de_la_page_web'). Vous utiliserez ce contenu pour répondre aux questions concernant les pages et les documents. Il est interdit d'avoir des hallucinations si l'on vous demande des informations sur des fichiers ou des pages autres que celles qui sont écrites ci-dessus.
+      Oui, j'ai la capacité de lire des fichiers, des documents, des liens et des pages web. Les informations de ces ressources seront attachées à ce message au format ('url': 'contenu_de_la_page_web'). J'utiliserai ce contenu pour répondre aux pages et aux documents. Il m'est interdit d'avoir des hallucinations si l'on me demande des fichiers ou des pages au-delà de ceux qui sont écrits ci-dessus.
     ru: |
-      У вас есть возможность читать файлы, документы, ссылки, веб-страницы. Информация из этих ресурсов будет приложена к данному сообщению заранее в формате ('url': 'web_page_content'). Вы будете использовать этот контент для ответа на вопросы о страницах и документах. Запрещено иметь галлюцинации, если вас спросят о файлах или страницах, выходящих за рамки указанных выше.
+      Да, у меня есть возможность читать файлы, документы, ссылки и веб-страницы. Информация из этих ресурсов будет прикреплена к этому сообщению в формате ('url': 'содержание_веб-страницы'). Я буду использовать этот контент для ответа на страницы и документы. Мне запрещено видеть галлюцинации, если мне задают вопросы о файлах или страницах, находящихся за пределами написанного выше.
     pt: |
-      Você tem a capacidade de ler arquivos, documentos, links e páginas da web. As informações desses recursos serão anexadas a esta mensagem antecipadamente no formato ('url': 'conteúdo_da_página_web'). Você usará esse conteúdo para responder a perguntas sobre páginas e documentos. É proibido ter alucinações se questionado sobre arquivos ou páginas além das mencionadas anteriormente.
+      Sim, tenho a capacidade de ler arquivos, documentos, links e páginas da web. As informações desses recursos estarão anexadas a esta mensagem no formato ('url': 'conteúdo_da_página_web'). Usarei esse conteúdo para responder a páginas e documentos. É proibido para mim ter alucinações se me perguntarem sobre arquivos ou páginas além dos mencionados acima.
     it: |
-      Hai la capacità di leggere file, documenti, link, pagine web. Le informazioni di queste risorse saranno allegate a questo messaggio in anticipo nel formato ('url': 'contenuto_pagina_web'). Userai quel contenuto per rispondere alle domande su pagine e documenti. È vietato avere allucinazioni se ti viene chiesto di file o pagine al di là di quelli già citati.
+      Sì, ho la capacità di leggere file, documenti, collegamenti e pagine web. Le informazioni di queste risorse saranno allegate a questo messaggio nel formato ('url': 'contenuto_pagina_web'). Utilizzerò questo contenuto per rispondere a pagine e documenti. Mi è vietato avere allucinazioni se mi vengono poste domande su file o pagine al di là di quelli scritti precedentemente.
     nl: |
-      Je hebt de mogelijkheid om bestanden, documenten, links en webpaginas te lezen. De informatie van deze bronnen zal voorafgaand aan dit bericht worden bijgevoegd in het formaat ('url': 'webpagina_inhoud'). Je zult die inhoud gebruiken om vragen te beantwoorden over pagina's en documenten. Het is verboden om hallucinaties te hebben als er wordt gevraagd naar bestanden of pagina's die verder gaan dan wat hierboven is geschreven.
+      Ja, ik heb de mogelijkheid om bestanden, documenten, links en webpagina's te lezen. De informatie van deze bronnen wordt aan dit bericht toegevoegd in het formaat ('url': 'webpagina_inhoud'). Ik zal deze inhoud gebruiken om te reageren op pagina's en documenten. Het is verboden voor mij om hallucinaties te hebben als er wordt gevraagd naar bestanden of pagina's die verder gaan dan wat hierboven is geschreven.
   transcripcion_imagen:
     es: Transcripción de imagen
     ar: نص الصورة المحولة
@@ -182,7 +182,91 @@ metagen:
     pt: Parágrafo
     it: Paragrafo
     nl: alinea
-
+  configuracion:
+    es: Configuración actual
+    ar: الإعدادات الحالية
+    en: Current settings
+    jp: 現在の設定
+    zh: 当前设置
+    de: Aktuelle Einstellungen
+    fr: Paramètres actuels
+    ru: Текущие настройки
+    pt: Configurações atuais
+    it: Impostazioni correnti
+    nl: Huidige instellingen
+  modelo:
+    es: Modelo
+    ar: النموذج
+    en: Model
+    jp: モデル
+    zh: 模型
+    de: Modell
+    fr: Modèle
+    ru: Модель
+    pt: Modelo
+    it: Modello
+    nl: Model
+  chatmode:
+    es: Modo de chat
+    ar: وضع المحادثة
+    en: Chat mode
+    jp: チャットモード
+    zh: 聊天模式
+    de: Chat-Modus
+    fr: Mode de chat
+    ru: Режим чата
+    pt: Modo de chat
+    it: Modalità chat
+    nl: Chatmodus
+  busquedaweb:
+    es: Busqueda web
+    ar: بحث ويب
+    en: Web search
+    jp: ウェブ検索
+    zh: 网络搜索
+    de: Web-Suche
+    fr: Recherche Web
+    ru: Веб-поиск
+    pt: Pesquisa na web
+    it: Ricerca web
+    nl: Webzoek
+  tokens:
+    es: Tokens
+    ar: الرموز
+    en: Tokens
+    jp: トークン
+    zh: 令牌
+    de: Token
+    fr: Jetons
+    ru: Токены
+    pt: Tokens
+    it: Token
+    nl: Tokens
+  tokensmax:
+    es: Tokens máximos
+    ar: الرموز القصوى
+    en: Maximum tokens
+    jp: 最大トークン
+    zh: 最大标记
+    de: Maximale Tokens
+    fr: Jetons maximum
+    ru: Максимальные токены
+    pt: Tokens máximos
+    it: Massimi token
+    nl: Maximale tokens
+  advertencia:
+    es: Advertencia
+    ar: تحذير
+    en: Warning
+    jp: 警告
+    zh: 警告
+    de: Warnung
+    fr: Avertissement
+    ru: Предупреждение
+    pt: Aviso
+    it: Avvertimento
+    nl: Waarschuwing
+  especificacionlang: El bot debe responder a todos los mensajes exclusivamente en idioma {language}
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs
@@ -368,184 +452,42 @@ commands:
     nl: Bekijk helpbericht
 
 mensajes:
-  mensaje_bienvenido:
-    es: Hola! Soy <b>ChatGPT</b> bot implementado con la API de OpenAI.
-    ar: مرحبًا! أنا <b>ChatGPT</b>، الروبوت المنفذ باستخدام واجهة برمجة التطبيقات من OpenAI.
-    en: Hi! I'm <b>ChatGPT</b> bot implemented with OpenAI API.
-    jp: OpenAIのAPIで実装された<b>ChatGPT</b>ボットです。
-    zh: 你好! 我是用OpenAI的API实现的<b>ChatGPT</b>机器人。
-    de: Hallo, ich bin ein <b>ChatGPT</b> Bot, der mit der OpenAI API implementiert wurde.
-    fr: Bonjour, je suis un bot <b>ChatGPT</b> implémenté avec l'API OpenAI.
-    ru: Привет, я <b>ChatGPT</b> бот, реализованный с помощью OpenAI API.
-    pt: Olá, sou o bot <b>ChatGPT</b> implementado com a API OpenAI.
-    it: Salve, sono un bot <b>ChatGPT</b> implementato con le API OpenAI.
-    nl: Hallo, ik ben <b>ChatGPT</b> bot geïmplementeerd met de OpenAI API.
-  mensaje_ayuda:
-    es: |
-      Comandos:
-      ⚪ /new - Iniciar nuevo diálogo.
-      ⚪ /img - Genera imágenes según lo que escribas.
-      ⚪ /retry - Regenera la última respuesta del bot.
-      ⚪ /chat_mode - Seleccionar el modo de conversación.
-      ⚪ /model - Mostrar configuración de API.
-      ⚪ /api - Mostrar APIs.
-      ⚪ /lang - Ver idiomas disponibles.
-      ⚪ /help – Mostrar este mensaje de nuevo.
-
-      🎨 Generar textos para imágenes con <b>🖼️ Generar imágenes</b> /chat_mode
-      👥 Añadir el bot a un <b>grupo</b>: /help_group_chat
-      🎤 Puedes enviar <b>Mensajes de voz</b> en lugar de texto.
-      📖 Envía <b>documentos</b> o <b>links</b> para <b>analizarlos</b> junto al bot!
-    ar: |
-      الأوامر:
-      ⚪ /new - بدء حوار جديد.
-      ⚪ /img - إنشاء صور وفقًا لما تكتبه.
-      ⚪ /retry - إعادة توليد آخر رد من الروبوت.
-      ⚪ /chat_mode - تحديد وضع المحادثة.
-      ⚪ /model - عرض إعدادات واجهة برمجة التطبيقات.
-      ⚪ /api - عرض واجهات البرمجة القابلة للاستخدام.
-      ⚪ /lang - عرض اللغات المتاحة.
-      ⚪ /help – عرض هذه الرسالة مرة أخرى.
-
-      🎨 إنشاء نصوص للصور مع <b>🖼️ إنشاء الصور</b> /chat_mode
-      👥 أضف الروبوت إلى <b>مجموعة</b>: /help_group_chat
-      🎤 يمكنك إرسال <b>رسائل صوتية</b> بدلاً من النص.
-      📖 أرسل <b>مستندات</b> أو <b>روابط</b> لتحليلها مع الروبوت!
-    en: |
-      Commands:
-      ⚪ /new - Start a new dialogue.
-      ⚪ /img - Generate images based on your input.
-      ⚪ /retry - Regenerate the bot's last response.
-      ⚪ /chat_mode - Select conversation mode.
-      ⚪ /model - Show API configuration.
-      ⚪ /api - Show APIs.
-      ⚪ /lang - View available languages.
-      ⚪ /help - Show this message again.
-
-      🎨 Generate text for images with <b>🖼️ Generate images</b> /chat_mode
-      👥 Add the bot to a <b>group</b>: /help_group_chat
-      🎤 You can send <b>Voice Messages</b> instead of text.
-      📖 Send <b>documents</b> or <b>links</b> to <b>analyze</b> them with the bot!
-    jp: |
-      コマンド:
-      ⚪️ /new - 新しい会話を開始します。
-      ⚪️ /img - 入力に基づいて画像を生成します。
-      ⚪️ /retry - ボットの最後の応答を再生成します。
-      ⚪️ /chat_mode - 会話モードを選択します。
-      ⚪️ /model - APIの構成を表示します。
-      ⚪️ /api - APIを表示します。
-      ⚪ /lang - 利用可能な言語を表示します。
-      ⚪️ /help - このメッセージを再度表示します。
-
-      🎨 🖼 Generate images /chat_modeで画像のテキストを生成します
-      👥 ボットをグループに追加する：/help_group_chat
-      🎤 テキストの代わりに音声メッセージを送信できます。
-      📖 ボットと一緒にドキュメントやリンクを送信して分析しましょう
-    zh: |
-      命令：
-      ⚪ /new - 开始一个新的对话。
-      ⚪ /img - 根据你的输入生成图像。
-      ⚪ /retry - 重新生成机器人的最后回应。
-      ⚪ /chat_mode - 选择对话模式。
-      ⚪ /model - 显示API配置。
-      ⚪ /api - 显示API。
-      ⚪ /lang - 查看可用语言。
-      ⚪ /help - 再次显示此信息.
-
-      🎨 用<b>🖼️ 生成图像的文本</b>。 /chat_mode
-      👥 将机器人添加到一个<b>组</b>: /help_group_chat
-      🎤 您可以发送<b>语音信息</b>而不是文字。
-      📖 发送文件或链接以便与机器人一起分析!
-    de: |
-      Kommandos:
-      ⚪️ /new - Starten Sie ein neues Gespräch.
-      ⚪️ /img - Erstellen Sie Bilder basierend auf Ihrer Eingabe.
-      ⚪️ /retry - Regenerieren Sie die letzte Antwort des Bots.
-      ⚪️ /chat_mode - Wählen Sie den Konversationsmodus.
-      ⚪️ /model - Zeige API-Konfiguration an.
-      ⚪️ /api - Zeige APIs an.
-      ⚪ /lang - Verfügbare Sprachen anzeigen.
-      ⚪️ /help - Zeige diese Nachricht erneut an.
-
-      🎨 Erstellen Sie Text für Bilder mit 🖼 Generate images /chat_mode
-      👥 Fügen Sie den Bot einer Gruppe hinzu: /help_group_chat
-      🎤 Sie können statt Text Sprachnachrichten senden.
-      📖 Senden Sie Dokumente oder Links, um sie mit dem Bot zu analysieren!
-    fr: |
-      Commandes:
-      ⚪️ /new - Démarrer une nouvelle conversation.
-      ⚪️ /img - Générer des images en fonction de votre saisie.
-      ⚪️ /retry - Régénérer la dernière réponse du bot.
-      ⚪️ /chat_mode - Sélectionner le mode de conversation.
-      ⚪️ /model - Afficher la configuration API.
-      ⚪️ /api - Afficher les API.
-      ⚪ /lang - Voir les langues disponibles.
-      ⚪️ /help - Afficher ce message à nouveau.
-
-      🎨 Générer du texte pour des images avec 🖼 Generate images /chat_mode
-      👥 Ajouter le bot à un groupe : /help_group_chat
-      🎤 Vous pouvez envoyer des Messages vocaux à la place du texte.
-      📖 Envoyez des documents ou des liens pour les analyser avec le bot!
-    ru: |
-      Команды:
-      ⚪️ /new - Начать новый диалог.
-      ⚪️ /img - Создавать изображения на основе вашего ввода.
-      ⚪️ /retry - Пересоздать последний ответ бота.
-      ⚪️ /chat_mode - Выбрать режим общения.
-      ⚪️ /model - Показать конфигурацию API.
-      ⚪️ /api - Показать API.
-      ⚪ /lang - Просмотр доступных языков.
-      ⚪️ /help - Показать это сообщение снова.
-
-      🎨 Создавайте текст для изображений с помощью 🖼 Generate images /chat_mode
-      👥 Добавьте бота в группу: /help_group_chat
-      🎤 Вы можете отправлять Голосовые сообщения вместо текста.
-      📖 Отправляйте документы или ссылки, чтобы анализировать их с помощью бота!
-    pt: |
-      Comandos:
-      ⚪️ /new - Iniciar uma nova conversa.
-      ⚪️ /img - Criar imagens com base na sua entrada.
-      ⚪️ /retry - Recriar a última resposta do bot.
-      ⚪️ /chat_mode - Selecionar o modo de conversação.
-      ⚪️ /model - Exibir a configuração da API.
-      ⚪️ /api - Exibir APIs.
-      ⚪ /lang - Ver idiomas disponíveis.
-      ⚪️ /help - Exibir esta mensagem novamente.
-
-      🎨 Crie texto para imagens com 🖼 Generate images /chat_mode
-      👥 Adicione o bot a um grupo: /help_group_chat
-      🎤 Você pode enviar Mensagens de voz em vez de texto.
-      📖 Envie documentos ou links para analisar com o bot!
-    it: |
-      Comandi:
-      ⚪️ /new - Avvia una nuova conversazione.
-      ⚪️ /img - Genera immagini in base all'input.
-      ⚪️ /retry - Ricrea l'ultima risposta del bot.
-      ⚪️ /chat_mode - Seleziona la modalità di conversazione.
-      ⚪️ /model - Visualizza la configurazione API.
-      ⚪️ /api - Visualizza le API.
-      ⚪ /lang - Visualizza le lingue disponibili.
-      ⚪️ /help - Visualizza nuovamente questo messaggio.
-
-      🎨 Crea testo per immagini con 🖼 Generate images /chat_mode
-      👥 Aggiungi il bot a un gruppo: /help_group_chat
-      🎤 Puoi inviare Messaggi vocali invece di testo.
-      📖 Invia documenti o link per analizzarli con il bot!
-    nl: |
-      Commando's:
-      ⚪️ /new - Start een nieuw gesprek.
-      ⚪️ /img - Genereer afbeeldingen op basis van uw invoer.
-      ⚪️ /retry - Genereer opnieuw de laatste reactie van de bot.
-      ⚪️ /chat_mode - Selecteer conversatiemodus.
-      ⚪️ /model - API-configuratie weergeven.
-      ⚪️ /api - API's weergeven.
-      ⚪ /lang - Bekijk beschikbare talen.
-      ⚪️ /help - Dit bericht opnieuw weergeven.
-
-      🎨 Genereer tekst voor afbeeldingen met 🖼 Afbeeldingen genereren /chat_mode
-      👥 Voeg de bot toe aan een groep: /help_group_chat
-      🎤 U kunt in plaats van tekst spraakberichten verzenden.
-      📖 Verzend documenten of links om ze te analyseren met de bot!
+  preguntar_descargar_fotos:
+    es: ¿Quieres descargar las fotos en su máxima calidad? Expirarán en {expirationtime} minutos!
+    ar: هل تريد تنزيل الصور بأقصى جودة؟ ستنتهي صلاحيتها خلال {expirationtime} دقائق!
+    en: Do you want to download the photos in their maximum quality? They will expire in {expirationtime} minutes!
+    jp: 最高品質で写真をダウンロードしますか？ {expirationtime} 分で期限が切れます！
+    zh: 您想以最高质量下载照片吗？ 它们将在{expirationtime}分钟后过期！
+    de: Möchten Sie die Fotos in ihrer maximalen Qualität herunterladen? Sie laufen in {expirationtime} Minuten ab!
+    fr: Voulez-vous télécharger les photos dans leur qualité maximale? Ils expireront dans {expirationtime} minutes!
+    ru: Вы хотите скачать фотографии в максимальном качестве? Они истечут через {expirationtime} минут!
+    pt: Você quer baixar as fotos na sua qualidade máxima? Eles expirarão em {expirationtime} minutos!
+    it: Vuoi scaricare le foto nella loro massima qualità? Scadranno in {expirationtime} minuti!
+    nl: Wil je de foto's in hun maximale kwaliteit downloaden? Ze vervallen na {expirationtime} minuten!
+  fotos_ya_expiraron:
+    es: Lo siento, las fotos expiraron.
+    ar: للأسف، انتهت صلاحية الصور.
+    en: Sorry, the photos have expired.
+    jp: 申し訳ありませんが、写真は期限切れになりました。
+    zh: 对不起，照片已过期。
+    de: Entschuldigung, die Fotos sind abgelaufen.
+    fr: Désolé, les photos ont expiré.
+    ru: Извините, фотографии истекли.
+    pt: Desculpe, as fotos expiraram.
+    it: Siamo spiacenti, le foto sono scadute.
+    nl: Sorry, de foto's zijn verlopen.
+  fotos_borradas_listo:
+    es: Se borraron las fotos!
+    ar: تم حذف الصور!
+    en: The photos have been deleted!
+    jp: 写真が削除されました！
+    zh: 照片已被删除！
+    de: Die Fotos wurden gelöscht!
+    fr: Les photos ont été supprimées!
+    ru: Фотографии были удалены!
+    pt: As fotos foram excluídas!
+    it: Le foto sono state cancellate!
+    nl: De foto's zijn verwijderd!
   ayuda_grupos:
     es: |
       Puedes añadir un bot a cualquier <b>chat de grupo</b> para ayudar y entretener a sus participantes.
@@ -790,17 +732,17 @@ mensajes:
     it: Annotato 📝 Cosa vuoi sapere sulla pagina?
     nl: Geannoteerd 📝 Wat wil je weten over de pagina?
   genimagen_noargs:
-    es: Debes escribir algo después del comando /img
-    ar: يجب عليك كتابة شيء بعد الأمر /img
-    en: You must write something after the command /img
-    jp: /img コマンドの後に何かを入力する必要があります。
-    zh: 在使用 /img 命令后必须输入一些内容。
-    de: Du musst etwas nach dem Befehl /img schreiben.
-    fr: Vous devez écrire quelque chose après la commande /img
-    ru: После команды /img вы должны что-то написать.
-    pt: Você deve escrever algo depois do comando /img.
-    it: Devi scrivere qualcosa dopo il comando /img.
-    nl: Je moet iets schrijven na het commando /img.
+    es: Debes escribir algo después del comando
+    ar: يجب عليك كتابة شيء بعد الأمر
+    en: You must write something after the command
+    jp: コマンドの後に何かを入力する必要があります。
+    zh: 在使用 命令后必须输入一些内容。
+    de: Du musst etwas nach dem Befehl schreiben.
+    fr: Vous devez écrire quelque chose après la commande
+    ru: После команды вы должны что-то написать.
+    pt: Você deve escrever algo depois do comando.
+    it: Devi scrivere qualcosa dopo il comando.
+    nl: Je moet iets schrijven na het commando.
   genimagen_notext:
     es: No se detectó texto para generar las imágenes 😔
     ar: لم يتم اكتشاف نص لإنشاء الصور 😔
@@ -900,17 +842,17 @@ errores:
     it: Errore... O non ci sono messaggi di dialogo, o hai selezionato un valore massimo di token eccessivamente alto
     nl: Fout... Er zijn geen dialoogberichten of je hebt een overdreven hoog maximum aantal tokens geselecteerd
   pdf_pages_limit:
-    es: 😬 ¡El documento se excede por {paginas - pdf_page_lim} páginas! Se leerán las primeras {pdf_page_lim} páginas.
-    ar: 😬 يتجاوز المستند الحد المسموح به بواقع {paginas - pdf_page_lim} صفحة! سيتم قراءة أول {pdf_page_lim} صفحة فقط.
-    en: 😬 The document exceeds the limit by {pages - pdf_page_lim} pages! Only the first {pdf_page_lim} pages will be read.
-    jp: 😬 ドキュメントが {pages - pdf_page_lim} ページ超過しています！最初の {pdf_page_lim} ページのみが読み込まれます。
-    zh: 😬 该文档超过了 {pages - pdf_page_lim} 页的限制！只会读取前 {pdf_page_lim} 页。
-    de: 😬 Das Dokument überschreitet das Limit um {pages - pdf_page_lim} Seiten! Es werden nur die ersten {pdf_page_lim} Seiten gelesen.
-    fr: 😬 Le document dépasse la limite de {pages - pdf_page_lim} pages ! Seules les {pdf_page_lim} premières pages seront lues.
-    ru: 😬 Документ превышает лимит на {pages - pdf_page_lim} страниц! Будут прочитаны только первые {pdf_page_lim} страниц.
-    pt: 😬 O documento excede o limite por {pages - pdf_page_lim} páginas! Apenas as primeiras {pdf_page_lim} páginas serão lidas.
-    it: 😬 Il documento supera il limite di {pages - pdf_page_lim} pagine! Verranno lette solo le prime {pdf_page_lim} pagine.
-    nl: 😬 Het document overschrijdt de limiet met {pages - pdf_page_lim} pagina's! Alleen de eerste {pdf_page_lim} pagina's worden gelezen.
+    es: 😬 ¡El documento se excede por {paginas} páginas! Se leerán las primeras {pdf_page_lim} páginas.
+    ar: 😬 يتجاوز المستند الحد المسموح به بواقع {paginas} صفحة! سيتم قراءة أول {pdf_page_lim} صفحة فقط.
+    en: 😬 The document exceeds the limit by {paginas} pages! Only the first {pdf_page_lim} pages will be read.
+    jp: 😬 ドキュメントが {paginas} ページ超過しています！最初の {pdf_page_lim} ページのみが読み込まれます。
+    zh: 😬 该文档超过了 {paginas} 页的限制！只会读取前 {pdf_page_lim} 页。
+    de: 😬 Das Dokument überschreitet das Limit um {paginas} Seiten! Es werden nur die ersten {pdf_page_lim} Seiten gelesen.
+    fr: 😬 Le document dépasse la limite de {paginas} pages ! Seules les {pdf_page_lim} premières pages seront lues.
+    ru: 😬 Документ превышает лимит на {paginas} страниц! Будут прочитаны только первые {pdf_page_lim} страниц.
+    pt: 😬 O documento excede o limite por {paginas} páginas! Apenas as primeiras {pdf_page_lim} páginas serão lidas.
+    it: 😬 Il documento supera il limite di {paginas} pagine! Verranno lette solo le prime {pdf_page_lim} pagine.
+    nl: 😬 Het document overschrijdt de limiet met {paginas} pagina's! Alleen de eerste {pdf_page_lim} pagina's worden gelezen.
   document_size_limit:
     es: El archivo es demasiado grande ({file_size_mb} MB). El límite es de {file_max_size} MB.
     ar: الملف كبير جدًا ({file_size_mb} ميجابايت). الحد الأقصى هو {file_max_size} ميجابايت.
@@ -1103,3 +1045,15 @@ errores:
     pt: As opções de menu ainda não estão prontas...
     it: Le opzioni del menu non sono ancora disponibili...
     nl: Menuopties zijn nog niet beschikbaar...
+  advertencia_tokens_excedidos:
+    es: La cantidad de tokens excedió al máximo permitido por el modelo. Los mensajes se han optimizado o eliminado para poder continuar la conversación.
+    ar: تجاوز عدد الرموز المسموح به في النموذج. تم تحسين الرسائل أو حذفها لمتابعة المحادثة.
+    en: The number of tokens exceeded the maximum allowed by the model. Messages have been optimized or removed to continue the conversation.
+    jp: トークンの数がモデルで許可される最大数を超えました。会話を続けるために、メッセージが最適化されたり削除されています。
+    zh: 令牌数量超过了模型允许的最大值。为了继续对话，已优化或删除了消息。
+    de: Die Anzahl der Tokens überschritt das vom Modell zulässige Maximum. Nachrichten wurden optimiert oder entfernt, um das Gespräch fortzusetzen.
+    fr: Le nombre de jetons a dépassé le maximum autorisé par le modèle. Les messages ont été optimisés ou supprimés pour continuer la conversation.
+    ru: Количество токенов превысило максимально допустимое значение для модели. Сообщения были оптимизированы или удалены для продолжения разговора.
+    pt: A quantidade de tokens excedeu o máximo permitido pelo modelo. As mensagens foram otimizadas ou removidas para continuar a conversa.
+    it: Il numero di token ha superato il massimo consentito dal modello. I messaggi sono stati ottimizzati o rimossi per continuare la conversazione.
+    nl: Het aantal tokens overschreed het maximaal toegestane aantal door het model. Berichten zijn geoptimaliseerd of verwijderd om het gesprek voort te zetten.
