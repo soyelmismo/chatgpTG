@@ -41,7 +41,7 @@ async def handle(chat, lang, update, context, _message=None):
 async def wrapper(update: Update, context: CallbackContext, _message=None, chat=None, lang=None):
     from bot.src.handlers import semaphore as tasks
     from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc, parametros, bb)
-    chat, lang = await oc(update)
+    chat, lang = await oc(update) if not chat and not lang else chat, lang
     await parametros(chat, lang, update)
     if not await debe_continuar(chat, lang, update, context, bypassMention=True): return
     task = bb(handle(chat, lang, update, context, _message))

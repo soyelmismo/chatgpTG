@@ -14,9 +14,7 @@ async def remove_document_group(message_id, borrar=None, update=None, lang=None)
             await update.effective_chat.send_message(text=f'{config.lang["mensajes"]["fotos_borradas_listo"][lang]}', reply_to_message_id=message_id)
 async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id):
     document_groups[f'{mensaje_group_id}'] = document_group
-
     asyncio.create_task(remove_document_group(f'{mensaje_group_id}'))
-
     keyboard = []
     keyboard.append([])
     keyboard[0].append({"text": "🗑", "callback_data": f"imgdownload|{mensaje_group_id}|borrar"})
@@ -71,12 +69,6 @@ async def handle(chat, lang, update, context, _message=None):
             image_group.append(image)
             document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
             document_group.append(document)
-        #keyboard = []
-        #keyboard.append([])
-        #keyboard[0].append({"text": "🗑️", "callback_data": "actions|borrar"})
-        #keyboard[0].append({"text": "💾", "callback_data": "actions|recibir"})
-        #await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=image_group, reply_to_message_id=update.effective_message.message_id, reply_markup={"inline_keyboard": keyboard})
-        #await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=document_group, reply_to_message_id=update.effective_message.message_id)
         mensaje_group_id=update.effective_message.message_id
         await create_document_group(update, context, lang, image_group, document_group, mensaje_group_id)
         interaction_cache[chat.id] = ("visto", datetime.now())
@@ -93,7 +85,7 @@ async def handle(chat, lang, update, context, _message=None):
 async def wrapper(update: Update, context: CallbackContext, _message=None, chat=None, lang=None):
     from bot.src.handlers import semaphore as tasks
     from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc,bb)
-    chat, lang = await oc(update)
+    chat, lang = await oc(update) if not chat and not lang else chat, lang
     if not await debe_continuar(chat, lang, update, context, bypassMention=True): return
     task = bb(handle(chat, lang, update, context, _message))
     await tasks.releasemaphore(chat=chat)

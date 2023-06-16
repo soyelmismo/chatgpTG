@@ -7,7 +7,7 @@ async def handle(update: Update, context: CallbackContext, chat=None, lang=None,
     interaction_cache, db, logger
     )
     try:
-        chat, lang = await oc(update)
+        chat, lang = await oc(update) if not chat and not lang else chat, lang
         if not await debe_continuar(chat, lang, update, context): return
         mododechat_actual, _, _ = await parametros(chat, lang, update)
         await db.new_dialog(chat)
