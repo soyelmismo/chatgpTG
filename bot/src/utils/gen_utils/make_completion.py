@@ -25,7 +25,6 @@ async def _openai(self, **kwargs):
         openai.api_base=str(config.api["info"][self.api].get("url"))
         self.diccionario.update({"messages": kwargs["messages"], "model": self.model} if kwargs["messages"] != None else {"prompt": kwargs["prompt"], "engine": self.model})
         fn = openai.ChatCompletion.acreate if kwargs["messages"] != None else openai.Completion.acreate
-
         r = await fn(stream=True, **self.diccionario)
         async for r_item in r:
             if kwargs['messages'] != None:

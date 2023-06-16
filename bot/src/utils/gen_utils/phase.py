@@ -1,7 +1,7 @@
 from bot.src.utils import proxies
 import openai
 from . import make_transcription, make_image
-from bot.src.utils.constants import constant_db_api
+from bot.src.utils.constants import constant_db_api, constant_db_tokens
 
 class ChatGPT:
     def __init__(self, chat, lang="es", model="gpt-3.5-turbo"):
@@ -41,6 +41,11 @@ class ChatGPT:
                 "prompt": prompt,
                 "messages": messages
             }
+            from bot.src.utils.misc import ver_modelo_get_tokens
+            max_tokens = await ver_modelo_get_tokens(self.chat)
+            tokens_actual = await proxies.db.get_dialog_attribute(self.chat, f'{constant_db_tokens}')
+            max_tokens = ((max_tokens - tokens_actual) - 800)
+            self.diccionario["max_tokens"] = max_tokens
             from .make_completion import _make_api_call
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer

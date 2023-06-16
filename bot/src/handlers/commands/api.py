@@ -20,7 +20,6 @@ async def set(update: Update, context: CallbackContext):
     chat, _ = await oc(update)
     query, page_index, seleccion = await menu.handle(update)
     if seleccion != "paginillas" and (api_cache.get(chat.id) is None or api_cache.get(chat.id)[0] != seleccion):
-        print("apimenu seleccion",seleccion)
         api_cache[chat.id] = (seleccion, datetime.now())
         await db.set_chat_attribute(chat, f'{constant_db_api}', seleccion)
     await menu.refresh(query, update, context, page_index, menu_type="api", chat=chat)

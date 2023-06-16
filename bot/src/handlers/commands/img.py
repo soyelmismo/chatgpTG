@@ -3,6 +3,7 @@ from telegram import InputMediaDocument, InputMediaPhoto
 from bot.src.utils.gen_utils.phase import ChatGPT
 import asyncio
 from bot.src.utils import config
+from bot.src.utils.proxies import logger, db, interaction_cache, config, datetime, telegram, ParseMode, ChatAction
 
 document_groups = {}  # Almacena todos los document_groups con su message_id
 async def remove_document_group(message_id, borrar=None, update=None, lang=None):
@@ -22,43 +23,41 @@ async def create_document_group(update, context, lang, image_group, document_gro
     await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=image_group, reply_to_message_id=mensaje_group_id)
     await update.effective_chat.send_message(text=f'{config.lang["mensajes"]["preguntar_descargar_fotos"][lang].format(expirationtime=config.generatedimagexpiration)}', reply_to_message_id=mensaje_group_id, reply_markup={"inline_keyboard": keyboard})
 
-async def handle(chat, lang, update, context, _message=None):
-    from bot.src.handlers import semaphore as tasks
-    from bot.src.utils.proxies import (logger, db, interaction_cache, config, datetime, telegram, ParseMode, ChatAction)
-    chattype = update.callback_query.message if update.callback_query else update.message
+async def get_prompt(context, chattype, _message, lang):
     if _message:
-        prompt = _message
-    else:
-        if not context.args:
-            await chattype.reply_text(f'{config.lang["mensajes"]["genimagen_noargs"][lang]}', parse_mode=ParseMode.HTML)
-            await tasks.releasemaphore(chat=chat)
-            return
-        prompt = ' '.join(context.args)
+        return _message
+    if not context.args:
+        await chattype.reply_text(f'{config.lang["mensajes"]["genimagen_noargs"][lang]}', parse_mode=ParseMode.HTML)
+        return None
+    prompt = ' '.join(context.args)
     if not prompt:
         await chattype.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
-        await tasks.releasemaphore(chat=chat)
-        return
+        return None
+    return prompt
+
+async def get_image_urls(chattype, chat, prompt, lang):
     import openai
     try:
         await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
         insta = ChatGPT(chat)
-        image_urls = await insta.imagen(prompt)
+        return await insta.imagen(prompt)
     except (openai.error.APIError, openai.error.InvalidRequestError) as e:
-        if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
-            text = f'{config.lang["errores"]["genimagen_rejected"][lang]}'
-        else:
-            text = f'{config.lang["errores"]["genimagen_other"][lang]}'
-        await chattype.reply_text(text, parse_mode=ParseMode.HTML)
-        await tasks.releasemaphore(chat=chat)
-        return
+        await handle_openai_errors(e, chattype, lang)
     except telegram.error.BadRequest as e:
-        text = f'{config.lang["errores"]["genimagen_badrequest"][lang]}'
-        await chattype.reply_text(text, parse_mode=ParseMode.HTML)
-        await tasks.releasemaphore(chat=chat)
-        return
+        await chattype.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
     except Exception as e:
         if "Response payload is not completed" in str(e):
             logger.error("PayloadError ImageGen")
+    return None
+
+async def handle_openai_errors(e, chattype, lang):
+    if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
+        text = f'{config.lang["errores"]["genimagen_rejected"][lang]}'
+    else:
+        text = f'{config.lang["errores"]["genimagen_other"][lang]}'
+    await chattype.reply_text(text, parse_mode=ParseMode.HTML)
+
+async def send_image_group(update, context, lang, chat, image_urls, chattype):
     try:
         image_group = []
         document_group = []
@@ -77,9 +76,7 @@ async def handle(chat, lang, update, context, _message=None):
             await chattype.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
         else:
             logger.error(e)
-        return
-    finally:
-        await tasks.releasemaphore(chat=chat)
+
 async def wrapper(update: Update, context: CallbackContext, _message=None):
     from bot.src.handlers import semaphore as tasks
     from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc,bb)
@@ -89,6 +86,18 @@ async def wrapper(update: Update, context: CallbackContext, _message=None):
     await tasks.releasemaphore(chat=chat)
     await tasks.handle(chat, lang, task, update)
     
+async def handle(chat, lang, update, context, _message=None):
+    from bot.src.handlers import semaphore as tasks
+    chattype = update.callback_query.message if update.callback_query else update.message
+    prompt = await get_prompt(context, chattype, _message, lang)
+    if not prompt:
+        return
+    image_urls = await get_image_urls(chattype, chat, prompt, lang)
+    if not image_urls:
+        return
+    await send_image_group(update, context, lang, chat, image_urls, chattype)
+    await tasks.releasemaphore(chat=chat)
+
 async def callback(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import obtener_contextos as oc, config
     query = update.callback_query

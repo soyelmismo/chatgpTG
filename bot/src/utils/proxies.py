@@ -25,6 +25,8 @@ model_cache = {}
 menu_cache = {}
 interaction_cache = {}
 
+user_names = {}
+
 apis_vivas = config.api["available_api"]
 msg_no_mod = "Message is not modified"
 

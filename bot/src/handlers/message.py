@@ -1,17 +1,19 @@
+import string
+import secrets
 from bot.src.start import Update, CallbackContext
 from bot.src.utils.gen_utils.phase import ChatGPT
 from bot.src.utils.checks.c_message import check as check_message
 from bot.src.utils.misc import update_dialog_messages
-from bot.src.utils.constants import constant_db_model, constant_db_chat_mode
+from bot.src.utils.constants import constant_db_model, constant_db_chat_mode, continue_key
 
 from bot.src.handlers import semaphore as tasks
 from datetime import datetime
 from . import url, timeout
 from .commands import new
 from .commands import img, cancel, retry
+from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names)
 
 async def wrapper(update: Update, context: CallbackContext):
-    from bot.src.utils.proxies import (debe_continuar,parametros,obtener_contextos as oc,bb,logger,config)
     if update.edited_message: return
     chat, lang = await oc(update)
     try:
@@ -21,19 +23,39 @@ async def wrapper(update: Update, context: CallbackContext):
         await tasks.handle(chat, lang, task, update)
     except Exception as e:
         logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][lang]}: {e}')
-async def handle(chat, lang, update, context, _message=None, msgid=None):
-    from bot.src.utils.proxies import parametros, bb, chat_mode_cache, db, interaction_cache, model_cache, config, ParseMode
-    await parametros(chat, lang, update)
+
+async def get_random_name():
+    # Generar un nombre aleatorio consistente de 6 a 8 letras
+    name_length = secrets.choice(range(6, 9))
+    consonants = ''.join(secrets.choice('bcdfghjklmnpqrstvwxyz') for i in range(name_length//2))
+    vowels = ''.join(secrets.choice('aeiou') for i in range(name_length - len(consonants)))
+    name = consonants + vowels
+    # Añadir una mayúscula inicial al nombre generado
+    name = name.capitalize()
+    return name
+
+async def process_message(update, context, chat, _message=None):
     if _message:
         raw_msg, _ = await check_message(update, _message)
         raw_msg = raw_msg[0]
     else:
         raw_msg, _message = await check_message(update, _message)
         if chat.type != "private":
+            user_id = raw_msg.from_user.id
+            if user_id in user_names:
+                user_name = user_names[user_id]
+            else:
+                # Generar un nombre aleatorio y asignarlo al usuario
+                user_name = await get_random_name()
+                user_names[user_id] = user_name
             _message = _message.replace("@" + context.bot.username, "").strip()
-            _message = f"{raw_msg.from_user.first_name}: {_message}"
-    if await process_urls(raw_msg, chat, lang, update):
-        return
+            _message = f"@{user_name}: {_message}"
+    return raw_msg, _message
+
+async def handle(chat, lang, update, context, _message=None, msgid=None):
+    await parametros(chat, lang, update)
+    raw_msg, _message = await process_message(update, context, chat, _message)
+    if await process_urls(raw_msg, chat, lang, update): return
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
                 await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
@@ -59,52 +81,19 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
     await tasks.handle(chat, lang, task, update)
 
 async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid):
-    from bot.src.utils.proxies import (bb,logger,db,interaction_cache,msg_no_mod,sleep,config,ParseMode,ChatAction,telegram)
-    from bot.src.utils.constants import continue_key
-    # Funciones auxiliares
-    async def send_error_message():
-        await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
-    async def get_update_params():
-        if chat.type != "private":
-            return 250, 0.1
-        else:
-            return 75, 0.5
-    async def get_parse_mode():
-        return {
-            "html": ParseMode.HTML,
-            "markdown": ParseMode.MARKDOWN
-        }[config.chat_mode["info"][chat_mode]["parse_mode"]]
-    async def get_keyboard():
-        keyboard = [[]]
-        keyboard[0].append({"text": "🚫", "callback_data": "actions|cancel"})
-        return keyboard
-    async def update_placeholder_message(answer, keyboard):
-        try:
-            await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
-        except telegram.error.BadRequest as e:
-            if str(e).startswith(msg_no_mod):
-                pass
-            else:
-                await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
-    async def get_reply_id(update, msgid=None):
-        if msgid:
-            return msgid
-        elif chat.type != "private" or _message == continue_key:
-            return update.effective_message.message_id
-        return None
     # Verificar si el mensaje está vacío
     if not _message:
-        await send_error_message()
+        await send_error_message(update, lang)
         return
-    # Configurar parámetros de actualización
-    upd, timer = await get_update_params()
     # Configurar modo de análisis de mensajes
-    parse_mode = await get_parse_mode()
+    parse_mode = await get_parse_mode(chat_mode)
+    # Configurar parámetros de actualización
+    upd, timer = await get_update_params(chat)
     # Configurar teclado
     keyboard = await get_keyboard()
     # Enviar mensaje de espera
     await update.effective_chat.send_action(ChatAction.TYPING)
-    reply_val = await get_reply_id(update, msgid)
+    reply_val = await get_reply_id(update, chat, _message, msgid)
     placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
     # Generar respuesta
     prev_answer = ""
@@ -117,7 +106,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             answer = gen_answer[:4096]  # telegram message limit
             if abs(len(answer) - len(prev_answer)) < upd and status != "finished":
                 continue
-            await update_placeholder_message(answer, keyboard)
+            await update_placeholder_message(context, answer, keyboard, placeholder_message, parse_mode)
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
             if status == "finished":
@@ -182,3 +171,40 @@ async def process_urls(raw_msg, chat, lang, update):
     except AttributeError:
         pass
     return False
+
+# Funciones auxiliares
+async def send_error_message(update, lang):
+    await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
+
+async def get_update_params(chat):
+    if chat.type != "private":
+        return 250, 0.1
+    else:
+        return 75, 0.5
+
+async def get_parse_mode(chat_mode):
+    return {
+        "html": ParseMode.HTML,
+        "markdown": ParseMode.MARKDOWN
+    }[config.chat_mode["info"][chat_mode]["parse_mode"]]
+
+async def get_keyboard():
+    keyboard = [[]]
+    keyboard[0].append({"text": "🚫", "callback_data": "actions|cancel"})
+    return keyboard
+
+async def update_placeholder_message(context, answer, keyboard, placeholder_message, parse_mode):
+    try:
+        await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+    except telegram.error.BadRequest as e:
+        if str(e).startswith(msg_no_mod):
+            pass
+        else:
+            await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+
+async def get_reply_id(update, chat, _message, msgid=None):
+    if msgid:
+        return msgid
+    elif chat.type != "private" or _message == continue_key:
+        return update.effective_message.message_id
+    return None

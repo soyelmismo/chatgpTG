@@ -1,26 +1,29 @@
-async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
-    from bot.src.utils import config
-    from bot.src.utils.constants import continue_key
+from bot.src.utils import config
+from bot.src.utils.constants import continue_key
 
-    def process_dialog_message(dialog_message):
-        documento = dialog_message.get("documento", "")
-        url = dialog_message.get("url", "")
-        search = dialog_message.get("search", "")
-        return documento, url, search
-    def append_message_texts(documento, url, search):
-        if len(documento) > 1:
-            documento_texts.append(f"'{config.lang['metagen']['documentos'][self.lang]}': {documento}")
-        if len(url) > 1:
-            url_texts.append(f"'{config.lang['metagen']['paginas'][self.lang]}': {url}")
-        if len(search) > 1:
-            search_texts.append(f"'{config.lang['metagen']['busquedaweb'][self.lang]}': {search}")
-    def append_user_bot_messages(dialog_message):
-        user = dialog_message.get("user", "")
-        bot = dialog_message.get("bot", "")
-        if len(user) >= 2:
-            messages.append({"role": "user", "content": user})
-        if len(bot) >= 2:
-            messages.append({"role": "assistant", "content": bot})
+def process_dialog_message(dialog_message):
+    documento = dialog_message.get("documento", "")
+    url = dialog_message.get("url", "")
+    search = dialog_message.get("search", "")
+    return documento, url, search
+def append_message_texts(documento, url, search, documento_texts, url_texts, search_texts, lang):
+    if len(documento) > 1:
+        documento_texts.append(f"'{config.lang['metagen']['documentos'][lang]}': {documento}")
+    if len(url) > 1:
+        url_texts.append(f"'{config.lang['metagen']['paginas'][lang]}': {url}")
+    if len(search) > 1:
+        search_texts.append(f"'{config.lang['metagen']['busquedaweb'][lang]}': {search}")
+    return documento_texts, url_texts, search_texts
+def append_user_bot_messages(messages, dialog_message):
+    user = dialog_message.get("user", "")
+    bot = dialog_message.get("bot", "")
+    if len(user) >= 2:
+        messages.append({"role": "user", "content": user})
+    if len(bot) >= 2:
+        messages.append({"role": "assistant", "content": bot})
+    return messages
+
+async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
     try:
         messages = []
         documento_texts = []
@@ -28,14 +31,14 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
         search_texts = []
         for dialog_message in dialog_messages:
             documento, url, search = process_dialog_message(dialog_message)
-            append_message_texts(documento, url, search)
+            documento_texts, url_texts, search_texts = append_message_texts(documento, url, search, documento_texts, url_texts, search_texts, lang=self.lang)
         if documento_texts or url_texts or search_texts:
             messages.append({
                 "role": "system",
                 "content": f'{str(documento_texts) if documento_texts else ""}\n{str(url_texts) if url_texts else ""}\n{str(search_texts) if search_texts else ""}\n: {config.lang["metagen"]["contexto"][self.lang]}'
             })
         for dialog_message in dialog_messages:
-            append_user_bot_messages(dialog_message)
+            messages = append_user_bot_messages(messages, dialog_message)
         if chat_mode == "imagen":
             messages.append({"role": "system", "content": f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'})
         elif chat_mode != "nada":

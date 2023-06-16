@@ -17,8 +17,54 @@ info:
       pt: Esse modelo bem conhecido. É <b>rápido</b> e <b>barato</b>. Ideal para tarefas diárias.
       it: Quel modello ben noto. È <b>veloce</b> e <b>a buon mercato</b>. Ideale per le attività quotidiane.
       nl: Dat bekende model. Het is <b>snel</b> en <b>goedkoop</b>. Ideaal voor dagelijkse taken.
-    max_tokens: 2048
-  
+    max_tokens: 4096
+  gpt-3.5-turbo-16k:
+    name: ChatGPT 16k
+    description:
+      es: con contexto de 16mil tokens.
+      ar: مع سياق من 16 ألف رمز.
+      en: with a context of 16 thousand tokens.
+      jp: 16,000トークンのコンテキストで。
+      zh: 使用16,000个标记进行上下文处理。
+      de: mit einem Kontext von 16.000 Token.
+      fr: avec un contexte de 16 mille jetons.
+      ru: с контекстом из 16 тысяч токенов.
+      pt: com um contexto de 16 mil tokens.
+      it: con un contesto di 16mila token.
+      nl: met een context van 16 duizend tokens.
+    max_tokens: 16384
+  gpt-3.5-turbo-16k-0613:
+    name: ChatGPT 06/13 16k
+    description:
+      es: Instantánea de gpt-3.5-turbo-16k del 13 de junio de 2023. A diferencia de gpt-3.5-turbo-16k, este modelo no recibirá actualizaciones y quedará obsoleto 3 meses después del lanzamiento de una nueva versión.
+      ar: لقطة لـ gpt-3.5-turbo-16k في 13 يونيو 2023. على عكس gpt-3.5-turbo-16k ، لن يتلقى هذا النموذج تحديثات وسيصبح قديمًا بعد 3 أشهر من إطلاق نسخة جديدة.
+      en: Snapshot of gpt-3.5-turbo-16k on June 13, 2023. Unlike gpt-3.5-turbo-16k, this model will not receive updates and will become obsolete 3 months after the release of a new version.
+      jp: 2023年6月13日のgpt-3.5-turbo-16kのスナップショット。 gpt-3.5-turbo-16kとは異なり、このモデルは更新を受け取らず、新バージョンのリリースから3ヶ月後には使えなくなります。
+      zh: gpt-3.5-turbo-16k的快照，日期为2023年6月13日。与gpt-3.5-turbo-16k不同，此模型将不会接收更新，并在新版本发布后的3个月后过时。
+      de: Momentaufnahme von gpt-3.5-turbo-16k vom 13. Juni 2023. Im Gegensatz zu gpt-3.5-turbo-16k erhält dieses Modell keine Updates und wird 3 Monate nach Veröffentlichung einer neuen Version veraltet sein.
+      fr: Capture instantanée de gpt-3.5-turbo-16k datant du 13 juin 2023. Contrairement à gpt-3.5-turbo-16k, ce modèle ne recevra pas de mises à jour et deviendra obsolète 3 mois après la sortie d'une nouvelle version.
+      ru: Снимок gpt-3.5-turbo-16k на 13 июня 2023 года. В отличие от gpt-3.5-turbo-16k, эту модель не будет обновляться и устареет через 3 месяца после выпуска новой версии.
+      pt: Instantâneo do gpt-3.5-turbo-16k em 13 de junho de 2023. Ao contrário do gpt-3.5-turbo-16k, este modelo não receberá atualizações e ficará obsoleto 3 meses após o lançamento de uma nova versão.
+      it: Snapshot di gpt-3.5-turbo-16k del 13 giugno 2023. A differenza di gpt-3.5-turbo-16k, questo modello non riceverà aggiornamenti e diventerà obsoleto 3 mesi dopo il rilascio di una nuova versione.
+      nl: Momentopname van gpt-3.5-turbo-16k op 13 juni 2023. In tegenstelling tot gpt-3.5-turbo-16k, zal dit model geen updates ontvangen en verouderd raken 3 maanden na de lancering van een nieuwe versie.
+    max_tokens: 16384
+
+  gpt-3.5-turbo-0613:
+    name: ChatGPT 06/13
+    description:
+      es: Instantánea de gpt-3.5-turbo del 13 de junio de 2023 con datos de llamadas a funciones. A diferencia de gpt-3.5-turbo, este modelo no recibirá actualizaciones y quedará obsoleto 3 meses después del lanzamiento de una nueva versión.
+      ar: لقطة لـ gpt-3.5-turbo في 13 يونيو 2023 مع بيانات عن استدعاءات الدوال. على عكس gpt-3.5-turbo، هذا النموذج لن يتلقى تحديثات وسيصبح عفا عليه الزمان بعد 3 أشهر من إصدار نسخة جديدة.
+      en: Snapshot of gpt-3.5-turbo from June 13, 2023, with function call data. Unlike gpt-3.5-turbo, this model will not receive updates and will become obsolete 3 months after the release of a new version.
+      jp: 関数呼び出しデータを使用した2023年6月13日のgpt-3.5-turboのスナップショットです。gpt-3.5-turboとは異なり、このモデルは更新を受け取らず、新しいバージョンのリリースから3ヶ月後には使用されなくなります。
+      zh: gpt-3.5-turbo在2023年6月13日的快照，包含了函数调用数据。与gpt-3.5-turbo不同的是，这个模型将不会接收更新，在新版本发布后的3个月后将过时。
+      de: Schnappschuss von gpt-3.5-turbo vom 13. Juni 2023 mit Funktionsaufrufdaten. Im Gegensatz zu gpt-3.5-turbo erhält dieses Modell keine Updates und wird 3 Monate nach Veröffentlichung einer neuen Version veraltet sein.
+      fr: Capture d'écran de gpt-3.5-turbo du 13 juin 2023 avec des données d'appels de fonction. Contrairement à gpt-3.5-turbo, ce modèle ne recevra pas de mises à jour et deviendra obsolète 3 mois après la sortie d'une nouvelle version.
+      ru: Снимок gpt-3.5-turbo от 13 июня 2023 года с данными вызовов функций. В отличие от gpt-3.5-turbo, эту модель не будет обновляться и она устареет через 3 месяца после выпуска новой версии.
+      pt: Instantâneo do gpt-3.5-turbo de 13 de junho de 2023 com dados de chamadas de função. Ao contrário do gpt-3.5-turbo, este modelo não receberá atualizações e ficará obsoleto 3 meses após o lançamento de uma nova versão.
+      it: Snapshot di gpt-3.5-turbo del 13 giugno 2023 con dati di chiamate a funzioni. A differenza di gpt-3.5-turbo, questo modello non riceverà aggiornamenti e diventerà obsoleto 3 mesi dopo il rilascio di una nuova versione.
+      nl: Momentopname van gpt-3.5-turbo van 13 juni 2023 met functie-oproepgegevens. In tegenstelling tot gpt-3.5-turbo, ontvangt dit model geen updates en wordt het 3 maanden na de release van een nieuwe versie verouderd.
+    max_tokens: 4096
+
   gpt-4:
     name: GPT-4
     description:
@@ -34,6 +80,23 @@ info:
       it: È il modello più <b>intelligente</b> e avanzato al mondo. Ma è più lento e non così efficiente in termini di costi come ChatGPT. La migliore opzione per le attività intellettuali <b>complesse</b>.
       nl: Het is het meest <b>intelligente</b> en geavanceerde model ter wereld. Maar het is langzamer en niet zo kostenefficiënt als ChatGPT. De beste keuze voor <b>complexe</b> intellectuele taken.
     max_tokens: 8192
+
+  gpt-4-0613:
+    name: GPT-4 06/16
+    description:
+      es: Instantánea de gpt-4 del 13 de junio de 2023 con datos de llamadas a funciones. A diferencia de gpt-4, este modelo no recibirá actualizaciones y quedará obsoleto 3 meses después de que se publique una nueva versión.
+      ar: لقطة لـ gpt-4 بتاريخ 13 يونيو 2023 مع بيانات عن استدعاء الدوال. على عكس gpt-4، لن يتلقى هذا النموذج تحديثات وسيصبح قديمًا بعد 3 أشهر من نشر إصدار جديد.
+      en: Snapshot of gpt-4 as of June 13, 2023 with data on function calls. Unlike gpt-4, this model will not receive updates and will become obsolete 3 months after a new version is released.
+      jp: 関数呼び出しのデータを持つ 2023 年 6 月 13 日の gpt-4 のスナップショットです。gpt-4 とは異なり、このモデルは更新を受け取らず、新しいバージョンがリリースされてから3ヶ月後には使い古されます。
+      zh: 截至2023年6月13日的gpt-4快照，包含函数调用数据。与gpt-4不同，该模型将不会接收更新，并将在发布新版本后3个月变得过时。
+      de: Momentaufnahme von gpt-4 vom 13. Juni 2023 mit Daten zu Funktionsaufrufen. Im Gegensatz zu gpt-4 wird dieses Modell keine Updates erhalten und wird 3 Monate nach Veröffentlichung einer neuen Version veraltet sein.
+      fr: Instantané de gpt-4 datant du 13 juin 2023 avec des données sur les appels de fonctions. Contrairement à gpt-4, ce modèle ne recevra pas de mises à jour et deviendra obsolète 3 mois après la publication d'une nouvelle version.
+      ru: Снимок gpt-4 на 13 июня 2023 года с данными о вызовах функций. В отличие от gpt-4, эту модель не будут обновлять, и она станет устаревшей через 3 месяца после выпуска новой версии.
+      pt: Instantâneo do gpt-4 de 13 de junho de 2023 com dados sobre chamadas de função. Ao contrário do gpt-4, este modelo não receberá atualizações e se tornará obsoleto 3 meses após o lançamento de uma nova versão.
+      it: Istantanea di gpt-4 del 13 giugno 2023 con dati sulle chiamate di funzione. A differenza di gpt-4, questo modello non riceverà aggiornamenti e diventerà obsoleto 3 mesi dopo il rilascio di una nuova versione.
+      nl: Momentopname van gpt-4 van 13 juni 2023 met gegevens over functie-oproepen. In tegenstelling tot gpt-4 zal dit model geen updates ontvangen en na 3 maanden verouderd zijn na de publicatie van een nieuwe versie.
+    max_tokens: 8192
+
   text-davinci-003:
     name: GPT-3
     description:
@@ -48,7 +111,7 @@ info:
       pt: É um modelo desatualizado. Na verdade, <b>não há razão para usá-lo</b>, pois é mais caro e mais lento que o ChatGPT, mas em torno do mesmo nível de inteligência.
       it: È un modello obsoleto. In realtà, <b>non c'è motivo di usarlo</b>, poiché è più costoso e più lento di ChatGPT, ma circa allo stesso livello di intelligenza.
       nl: Het is een verouderd model. Er is eigenlijk <b>geen reden om het te gebruiken</b>, omdat het duurder en langzamer is dan ChatGPT, maar ongeveer op hetzelfde intelligentieniveau ligt.
-    max_tokens: 4097
+    max_tokens: 2048
   text-curie-001:
     name: Curie
     description:
