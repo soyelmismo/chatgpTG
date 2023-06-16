@@ -85,7 +85,7 @@ async def _g4f(self, **kwargs):
         from bot.src.apis.gpt4free import g4f
         provider_name = config.model['info'][self.model]['name']
         provider = getattr(g4f.Providers, provider_name)
-        r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=kwargs['messages'], stream=True)
+        r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=kwargs['messages'])
         for chunk in r:
             self.answer += chunk
             yield "not_finished", self.answer
