@@ -41,7 +41,7 @@ async def _openai(self, **kwargs):
 
 async def _you(self, **kwargs):
     try:
-        from apis.gpt4free.foraneo import you
+        from bot.src.apis.gpt4free.foraneo import you
         r = you.Completion.create(
             prompt=kwargs['messages'],
             chat=kwargs['dialog_messages'],
@@ -59,7 +59,7 @@ async def _you(self, **kwargs):
         
 async def _chatbase(self, **kwargs):
     try:
-        from apis.opengpt import chatbase
+        from bot.src.apis.opengpt import chatbase
         r = chatbase.GetAnswer(messages=kwargs['messages'], model=self.model)
         for chunk in r:
             self.answer += chunk
@@ -71,7 +71,7 @@ async def _chatbase(self, **kwargs):
         raise Exception(e)
 async def _evagpt4(self, **kwargs):
     try:
-        from apis.opengpt import evagpt4
+        from bot.src.apis.opengpt import evagpt4
         r = evagpt4.Model(model=self.model).ChatCompletion(messages=kwargs['messages'])
         for chunk in r:
             self.answer += chunk
@@ -82,7 +82,7 @@ async def _evagpt4(self, **kwargs):
     
 async def _g4f(self, **kwargs):
     try:
-        from apis.gpt4free import g4f
+        from bot.src.apis.gpt4free import g4f
         provider_name = config.model['info'][self.model]['name']
         provider = getattr(g4f.Providers, provider_name)
         r = g4f.ChatCompletion.create(provider=provider, model='gpt-3.5-turbo', messages=kwargs['messages'], stream=True)
