@@ -10,7 +10,6 @@ async def handle(update: Update, context: CallbackContext):
     lock = chat_locks.get(chat.id)
     if not lock and not lock.locked() or chat.id not in chat_tasks:
         text = config.lang["mensajes"]["nadacancelado"][lang]
-        #type = update.callback_query.effective_chat if update.callback_query else update.effective_chat
         await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.HTML)
     else:
         task = chat_tasks[chat.id]

@@ -24,7 +24,7 @@ async def create_document_group(update, context, lang, image_group, document_gro
 
 async def handle(chat, lang, update, context, _message=None):
     from bot.src.handlers import semaphore as tasks
-    from bot.src.utils.proxies import (logger,db,interaction_cache,config,datetime,telegram,ParseMode,ChatAction)
+    from bot.src.utils.proxies import (logger, db, interaction_cache, config, datetime, telegram, ParseMode, ChatAction)
     type = update.callback_query.message if update.callback_query else update.message
     if _message:
         prompt = _message
@@ -33,16 +33,15 @@ async def handle(chat, lang, update, context, _message=None):
             await type.reply_text(f'{config.lang["mensajes"]["genimagen_noargs"][lang]}', parse_mode=ParseMode.HTML)
             await tasks.releasemaphore(chat=chat)
             return
-        else:
-            prompt = ' '.join(context.args)
-    if prompt == None:
+        prompt = ' '.join(context.args)
+    if not prompt:
         await type.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
         await tasks.releasemaphore(chat=chat)
         return
     import openai
     try:
         await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
-        insta=ChatGPT(chat)
+        insta = ChatGPT(chat)
         image_urls = await insta.imagen(prompt)
     except (openai.error.APIError, openai.error.InvalidRequestError) as e:
         if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
@@ -61,25 +60,24 @@ async def handle(chat, lang, update, context, _message=None):
         if "Response payload is not completed" in str(e):
             logger.error("PayloadError ImageGen")
     try:
-        image_group=[]
-        document_group=[]
+        image_group = []
+        document_group = []
         await type.chat.send_action(ChatAction.UPLOAD_PHOTO)
         for i, image_url in enumerate(image_urls):
             image = InputMediaPhoto(image_url)
             image_group.append(image)
             document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
             document_group.append(document)
-        mensaje_group_id=update.effective_message.message_id
+        mensaje_group_id = update.effective_message.message_id
         await create_document_group(update, context, lang, image_group, document_group, mensaje_group_id)
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
         if "referenced before assignment" in str(e):
             await type.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
-            return
         else:
             logger.error(e)
-            return
+        return
     finally:
         await tasks.releasemaphore(chat=chat)
 async def wrapper(update: Update, context: CallbackContext, _message=None):
