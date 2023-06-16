@@ -1,4 +1,6 @@
 import string
+import nltk
+nltk.download('names')
 import secrets
 from bot.src.start import Update, CallbackContext
 from bot.src.utils.gen_utils.phase import ChatGPT
@@ -24,14 +26,11 @@ async def wrapper(update: Update, context: CallbackContext):
     except Exception as e:
         logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][lang]}: {e}')
 
+
 async def get_random_name():
-    # Generar un nombre aleatorio consistente de 6 a 8 letras
-    name_length = secrets.choice(range(6, 9))
-    consonants = ''.join(secrets.choice('bcdfghjklmnpqrstvwxyz') for i in range(name_length//2))
-    vowels = ''.join(secrets.choice('aeiou') for i in range(name_length - len(consonants)))
-    name = consonants + vowels
-    # Añadir una mayúscula inicial al nombre generado
-    name = name.capitalize()
+    # Generar un nombre aleatorio similar a los nombres mencionados
+    names = nltk.corpus.names.words()
+    name = secrets.choice(names)
     return name
 
 async def process_message(update, context, chat, _message=None):
