@@ -1,3 +1,4 @@
+- Bot: https://t.me/chismegptbpt
 ## Comandos:
 - /new - Iniciar nuevo diálogo.
 - /img - Generar imagenes.
