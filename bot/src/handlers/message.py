@@ -131,7 +131,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             await update.effective_chat.send_message(f'{config.lang["errores"]["advertencia_tokens_excedidos"][lang]}', reply_to_message_id=reply_val)
         await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == "True" and chat_mode == "imagen":
-            task = bb(img.wrapper(chat, lang, update, context, _message=answer))
+            task = bb(img.wrapper(update, context, _message=answer))
             await tasks.handle(chat, lang, task, update)
 
 async def actions(update, context):
@@ -147,4 +147,4 @@ async def actions(update, context):
         if not await debe_continuar(chat, lang, update, context, bypassMention=True): return
         await handle(chat, lang, update, context, _message="Renounce€Countless€Unrivaled2€Banter", msgid=msgid)
     else:
-        await retry.handle(update=update, context=context, chat=chat, lang=lang, msgid=msgid)
+        await retry.handle(update=update, context=context, msgid=msgid)

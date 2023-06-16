@@ -1,9 +1,9 @@
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers import semaphore as tasks
 import bot.src.handlers.message as message
-async def handle(update: Update, context: CallbackContext, chat=None, lang=None, msgid=None):
+async def handle(update: Update, context: CallbackContext, msgid=None):
     from bot.src.utils.proxies import (config, datetime, obtener_contextos as oc, debe_continuar, db, interaction_cache)
-    chat, lang = await oc(update) if not chat or not lang else chat, lang
+    chat, lang = await oc(update)
     if not await debe_continuar(chat, lang, update, context): return
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     if len(dialog_messages) == 0:

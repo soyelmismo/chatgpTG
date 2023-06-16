@@ -44,4 +44,4 @@ async def answer(update: Update, context: CallbackContext):
         await message.handle(chat, lang, update, context, _message=last_dialog_message["user"])
     else:
         await tasks.releasemaphore(chat=chat)
-        await retry.handle(update, context, chat, lang)
+        await retry.handle(update, context)
