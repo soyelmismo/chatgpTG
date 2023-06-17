@@ -52,7 +52,7 @@ class ChatGPT:
             self.answer = await self._postprocess_answer()
         except Exception as e:
             e = f'_prepare_request: {e}'
-            raise Exception(e)
+            raise BufferError(e)
 
     async def _handle_invalid_request_error(self, error, dialog_messages):
         try:
@@ -61,18 +61,16 @@ class ChatGPT:
             dialog_messages = dialog_messages[1:]
         except Exception as e:
             e = f'_handle_invalid_request_error: {e}'
-            raise Exception(e)
+            raise ValueError(e)
 
     def _handle_exception(self, error):
         raise ValueError(f'{self.api}: {error}')
 
     async def _postprocess_answer(self):
         try:
-            self.answer = self.answer.strip()
-            return self.answer
+            return "" if self.answer == None else self.answer.strip()
         except Exception as e:
-            e = f'_postprocess_answer: {e}'
-            raise Exception(e)
+            raise ValueError(f'_postprocess_answer: {e}')
 
     async def transcribe(self, audio_file):
         r = await make_transcription.write(self, audio_file)

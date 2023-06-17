@@ -59,4 +59,4 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
         return messages
     except Exception as e:
         e = f'_generate_prompt_messages: {e}'
-        raise Exception(e)
+        raise ValueError(e)

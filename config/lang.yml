@@ -1057,3 +1057,15 @@ errores:
     pt: A quantidade de tokens excedeu o máximo permitido pelo modelo. As mensagens foram otimizadas ou removidas para continuar a conversa.
     it: Il numero di token ha superato il massimo consentito dal modello. I messaggi sono stati ottimizzati o rimossi per continuare la conversazione.
     nl: Het aantal tokens overschreed het maximaal toegestane aantal door het model. Berichten zijn geoptimaliseerd of verwijderd om het gesprek voort te zetten.
+  reintentos_alcanzados:
+    es: Lo siento. Se alcanzó el límite de reintentos máximos {reintentos}
+    ar: آسف. تم الوصول إلى الحد الأقصى لعدد المحاولات {retry}
+    en: Sorry. The maximum retry limit {retry} has been reached
+    jp: 申し訳ありません。最大リトライ制限 {retry} に達しました
+    zh: 抱歉。已达到最大重试次数 {retry}
+    de: Entschuldigung. Die maximale Anzahl an Wiederholungsversuchen {retry} wurde erreicht
+    fr: Désolé. La limite maximale de tentatives {retry} a été atteinte
+    ru: Извините. Достигнут максимальный предел попыток {retry}
+    pt: Desculpe. O limite máximo de tentativas {retry} foi atingido
+    it: Mi dispiace. È stato raggiunto il limite massimo di tentativi {retry}
+    nl: Sorry. De maximale limiet voor opnieuw proberen {retry} is bereikt

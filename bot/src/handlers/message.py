@@ -80,64 +80,53 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
     await tasks.handle(chat, lang, task, update)
 
 async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid):
-    # Verificar si el mensaje está vacío
-    if not _message:
-        await send_error_message(update, lang)
-        return
-    # Configurar modo de análisis de mensajes
-    parse_mode = await get_parse_mode(chat_mode)
-    # Configurar parámetros de actualización
-    upd, timer = await get_update_params(chat)
-    # Configurar teclado
-    keyboard = await get_keyboard()
-    # Enviar mensaje de espera
-    await update.effective_chat.send_action(ChatAction.TYPING)
-    reply_val = await get_reply_id(update, chat, _message, msgid)
-    placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
-    # Generar respuesta
-    prev_answer = ""
-    answer = ""
-    insta = ChatGPT(chat, lang, model=current_model)
-    gen = insta.send_message(_message, dialog_messages, chat_mode)
-    while True:
-        try:
-            status, gen_answer = await gen.asend(None)
+    try:
+        # Verificar si el mensaje está vacío
+        if await verificar_mensaje_y_enviar_error_si_vacio(_message, update, lang): return
+        # Configurar modo de análisis de mensajes
+        parse_mode = await get_parse_mode(chat_mode)
+        # Configurar parámetros de actualización
+        upd, timer = await get_update_params(chat)
+        # Configurar teclado
+        keyboard = await get_keyboard()
+        # Enviar mensaje de espera
+        await update.effective_chat.send_action(ChatAction.TYPING)
+        reply_val = await get_reply_id(update, chat, _message, msgid)
+        placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
+        # Generar respuesta
+        prev_answer = ""
+        answer = ""
+        insta = ChatGPT(chat, lang, model=current_model)
+        gen = insta.send_message(_message, dialog_messages, chat_mode)
+        async for status, gen_answer in gen:
             answer = gen_answer[:4096]  # telegram message limit
-            if abs(len(answer) - len(prev_answer)) < upd and status != "finished":
-                continue
-            await update_placeholder_message(context, answer, keyboard, placeholder_message, parse_mode)
+            if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
+            try:
+                await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+            except telegram.error.BadRequest as e:
+                if str(e).startswith(msg_no_mod): continue
+                else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
-            if status == "finished":
-                break
-        except StopAsyncIteration:
-            break
-    # Actualizar mensaje de chat con la respuesta generada
-    keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
-    keyboard[0].append({"text": "▶️", "callback_data": "actions|continuar"})
-    await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
-    # Actualizar caché de interacciones y historial de diálogos del chat
-    interaction_cache[chat.id] = ("visto", datetime.now())
-    await db.set_chat_attribute(chat, "last_interaction", datetime.now())
-    _message = " " if _message == continue_key or _message==None else _message
-    answer = " " if answer == None else answer
-    new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
-    advertencia = await update_dialog_messages(chat, new_dialog_message)
-    if advertencia==True:
-        await update.effective_chat.send_message(f'{config.lang["errores"]["advertencia_tokens_excedidos"][lang]}', reply_to_message_id=reply_val)
-    # Liberar semáforo
-    await tasks.releasemaphore(chat=chat)
-    # Manejar excepciones
-    try:
+        # Actualizar mensaje de chat con la respuesta generada
+        _message, answer = await check_empty_messages(_message, answer)
+        keyboard = await get_keyboard(keyboard)
+        await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        # Actualizar caché de interacciones y historial de diálogos del chat
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+        new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
+        advertencia = await update_dialog_messages(chat, new_dialog_message)
+        await enviar_advertencia_si_necesario(advertencia, update, lang, reply_val)
+        # Liberar semáforo
+        await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == "True" and chat_mode == "imagen":
             task = bb(img.wrapper(update, context, _message=answer))
             await tasks.handle(chat, lang, task, update)
+    # Manejar excepciones
     except Exception as e:
         logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][lang]}: {e}')
-        keyboard = []
-        keyboard.append([])
-        keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
-        await context.bot.edit_message_text(f'{answer}\n\n{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
+        await mensaje_error_reintento(context, answer, lang, placeholder_message)
     finally:
         await tasks.releasemaphore(chat=chat)
 
@@ -172,14 +161,24 @@ async def process_urls(raw_msg, chat, lang, update):
     return False
 
 # Funciones auxiliares
-async def send_error_message(update, lang):
-    await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
+
+async def mensaje_error_reintento(context, answer, lang, placeholder_message):
+    keyboard = []
+    keyboard.append([])
+    keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
+    await context.bot.edit_message_text(f'{answer}\n\n{config.lang["errores"]["error_inesperado"][lang]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
 
 async def get_update_params(chat):
     if chat.type != "private":
-        return 250, 0.1
+        return 150, 0.1
     else:
-        return 75, 0.5
+        return 75, 0.05
+
+async def verificar_mensaje_y_enviar_error_si_vacio(_message, update, lang):
+    if not _message:
+        await update.effective_chat.send_message(f'{config.lang["mensajes"]["message_empty_handle"][lang]}', parse_mode=ParseMode.HTML)
+        return True
+    return False
 
 async def get_parse_mode(chat_mode):
     return {
@@ -187,17 +186,20 @@ async def get_parse_mode(chat_mode):
         "markdown": ParseMode.MARKDOWN
     }[config.chat_mode["info"][chat_mode]["parse_mode"]]
 
-async def get_keyboard():
-    keyboard = [[]]
-    keyboard[0].append({"text": "🚫", "callback_data": "actions|cancel"})
+async def get_keyboard(keyboard=None):
+    if not keyboard:
+        keyboard = [[]]
+        keyboard[0].append({"text": "🚫", "callback_data": "actions|cancel"})
+    else:
+        keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
+        keyboard[0].append({"text": "▶️", "callback_data": "actions|continuar"})
     return keyboard
 
 async def update_placeholder_message(context, answer, keyboard, placeholder_message, parse_mode):
     try:
         await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
     except telegram.error.BadRequest as e:
-        if str(e).startswith(msg_no_mod):
-            pass
+        if str(e).startswith(msg_no_mod): None
         else:
             await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
 
@@ -207,3 +209,15 @@ async def get_reply_id(update, chat, _message, msgid=None):
     elif chat.type != "private" or _message == continue_key:
         return update.effective_message.message_id
     return None
+
+async def check_empty_messages(_message, answer):
+    if _message == continue_key or _message==None:
+        _message = " "
+    if answer == None:
+        answer = " "
+    return _message, answer
+        
+async def enviar_advertencia_si_necesario(advertencia, update, lang, reply_val):
+    if advertencia:
+        mensaje = f'{config.lang["errores"]["advertencia_tokens_excedidos"][lang]}'
+        await update.effective_chat.send_message(mensaje, reply_to_message_id=reply_val)

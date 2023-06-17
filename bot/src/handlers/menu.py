@@ -35,9 +35,11 @@ async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
     return item_keys
 
 def convert_dict_to_immutable(d):
-    return (frozenset((k, convert_dict_to_immutable(v)) for k, v in d.items()) if isinstance(d, dict) else
-            tuple(convert_dict_to_immutable(x) for x in d) if isinstance(d, list) else d
-            )
+    if isinstance(d, dict):
+        return frozenset((k, convert_dict_to_immutable(v)) for k, v in d.items())
+    elif isinstance(d, list):
+        return tuple(convert_dict_to_immutable(x) for x in d)
+    return d
 
 async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
     from bot.src.utils.proxies import (menu_cache,config)
@@ -80,22 +82,26 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
         
         menu_cache[cache_key] = keyboard
         return keyboard
-        
+
 async def get_item_name(menu_type, menu_type_dict, current_key, lang):
-    name = (menu_type_dict["info"][current_key]["name"] if menu_type != "lang" and menu_type != "chat_mode" else
-            menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else
-            menu_type_dict['info']['name'][current_key])
-    return name
+    if menu_type != "lang" and menu_type != "chat_mode":
+        return menu_type_dict["info"][current_key]["name"]
+    elif menu_type == "chat_mode":
+        return menu_type_dict["info"][current_key]["name"][lang]
+    return menu_type_dict['info']['name'][current_key]
+
 async def get_text(lang, option_name, menu_type, menu_type_dict, current_key):
     from bot.src.utils.proxies import (config)
     description = (menu_type_dict['info']['description'][lang] if menu_type == "lang" else
                     menu_type_dict['info'][current_key]['description'][lang])
     return f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {description}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
+
 async def get_option_name(current_key, menu_type, menu_type_dict, lang):
-    option_name = (menu_type_dict["info"][current_key]["name"] if menu_type != "chat_mode" and menu_type != "lang" else
-                    menu_type_dict["info"][current_key]["name"][lang] if menu_type == "chat_mode" else
-                    menu_type_dict["info"]["name"][lang])
-    return option_name
+    if menu_type != "chat_mode" and menu_type != "lang":
+        return menu_type_dict["info"][current_key]["name"]
+    elif menu_type == "chat_mode":
+        return menu_type_dict["info"][current_key]["name"][lang]
+    return menu_type_dict["info"]["name"][lang]
 
 async def handle(update: Update):
     query = update.callback_query
@@ -115,7 +121,7 @@ async def refresh(query, update, context, page_index, menu_type, chat=None):
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
-        if str(e).startswith(msg_no_mod): pass
+        if str(e).startswith(msg_no_mod): None
             # Ignorar esta excepción específica y continuar la ejecución normalmente  
         else:
             # En caso de otras excepciones BadRequest, manejarlas adecuadamente o agregar acciones adicionales si es necesario

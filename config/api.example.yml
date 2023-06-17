@@ -109,7 +109,7 @@ info:
       it: è un accesso diretto a ChatGPT che offre privacy.
       nl: is een directe toegang tot ChatGPT die privacy biedt.
     url: https://free.churchless.tech/v1
-    key: ""
+    key: MyDiscord
     available_model: ["gpt-3.5-turbo"]
   # otra_api:
   #   name: Otra

@@ -28,20 +28,16 @@ async def answer(update: Update, context: CallbackContext):
     await query.answer()
     new_dialog = query.data.split("|")[1]
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
+    await tasks.releasemaphore(chat=chat)
     if len(dialog_messages) == 0:
         await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_nodialog"][lang]}')
-        await tasks.releasemaphore(chat=chat)
         await new.handle(update, context)
         return
     elif 'bot' in dialog_messages[-1]: # already answered, do nothing
-        await tasks.releasemaphore(chat=chat)
         return
     await query.message.delete()
     if new_dialog == "true":
         last_dialog_message = dialog_messages.pop()
-        await tasks.releasemaphore(chat=chat)
         await new.handle(update, context)
         await message.handle(chat, lang, update, context, _message=last_dialog_message["user"])
-    else:
-        await tasks.releasemaphore(chat=chat)
-        await retry.handle(update, context)
+    elif new_dialog == "false": await retry.handle(update, context)
