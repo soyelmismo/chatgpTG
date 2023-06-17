@@ -26,11 +26,11 @@
 
 
 ## Nueva actualización:
-- Reestructuración de código.
-- La generación de imágenes ahora pregunta si descargar o eliminar los documentos, tiempo de expiración por defecto: 5 minutos.
-- 3 comandos nuevos. /search, /status y /reset.
-- Los comandos /help y /start ahora llaman a la API de GPT para ser asistente en la ayuda del bot.
-
+- sistema de tiempo de espera y reintento.
+- simplificación y mejora de las indicaciones.
+- optimización de los mensajes cuando se alcanza el límite de tokens.
+- utilizar el máximo de tokens posibles para completar / siempre por debajo del límite de tokens.
+- Nuevas variables: REQUEST_MAX_RETRIES y REQUEST_TIMEOUT, REQUEST_TIMEOUT es en segundos.
 # Importante:
 - Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."
 

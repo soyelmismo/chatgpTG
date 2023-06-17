@@ -16,7 +16,7 @@ async def _make_api_call(self, **kwargs):
             api_iterator = api_function(self, **kwargs).__aiter__()
 
             # Espera el primer paquete con un tiempo de espera
-            first_packet = await asyncio.wait_for(api_iterator.__anext__(), timeout=7)
+            first_packet = await asyncio.wait_for(api_iterator.__anext__(), timeout=config.request_timeout)
 
             # Si el primer paquete se recibe con éxito, continúa con el resto de la respuesta
             yield first_packet

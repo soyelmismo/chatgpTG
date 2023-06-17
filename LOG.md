@@ -1,4 +1,8 @@
 ## Cambios anteriores:
+- Reestructuración de código.
+- La generación de imágenes ahora pregunta si descargar o eliminar los documentos, tiempo de expiración por defecto: 5 minutos.
+- 3 comandos nuevos. /search, /status y /reset.
+- Los comandos /help y /start ahora llaman a la API de GPT para ser asistente en la ayuda del bot.
 - Optimizaciones
 - APICHECK fuera. muchos problemas
 - Modo de chat Karen y DAN agregados. funcionan bien con gpt-3/davinci
