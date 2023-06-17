@@ -94,7 +94,7 @@ async def get_text(lang, option_name, menu_type, menu_type_dict, current_key):
     from bot.src.utils.proxies import (config)
     description = (menu_type_dict['info']['description'][lang] if menu_type == "lang" else
                     menu_type_dict['info'][current_key]['description'][lang])
-    return f"<b>{config.lang['info']['actual'][lang]}</b>\n\n{str(option_name)}. {description}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>:"
+    return f"<b>{config.lang['info']['actual'][lang]}</b>: {str(option_name)}\n{description}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>"
 
 async def get_option_name(current_key, menu_type, menu_type_dict, lang):
     if menu_type != "chat_mode" and menu_type != "lang":
