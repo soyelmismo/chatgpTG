@@ -1,5 +1,5 @@
 version: "3"
-
+#i deploy like this
 services:
   mongo:
     container_name: mongo
@@ -12,41 +12,50 @@ services:
     ports:
       - 27017
 
-  chatgptg:
-    container_name: chatgptg
+  chatgpt-telegram:
+    container_name: chatgpt
     command: python3 -m bot
     restart: always
     build:
-      context: "."
-      dockerfile: Dockerfile
-    depends_on:
-      - mongo
+      context: https://github.com/soyelmismo/chatgpTG.git#main
     environment:
       - AUTO_LANG=es
       - MONGODB_HOST=mongo
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=GDT9MbJUTFHpyJyeS2JxzgkpYTjnrU8v
-      - TELEGRAM_TOKEN=yourbottoken
-      - USER_WHITELIST = 89727e9, mamador,   rrjrj,6077244180
+
+      - TELEGRAM_TOKEN=6101.....
+      - USER_WHITELIST=
+      - CHAT_WHITELIST=
+
       - DIALOG_TIMEOUT=7200
-      - OUTPUT_IMAGES=4
       - TIMEOUT_ASK=True
-      - FEATURE_TRANSCRIPTION=True
+      - OUTPUT_IMAGES=4
       - FEATURE_IMAGE_READ=True
       - FEATURE_IMAGE_GENERATION=True
       - GENERATED_IMAGE_EXPIRATION_MINUTES=5
+
+      - FEATURE_TRANSCRIPTION=True
       - FEATURE_BROWSING=True
       - FEATURE_DOCUMENT_READ=True
       - FEATURE_URL_READ=True
-      - MAX_ITEMS_PER_PAGE=8
+
+      - MAX_ITEMS_PER_PAGE=10
       - MAX_COLUMNS_PER_PAGE=2
+
       - AUDIO_MAX_MB=20
-      - DOC_MAX_MB=2
-      - URL_MAX_MB=1
-      - PDF_PAGE_LIMIT=35
-      - REQUEST_MAX_RETRIES=5
+      - DOC_MAX_MB=10
+      - URL_MAX_MB=5
+      - PDF_PAGE_LIMIT=25
+
       - REQUEST_TIMEOUT=7
-      - GPT4FREE_BING_U_COOKIE=LOOOOOOOOONGGGGGCOOOKIEEEEE882738319271$$$$
-      - GPT4FREE_CHATGPT_SESSION_TOKEN=LOOOOOOOOONGGGGGCOOOKIEEEEE882738319271$$$$
+      - REQUEST_MAX_RETRIES=3
+
+      - GPT4FREE_BING_U_COOKIE=1ic.......
+      - GPT4FREE_CHATGPT_SESSION_TOKEN=eyJhb....
+
+    volumes:
+      - /doker/chatgptg/config:/config:ro
+      #- /doker/chatgptg/bot:/bot:ro
 #opcional    volumes:
 #      - /ruta-fuera-del-docker/mi-configuracion:/config
