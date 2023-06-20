@@ -38,7 +38,6 @@ async def handle(chat, lang, update, context, _message=None):
             await update.effective_chat.send_message(text, parse_mode=ParseMode.HTML)
         finally:
             await tasks.releasemaphore(chat=chat)
-            return
     except Exception as e:
         raise RuntimeError(f'search_handle > {e}')
 async def wrapper(update: Update, context: CallbackContext, _message=None):
