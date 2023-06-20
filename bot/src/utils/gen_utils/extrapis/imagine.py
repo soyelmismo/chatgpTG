@@ -16,10 +16,11 @@ async def main(prompt, style, ratio, seed=None):
             steps = 300
         )
         img_data = await imagine.upscale(image=img_data)
-    except Exception as e:
-        raise BufferError(f"An error occurred while generating the image: {e}")
-    finally:
         await imagine.close()
+        if img_data == None:
+            raise FileNotFoundError("no files")
+    except Exception as e:
+        raise BufferError(f"error imagine.py: {e}")
     img_io = io.BytesIO(img_data)
     img_io.name = f"{uuid.uuid4()}.png"
     return img_io, seed

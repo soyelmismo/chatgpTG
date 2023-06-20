@@ -5,6 +5,7 @@ import asyncio
 from bot.src.utils import config
 from bot.src.utils.proxies import debe_continuar, obtener_contextos as oc, bb, logger, db, interaction_cache, config, datetime, telegram, ParseMode, ChatAction, parametros
 from bot.src.handlers import semaphore as tasks
+from bot.src.handlers.error import mini_handle as handle_errors
 
 document_groups = {}  # Almacena todos los document_groups con su message_id
 async def remove_document_group(message_id, borrar=None, update=None, lang=None):
@@ -15,7 +16,7 @@ async def remove_document_group(message_id, borrar=None, update=None, lang=None)
         if lang:
             await update.effective_chat.send_message(text=f'{config.lang["mensajes"]["fotos_borradas_listo"][lang]}', reply_to_message_id=message_id)
 
-async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, seed=None, chattype=None):
+async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype=None, caption=""):
     try:
         await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
         document_groups[f'{mensaje_group_id}'] = document_group
@@ -24,29 +25,25 @@ async def create_document_group(update, context, lang, image_group, document_gro
         keyboard.append([])
         keyboard[0].append({"text": "🗑", "callback_data": f"imgdownload|{mensaje_group_id}|borrar"})
         keyboard[0].append({"text": "💾", "callback_data": f"imgdownload|{mensaje_group_id}|recibir"})
-        retiv = config.lang["mensajes"]["preguntar_descargar_fotos"][lang].format(expirationtime=config.generatedimagexpiration)
-        if seed:
-            text=f'`{seed}`\n\n{retiv}'
-        else:
-            text=f'{retiv}'
+        text = config.lang["mensajes"]["preguntar_descargar_fotos"][lang].format(expirationtime=config.generatedimagexpiration)
         try:
-            await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, reply_to_message_id=mensaje_group_id)
+            await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, reply_to_message_id=mensaje_group_id, caption=caption)
         except telegram.error.BadRequest as e:
             if "Replied message not found" in str(e):
-                await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard)
+                await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, caption=caption)
             else:
                 raise ValueError(f"telegram BadRequest > {e}")
     except Exception as e:
-        await handle_errors(f'create_document_group > {e}', None, lang, chattype)
+        raise LookupError(f'create_document_group > {e}')
 
-async def send_media_group_with_retry(update, text, context, chat_id, media_group, keyboard, reply_to_message_id=None, mensaje_group_id=None):
+async def send_media_group_with_retry(update: Update, text, context: CallbackContext, chat_id, media_group, keyboard, reply_to_message_id=None, mensaje_group_id=None, caption=None):
     try:
-        await context.bot.send_media_group(chat_id=chat_id, media=media_group, reply_to_message_id=reply_to_message_id)
+        await context.bot.send_media_group(chat_id=chat_id, media=media_group, caption=caption, parse_mode=ParseMode.HTML, reply_to_message_id=reply_to_message_id)
         if text:
-            await update.effective_chat.send_message(text, parse_mode=ParseMode.MARKDOWN, reply_to_message_id=mensaje_group_id, reply_markup={"inline_keyboard": keyboard})
+            await update.effective_chat.send_message(text, parse_mode=ParseMode.HTML, reply_to_message_id=mensaje_group_id, reply_markup={"inline_keyboard": keyboard})
     except telegram.error.BadRequest as e:
         if "Replied message not found" in str(e):
-            await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=media_group)
+            await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=media_group, caption=caption, parse_mode=ParseMode.MARKDOWN_V2)
             if text:
                 await update.effective_chat.send_message(text, parse_mode=ParseMode.MARKDOWN, reply_markup={"inline_keyboard": keyboard})
         else:
@@ -81,9 +78,9 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
             await chattype.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
             return None
 
-        return prompt, seed
+        return str(prompt), seed
     except Exception as e:
-        await handle_errors(f'get_prompt > {e}', chattype, lang, chat)
+        raise ValueError(f'get_prompt > {e}')
 
 async def get_image_urls(chattype, chat, lang, update, prompt, seed=None):
     try:
@@ -95,56 +92,43 @@ async def get_image_urls(chattype, chat, lang, update, prompt, seed=None):
             try:
                 await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
                 image_urls, seed = await asyncio.wait_for(insta.imagen(prompt, current_api, style, ratio, seed), timeout=20)
-                if not image_urls: raise FileNotFoundError("No se obtuvieron imagenes.")
-                if not seed: raise ValueError("No se obtuvo la semilla.")
                 return image_urls, current_api, seed
             except Exception as e:
                 if isinstance(e, asyncio.TimeoutError): None
                 if attempt < config.max_retries: await asyncio.sleep(0.75)
-                else: raise ConnectionError(f"_make_image_call. {e}")
     except telegram.error.BadRequest as e:
         await chattype.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
     except Exception as e:
-        await handle_errors(f'get_image_urls > {e}', chattype, lang, chat)
-    return None
+        raise TypeError(f'get_image_urls > {e}')
 
-async def handle_errors(e, chattype, lang, chat):
-    if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
-        text = f'{config.lang["errores"]["genimagen_rejected"][lang]}'
-    else:
-        text = f'{config.lang["errores"]["genimagen_other"][lang]}'
-    if chattype:
-        await chattype.reply_text(text, parse_mode=ParseMode.HTML)
-    await tasks.releasemaphore(chat=chat)
-    raise RuntimeError(f"handle_errors > {e}")
-
-async def send_image_group(update, context, lang, chat, image_urls, chattype, current_api, seed=None):
+async def send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt=None, seed=None):
     try:
         image_group = []
         document_group = []
         if current_api == "imaginepy":
+            caption = f'<code>{seed}</code>\n\n- "<strong>{prompt}</strong>"'
             image_urls.seek(0)  # Ensure we're at the start of the file
             image = InputMediaPhoto(image_urls)
             image_group.append(image)
             image_urls.seek(0)
-            document = InputMediaDocument(image_urls, parse_mode=ParseMode.HTML, filename=f"imagen.png")
+            document = InputMediaDocument(image_urls, filename=f"imagen.png")
             document_group.append(document)
         else:
             for i, image_url in enumerate(image_urls):
+                caption = f'- "<strong>{prompt}</strong>"'
                 image = InputMediaPhoto(image_url)
                 image_group.append(image)
-                document = InputMediaDocument(image_url, parse_mode=ParseMode.HTML, filename=f"imagen_{i}.png")
+                document = InputMediaDocument(image_url, filename=f"imagen_{i}.png")
                 document_group.append(document)
+        mensaje_group_id = update.effective_message.message_id
+        await create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype, caption)
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
         if "referenced before assignment" in str(e):
             await chattype.reply_text(f'{config.lang["errores"]["genimagen_badrequest"][lang]}', parse_mode=ParseMode.HTML)
         else:
-            await handle_errors(f'send_image_group > {e}', chattype, lang, chat)
-    finally:
-        mensaje_group_id = update.effective_message.message_id
-        await create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, seed, chattype)
-        interaction_cache[chat.id] = ("visto", datetime.now())
-        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+            raise LookupError(f'send_image_group > {e}')
 
 async def wrapper(update: Update, context: CallbackContext, _message=None):
     chat, lang = await oc(update)
@@ -159,12 +143,11 @@ async def handle(chat, lang, update, context, _message=None):
         chattype = update.callback_query.message if update.callback_query else update.message
         prompt, seed = await get_prompt(update, context, chattype, _message, chat, lang)
         image_urls, current_api, seed = await get_image_urls(chattype, chat, lang, update, prompt, seed)
+        if image_urls is None: raise FileNotFoundError("No se obtuvieron imagenes.")
+        await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt, seed)
     except Exception as e:
-        logger.error(e)
-        await tasks.releasemaphore(chat=chat)
-        raise RuntimeError(f'image_handle > {e}')
+        await handle_errors(f'image_handle > {e}', update, lang, chat)
     finally:
-        await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, seed)
         await tasks.releasemaphore(chat=chat)
 
 #callback de recibir o borrar imagenes

@@ -14,6 +14,7 @@ from . import url, timeout
 from .commands import new
 from .commands import img, cancel, retry
 from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names)
+from bot.src.handlers.error import mini_handle as handle_errors
 
 async def wrapper(update: Update, context: CallbackContext):
     if update.edited_message: return
@@ -24,7 +25,7 @@ async def wrapper(update: Update, context: CallbackContext):
         task = bb(handle(chat, lang, update, context))
         await tasks.handle(chat, lang, task, update)
     except Exception as e:
-        logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][lang]}: {e}')
+        logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
 
 
 async def get_random_name():
@@ -52,32 +53,35 @@ async def process_message(update, context, chat, _message=None):
     return raw_msg, _message
 
 async def handle(chat, lang, update, context, _message=None, msgid=None):
-    await parametros(chat, lang, update)
-    raw_msg, _message = await process_message(update, context, chat, _message)
-    if await process_urls(raw_msg, chat, lang, update): return
-    dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
-    chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
-                await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
-    chat_mode_cache[chat.id] = (chat_mode, datetime.now())
-    if chat.id in interaction_cache:
-        last_interaction = interaction_cache[chat.id][1]
-    else:
-        last_interaction = await db.get_chat_attribute(chat, "last_interaction")
-    if (datetime.now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
-        if config.timeout_ask:
-            await timeout.ask(chat, lang, update, _message)
-            return
+    try:
+        await parametros(chat, lang, update)
+        raw_msg, _message = await process_message(update, context, chat, _message)
+        if await process_urls(raw_msg, chat, lang, update): return
+        dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
+        chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
+                    await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
+        chat_mode_cache[chat.id] = (chat_mode, datetime.now())
+        if chat.id in interaction_cache:
+            last_interaction = interaction_cache[chat.id][1]
         else:
-            await new.handle(update, context)
-            await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask_false"][lang].format(chatmode=config.chat_mode["info"][chat_mode]["name"][lang])}', parse_mode=ParseMode.HTML)
-    if chat.id in model_cache:
-        current_model = model_cache[chat.id][0]
-    else:
-        current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
-        model_cache[chat.id] = (current_model, datetime.now())
-    await tasks.releasemaphore(chat=chat)
-    task = bb(gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
-    await tasks.handle(chat, lang, task, update)
+            last_interaction = await db.get_chat_attribute(chat, "last_interaction")
+        if (datetime.now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
+            if config.timeout_ask:
+                await timeout.ask(chat, lang, update, _message)
+                return
+            else:
+                await new.handle(update, context)
+                await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask_false"][lang].format(chatmode=config.chat_mode["info"][chat_mode]["name"][lang])}', parse_mode=ParseMode.HTML)
+        if chat.id in model_cache:
+            current_model = model_cache[chat.id][0]
+        else:
+            current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
+            model_cache[chat.id] = (current_model, datetime.now())
+        await tasks.releasemaphore(chat=chat)
+        task = bb(gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
+        await tasks.handle(chat, lang, task, update)
+    except Exception as e:
+        await handle_errors(f'message_handle > {e}', update, lang, chat)
 
 async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid):
     try:
@@ -112,22 +116,20 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         _message, answer = await check_empty_messages(_message, answer)
         keyboard = await get_keyboard(keyboard)
         await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        # Liberar semáforo
+        if config.switch_imgs == "True" and chat_mode == "imagen":
+            await img.wrapper(update, context, _message=answer)
+    # Manejar excepciones
+    except Exception as e:
+        logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
+        await mensaje_error_reintento(context, lang, placeholder_message, answer=None)
+    finally:
         # Actualizar caché de interacciones y historial de diálogos del chat
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         advertencia = await update_dialog_messages(chat, new_dialog_message)
         await enviar_advertencia_si_necesario(advertencia, update, lang, reply_val)
-        # Liberar semáforo
-        await tasks.releasemaphore(chat=chat)
-        if config.switch_imgs == "True" and chat_mode == "imagen":
-            task = bb(img.wrapper(update, context, _message=answer))
-            await tasks.handle(chat, lang, task, update)
-    # Manejar excepciones
-    except Exception as e:
-        logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][lang]}: {e}')
-        await mensaje_error_reintento(context, lang, placeholder_message, answer=None)
-    finally:
         await tasks.releasemaphore(chat=chat)
 
 async def actions(update, context):
@@ -144,6 +146,7 @@ async def actions(update, context):
         if not await debe_continuar(chat, lang, update, context, bypassmention=True): return
         await handle(chat, lang, update, context, _message=continue_key, msgid=msgid)
     else:
+        await query.message.delete()
         await retry.handle(update=update, context=context)
 
 async def process_urls(raw_msg, chat, lang, update):

@@ -1,4 +1,4 @@
-available_props: ["api", "model", "image_api", "chat_mode", "lang"]
+available_props: ["api", "model", "chat_mode", "image_api", "lang"]
 
 info:
   api:

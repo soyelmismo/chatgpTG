@@ -17,7 +17,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
-    except Exception as e: logger.error(f'{config.lang["errores"]["error"][lang]}: <get_menu> {e}')
+    except Exception as e: logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: <get_menu> {e}')
 
 async def get_menu_type_dict(menu_type):
     if menu_type == "image_api":
@@ -43,27 +43,32 @@ async def get_current_key(menu_type, chat):
         cache_variable[chat.id] = (current_key, datetime.now())
     return current_key
 
-async def get_name_from_info_dict(menu_type_dict, current_key): return menu_type_dict["info"][current_key]["name"]
-async def get_name_from_info_dict_with_lang(menu_type_dict, current_key, lang): return menu_type_dict["info"][current_key]["name"][lang]
-async def get_name_from_imaginepy_styles(current_key): return constants.imaginepy_styles[constants.imaginepy_styles.index(current_key)]
-async def get_name_from_imaginepy_ratios(current_key): return constants.imaginepy_ratios[constants.imaginepy_ratios.index(current_key)]
-async def get_name_from_lang(menu_type_dict, lang): return menu_type_dict["info"]["name"][lang]
+async def get_name_from_info_dict(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"]
+async def get_name_from_info_dict_with_lang(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"][kwargs["lang"]]
+async def get_name_from_imaginepy_styles(**kwargs): return constants.imaginepy_styles[constants.imaginepy_styles.index(kwargs["current_key"])]
+async def get_name_from_imaginepy_ratios(**kwargs): return constants.imaginepy_ratios[constants.imaginepy_ratios.index(kwargs["current_key"])]
+async def get_name_from_lang(**kwargs): return kwargs["menu_type_dict"]["info"]["name"][kwargs["lang"]]
 async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
     if not current_key: return None
     menu_type_to_function = {
         "props": None,
         "imaginepy": None,
-        "api": get_name_from_info_dict(menu_type_dict, current_key),
-        "model": get_name_from_info_dict(menu_type_dict, current_key),
-        "imaginepy_styles": get_name_from_imaginepy_styles(current_key),
-        "imaginepy_ratios": get_name_from_imaginepy_ratios(current_key),
-        "chat_mode": get_name_from_info_dict_with_lang(menu_type_dict, current_key, lang),
-        "lang": get_name_from_lang(menu_type_dict, lang),
-        "image_api": get_name_from_info_dict(config.api, current_key),
+        "api": get_name_from_info_dict,
+        "model": get_name_from_info_dict,
+        "imaginepy_styles": get_name_from_imaginepy_styles,
+        "imaginepy_ratios": get_name_from_imaginepy_ratios,
+        "chat_mode": get_name_from_info_dict_with_lang,
+        "lang": get_name_from_lang,
+        "image_api": get_name_from_info_dict,
     }
     try:
+        kwargs = {
+            "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
+            "current_key": current_key,
+            "lang": lang,
+        }
         func = menu_type_to_function.get(menu_type)
-        return await func
+        return await func(**kwargs)
     except Exception as e: raise KeyError(f"get_option_name: {e}")
 
 async def get_imaginepy_text(chat, lang):
@@ -156,25 +161,30 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
             return keyboard
     except Exception as e: raise KeyError(f"get_keyboard: {e}")
 
-async def get_name_from_lang_info(menu_type_dict, current_key): return menu_type_dict['info']['name'][current_key]
-async def get_name_from_metagen(current_key, lang): return config.lang["metagen"][current_key][lang]
+async def get_name_from_lang_info(**kwargs): return kwargs["menu_type_dict"]['info']['name'][kwargs["current_key"]]
+async def get_name_from_metagen(**kwargs): return config.lang["metagen"][kwargs["current_key"]][kwargs["lang"]]
 
 async def get_item_name(menu_type, menu_type_dict, current_key, lang):
 
     menu_type_to_function = {
-        "api": get_name_from_info_dict(menu_type_dict, current_key),
-        "model": get_name_from_info_dict(menu_type_dict, current_key),
-        "image_api": get_name_from_info_dict(config.api, current_key),
-        "chat_mode": get_name_from_info_dict_with_lang(menu_type_dict, current_key, lang),
-        "props": get_name_from_info_dict_with_lang(menu_type_dict, current_key, lang),
-        "lang": get_name_from_lang_info(menu_type_dict, current_key),
-        "imaginepy": get_name_from_metagen(current_key, lang),
-        "imaginepy_styles": get_name_from_imaginepy_styles(current_key),
-        "imaginepy_ratios": get_name_from_imaginepy_ratios(current_key),
+        "api": get_name_from_info_dict,
+        "model": get_name_from_info_dict,
+        "image_api": get_name_from_info_dict,
+        "chat_mode": get_name_from_info_dict_with_lang,
+        "props": get_name_from_info_dict_with_lang,
+        "lang": get_name_from_lang_info,
+        "imaginepy": get_name_from_metagen,
+        "imaginepy_styles": get_name_from_imaginepy_styles,
+        "imaginepy_ratios": get_name_from_imaginepy_ratios,
     }
     try:
+        kwargs = {
+            "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
+            "current_key": current_key,
+            "lang": lang,
+        }
         func = menu_type_to_function.get(menu_type)
-        return await func
+        return await func(**kwargs)
     except Exception as e: raise KeyError(f"get_item_name: {e}")
 
 async def get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lang):

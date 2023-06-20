@@ -82,7 +82,7 @@ class ChatGPT:
             return images, seed
         except Exception as e:
             raise RuntimeError(f"phase.imagen > {e}")
-    
+
     async def busqueduck(self, prompt):
         from .extrapis.duckduckgo import search
         formatted_results_backend, formatted_results_string = await search(self, prompt)
