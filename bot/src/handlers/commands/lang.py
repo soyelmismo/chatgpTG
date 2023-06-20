@@ -18,7 +18,7 @@ async def set(update: Update, context: CallbackContext):
     query, _, seleccion, page_index, _ = await menu.handle(update)
     menu_type="lang"
     if seleccion in config.lang["available_lang"] and (lang_cache.get(chat.id) is None or lang_cache.get(chat.id)[0] != seleccion):
-        await cambiar_idioma(update, chat, lang=seleccion)
+        await cambiar_idioma(None, chat, seleccion)
     await menu.refresh(query, update, context, page_index, menu_type=menu_type, chat=chat)
 
 async def cambiar_idioma(update, chat, lang):
@@ -26,4 +26,5 @@ async def cambiar_idioma(update, chat, lang):
     if lang_cache.get(chat.id) is None or lang_cache.get(chat.id)[0] != lang:
         await db.set_chat_attribute(chat, "current_lang", lang)
         lang_cache[chat.id] = (lang, datetime.now())
-        #await update.effective_chat.send_message(f'{config.lang["info"]["bienvenida"][lang]}')
+        if update:
+            await update.effective_chat.send_message(f'{config.lang["info"]["bienvenida"][lang]}')

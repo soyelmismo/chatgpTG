@@ -1,7 +1,6 @@
 from bot.src.start import Update, CallbackContext,telegram
 import traceback, html, json
 from bot.src.utils.proxies import logger, config, ParseMode
-
 async def handle(update: Update, context: CallbackContext) -> None:
     try:
         # Log the error with traceback

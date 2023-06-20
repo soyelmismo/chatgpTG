@@ -7,8 +7,7 @@ async def handle(update: Update, context: CallbackContext):
         chat, _ = await oc(update)
         text, reply_markup = await menu.get(menu_type="props", update=update, context=context, chat=chat, page_index=0)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except Exception as e:
-        logger.error(f'<props_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]} {e}')
+    except Exception as e: logger.error(f'<props_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]} {e}')
 async def callback(update: Update, context: CallbackContext):
     query, _, _, page_index, _ = await menu.handle(update)
     await menu.refresh(query, update, context, page_index, menu_type="props")
@@ -23,18 +22,12 @@ async def admin_selecciones(update, context, seleccion, is_from_callback):
     from_callback = await is_this_shit_callback(is_from_callback)
     if seleccion == "paginillas":
         if from_callback:
-            if from_callback in config.props["imaginepy"]["available_options"]:
-                menu_type = "imaginepy"
-            elif from_callback == "imaginepy":
-                menu_type = "image_api"
-            elif from_callback in config.props["available_props"]:
-                menu_type = "props"
-        else:
-            menu_type = "props"  # Actualizamos menu_
+            if from_callback in config.props["imaginepy"]["available_options"]: menu_type = "imaginepy"
+            elif from_callback == "imaginepy": menu_type = "image_api"
+            elif from_callback in config.props["available_props"]: menu_type = "props"
+        else: menu_type = "props"  # Actualizamos menu_
     elif seleccion == "reset":
         from .reset import handle
         await handle(update, context, yey=True)
         menu_type = "props"  # Actualizamos menu_
-    else:
-        from_callback = "props"
     return menu_type

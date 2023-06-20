@@ -6,6 +6,8 @@ from bot.src.utils import config
 from bot.src.utils.proxies import debe_continuar, obtener_contextos as oc, bb, logger, db, interaction_cache, config, datetime, telegram, ParseMode, ChatAction, parametros
 from bot.src.handlers import semaphore as tasks
 from bot.src.handlers.error import mini_handle as handle_errors
+#algunos mensajes de error
+rmnf = "Replied message not found"
 
 document_groups = {}  # Almacena todos los document_groups con su message_id
 async def remove_document_group(message_id, borrar=None, update=None, lang=None):
@@ -29,7 +31,7 @@ async def create_document_group(update, context, lang, image_group, document_gro
         try:
             await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, reply_to_message_id=mensaje_group_id, caption=caption)
         except telegram.error.BadRequest as e:
-            if "Replied message not found" in str(e):
+            if rmnf in str(e):
                 await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, caption=caption)
             else:
                 raise ValueError(f"telegram BadRequest > {e}")
@@ -42,7 +44,7 @@ async def send_media_group_with_retry(update: Update, text, context: CallbackCon
         if text:
             await update.effective_chat.send_message(text, parse_mode=ParseMode.HTML, reply_to_message_id=mensaje_group_id, reply_markup={"inline_keyboard": keyboard})
     except telegram.error.BadRequest as e:
-        if "Replied message not found" in str(e):
+        if rmnf in str(e):
             await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=media_group, caption=caption, parse_mode=ParseMode.MARKDOWN_V2)
             if text:
                 await update.effective_chat.send_message(text, parse_mode=ParseMode.MARKDOWN, reply_markup={"inline_keyboard": keyboard})
@@ -111,7 +113,7 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
             image = InputMediaPhoto(image_urls)
             image_group.append(image)
             image_urls.seek(0)
-            document = InputMediaDocument(image_urls, filename=f"imagen.png")
+            document = InputMediaDocument(image_urls, filename="imagen.png")
             document_group.append(document)
         else:
             for i, image_url in enumerate(image_urls):
@@ -169,7 +171,7 @@ async def callback(update: Update, context: CallbackContext):
                 await remove_document_group(message_id=msgid, borrar=True)
                 await query.message.delete()
             except telegram.error.BadRequest as e:
-                if "Replied message not found" in str(e):
+                if rmnf in str(e):
                     await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None)
                 else:
                     raise ValueError(f"telegram BadRequest > {e}")
