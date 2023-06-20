@@ -117,6 +117,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         keyboard = await get_keyboard(keyboard)
         await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         # Liberar semáforo
+        await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == "True" and chat_mode == "imagen":
             await img.wrapper(update, context, _message=answer)
     # Manejar excepciones

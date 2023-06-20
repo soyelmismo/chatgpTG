@@ -1,9 +1,9 @@
 from transformers import OpenAIGPTTokenizer
 import bot.src.utils.preprocess.remove_words as remove_words
-from typing import List, Dict, Any, Union, Tuple
+from typing import List, Dict, Any, Tuple
 
 tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
-async def handle(input_data: Union[str, List[Dict[str, Any]]], max_tokens: int) -> Union[Tuple[str, int, bool], Tuple[List[Dict], int, bool]]:
+async def handle(input_data: str | List[Dict[str, Any]], max_tokens: int) -> str | List[Dict] | Tuple[int, bool]:
     max_tokens = int(max_tokens)
     try:
         if isinstance(input_data, str):
