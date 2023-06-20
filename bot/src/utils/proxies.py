@@ -17,17 +17,21 @@ chat_locks = {}
 chat_tasks = {}
 
 #cache testing
-cache_index = ["lang_cache", "chat_mode_cache", "api_cache", "model_cache", "menu_cache", "interaction_cache"]
+cache_index = ["lang_cache", "chat_mode_cache", "api_cache", "model_cache",
+               "menu_cache", "interaction_cache", "image_api_cache", "imaginepy_ratios_cache",
+               "imaginepy_styles_cache"]
 lang_cache = {}
 chat_mode_cache = {}
 api_cache = {}
+image_api_cache = {}
+imaginepy_ratios_cache = {}
+imaginepy_styles_cache = {}
 model_cache = {}
 menu_cache = {}
 interaction_cache = {}
 
 user_names = {}
 
-apis_vivas = config.api["available_api"]
 msg_no_mod = "Message is not modified"
 
 #contexts and checkers
@@ -50,5 +54,5 @@ async def debe_continuar(chat, lang, update, context, bypassmention=None):
     return True
 async def parametros(chat, lang, update):
     from bot.src.utils.checks import c_parameters
-    mododechat_actual, api_actual, modelo_actual = await c_parameters.check(chat, lang, update)
-    return mododechat_actual, api_actual, modelo_actual
+    checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios = await c_parameters.check(chat, lang, update)
+    return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios

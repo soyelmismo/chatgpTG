@@ -3,7 +3,10 @@ import uuid
 from . import config
 from datetime import datetime
 import motor.motor_asyncio
-from .constants import constant_db_model, constant_db_chat_mode, constant_db_api, constant_db_lang, constant_db_tokens
+from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
+                        constant_db_lang, constant_db_tokens, constant_db_image_api,
+                        imaginepy_ratios, imaginepy_styles, constant_db_imaginepy_styles,
+                        constant_db_imaginepy_ratios)
 class Database:
     def __init__(self):
         self.client = motor.motor_asyncio.AsyncIOMotorClient(config.mongodb_uri)
@@ -29,6 +32,9 @@ class Database:
             f'{constant_db_chat_mode}': config.chat_mode["available_chat_mode"][1],
             f'{constant_db_model}': config.model["available_model"][0],
             f'{constant_db_api}': config.api["available_api"][0],
+            f'{constant_db_image_api}': config.api["available_image_api"][0],
+            f'{constant_db_imaginepy_styles}': imaginepy_styles[0],
+            f'{constant_db_imaginepy_ratios}': imaginepy_ratios[0],
         }
         if not await self.chat_exists(chat):
             await self.chats.insert_one(chat_dict)
@@ -70,14 +76,23 @@ class Database:
         initial_chat_mode = config.chat_mode["available_chat_mode"][0]
         initial_api = config.api["available_api"][0]
         initial_model = config.api["info"][initial_api]["available_model"][0]
+        initial_image = config.api["available_image_api"][0]
+        initial_imaginepy_style = imaginepy_styles[0]
+        initial_imaginepy_ratio = imaginepy_ratios[0]
         # Actualizar los valores en la base de datos
         await self.set_chat_attribute(chat, f'{constant_db_chat_mode}', initial_chat_mode)
         await self.set_chat_attribute(chat, f'{constant_db_model}', initial_model)
         await self.set_chat_attribute(chat, f'{constant_db_api}', initial_api)
-        from .proxies import chat_mode_cache, model_cache, api_cache
+        await self.set_chat_attribute(chat, f'{constant_db_image_api}', initial_image)
+        await self.set_chat_attribute(chat, f'{constant_db_imaginepy_styles}', initial_imaginepy_style)
+        await self.set_chat_attribute(chat, f'{constant_db_imaginepy_ratios}', initial_imaginepy_ratio)
+        from .proxies import chat_mode_cache, model_cache, api_cache, image_api_cache, imaginepy_styles_cache, imaginepy_ratios_cache
         chat_mode_cache[chat.id] = (initial_chat_mode, datetime.now())
         model_cache[chat.id] = (initial_model, datetime.now())
         api_cache[chat.id] = (initial_api, datetime.now())
+        image_api_cache[chat.id] = (initial_image, datetime.now())
+        imaginepy_styles_cache[chat.id] = (initial_imaginepy_style, datetime.now())
+        imaginepy_ratios_cache[chat.id] = (initial_imaginepy_ratio, datetime.now())
 
     async def set_chat_attribute(self, chat, key: str, value: Any):
         await self.chat_exists(chat, raise_exception=True)

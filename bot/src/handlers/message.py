@@ -126,7 +126,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     # Manejar excepciones
     except Exception as e:
         logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][lang]}: {e}')
-        await mensaje_error_reintento(context, answer, lang, placeholder_message)
+        await mensaje_error_reintento(context, lang, placeholder_message, answer=None)
     finally:
         await tasks.releasemaphore(chat=chat)
 
@@ -162,7 +162,9 @@ async def process_urls(raw_msg, chat, lang, update):
 
 # Funciones auxiliares
 
-async def mensaje_error_reintento(context, answer, lang, placeholder_message):
+async def mensaje_error_reintento(context, lang, placeholder_message, answer=None):
+    if not answer:
+        answer = ""
     keyboard = []
     keyboard.append([])
     keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})

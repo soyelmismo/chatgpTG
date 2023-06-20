@@ -267,6 +267,30 @@ metagen:
     it: Avvertimento
     nl: Waarschuwing
   especificacionlang: El bot debe responder a todos los mensajes exclusivamente en idioma {language}
+  imaginepy_styles:
+    es: Estilo
+    ar: أسلوب
+    en: Style
+    jp: スタイル
+    zh: 风格
+    de: Stil
+    fr: Style
+    ru: Стиль
+    pt: Estilo
+    it: Stile
+    nl: Stijl
+  imaginepy_ratios:
+    es: Ratio
+    ar: نسبة
+    en: Ratio
+    jp: 比率
+    zh: 比率
+    de: Verhältnis
+    fr: Ratio
+    ru: Соотношение
+    pt: Razão
+    it: Rapporto
+    nl: Verhouding
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs
@@ -354,102 +378,19 @@ apicheck:
     nl: gestopt
 
 commands:
-  new:
-    es: Iniciar un nuevo diálogo
-    ar: بدء حوار جديد
-    en: Start a new conversation
-    jp: 新しい会話を始める
-    zh: 开始新对话
-    de: Ein neues Gespräch beginnen
-    fr: Démarrer une nouvelle conversation
-    ru: Начать новый диалог
-    pt: Iniciar uma nova conversa
-    it: Inizia una nuova conversazione
-    nl: Start een nieuw gesprek
-  chat_mode:
-    es: Cambia el modo de asistente
-    ar: تغيير وضع المساعدة
-    en: Change assistant mode
-    jp: アシスタントモードを変更する
-    zh: 更改助手模式
-    de: Assistentenmodus ändern
-    fr: Changer le mode assistant
-    ru: Изменить режим помощника
-    pt: Alterar o modo assistente
-    it: Cambia modalità assistente
-    nl: Verander assistent modus
-  retry:
-    es: Re-generar respuesta para la consulta anterior
-    ar: إعادة توليد الإجابة للاستفسار السابق
-    en: Re-generate answer for the previous query
-    jp: 前のクエリに対する回答を再生成する
-    zh: 为前一个查询重新生成答案
-    de: Antwort für die vorherige Anfrage neu generieren
-    fr: Regénérer la réponse pour la requête précédente
-    ru: Создать новый ответ на предыдущий запрос
-    pt: Re-gerar resposta para a consulta anterior
-    it: Rigenera la risposta per la query precedente
-    nl: Genereer opnieuw een antwoord voor de vorige vraag
-  model:
-    es: Mostrar modelos de API
-    ar: عرض نماذج واجهة برمجة التطبيق (API)
-    en: Show API models
-    jp: APIモデルを表示する
-    zh: 显示API模型
-    de: API-Modelle anzeigen
-    fr: Afficher les modèles d'API
-    ru: Показать модели API
-    pt: Mostrar modelos de API
-    it: Mostra i modelli API
-    nl: Toon API-modellen
-  api:
-    es: Mostrar APIs
-    ar: عرض واجهات برمجة التطبيق (API)
-    en: Show APIs
-    jp: APIを表示する
-    zh: 显示API
-    de: APIs anzeigen
-    fr: Afficher les API
-    ru: Показать API
-    pt: Mostrar APIs
-    it: Mostra le API
-    nl: Toon API's
-  img:
-    es: Genera imágenes según lo que escribas
-    ar: توليد الصور وفقًا لما تكتبه
-    en: Generate images based on what you write
-    jp: 入力内容に基づいて画像を生成する
-    zh: 根据您输入的内容生成图片
-    de: Bilder basierend auf dem, was Sie schreiben, erstellen
-    fr: Générer des images en fonction de ce que vous écrivez
-    ru: Создайте изображения на основе того, что вы пишите
-    pt: Gerar imagens com base no que você escreve
-    it: Genera immagini in base a ciò che scrivi
-    nl: Genereer afbeeldingen op basis van wat je schrijft
-  lang:
-    es: Cambiar el idioma del bot
-    ar: تغيير لغة الروبوت
-    en: Change the language of the bot
-    jp: ボットの言語を変更する
-    zh: 更改机器人的语言
-    de: Ändere die Sprache des Bots
-    fr: Changer la langue du bot
-    ru: Изменить язык бота
-    pt: Alterar o idioma do bot
-    it: Cambia la lingua del bot
-    nl: Verander de taal van de bot
-  help:
-    es: Ver mensaje de ayuda
-    ar: توليد الصور وفقًا لما تكتبه
-    en: View help message
-    jp: ヘルプメッセージを表示する
-    zh: 查看帮助信息
-    de: Hilfsnachricht anzeigen
-    fr: Voir le message d'aide
-    ru: Посмотреть сообщение справки
-    pt: Ver mensagem de ajuda
-    it: Visualizza il messaggio di aiuto
-    nl: Bekijk helpbericht
+  reset:
+    es: Reiniciar configuración
+    ar: إعادة تعيين الإعدادات
+    en: Reset configuration
+    jp: 設定をリセットする
+    zh: 重置配置
+    de: Konfiguration zurücksetzen
+    fr: Réinitialiser la configuration
+    ru: Сбросить настройки
+    pt: Redefinir configuração
+    it: Reimposta configurazione
+    nl: Configuratie resetten
+
 
 mensajes:
   preguntar_descargar_fotos:
@@ -938,17 +879,41 @@ errores:
     it: L'API che hai selezionato non è disponibile, quindi è stata cambiata in "{new}"
     nl: De door u geselecteerde API is niet beschikbaar, dus is deze gewijzigd naar "{new}"
   reset_model:
-    es: Tu modelo actual no es compatible con la API "{api_actual_name}", por lo que se ha cambiado el modelo automáticamente a "{new_model_name}".
-    ar: النموذج الحالي الخاص بك غير متوافق مع واجهة برمجة التطبيق "{api_actual_name}" ، لذا تم تغيير النموذج تلقائيًا إلى "{new_model_name}".
-    en: Your current model is not compatible with the "{api_actual_name}" API, so the model has been automatically changed to "{new_model_name}".
-    jp: 現在のモデルは"{api_actual_name}" APIと互換性がありませんので、モデルは自動的に"{new_model_name}"に変更されました。
-    zh: 您当前的模型与"{api_actual_name}" API不兼容，因此模型已自动更改为"{new_model_name}"。
-    de: Dein aktuelles Modell ist nicht mit der "{api_actual_name}" API kompatibel, daher wurde das Modell automatisch auf "{new_model_name}" geändert.
-    fr: Votre modèle actuel n'est pas compatible avec l'API "{api_actual_name}", donc le modèle a été automatiquement changé pour "{new_model_name}".
-    ru: Ваша текущая модель несовместима с API "{api_actual_name}", поэтому модель была автоматически изменена на "{new_model_name}".
-    pt: Seu modelo atual não é compatível com a API "{api_actual_name}", portanto o modelo foi alterado automaticamente para "{new_model_name}".
-    it: Il tuo modello attuale non è compatibile con l'API "{api_actual_name}", quindi il modello è stato automaticamente cambiato in "{new_model_name}".
-    nl: Je huidige model is niet compatibel met de "{api_actual_name}" API, daarom is het model automatisch gewijzigd naar "{new_model_name}".
+    es: Tu modelo actual no es compatible con la API, por lo que se ha cambiado el modelo automáticamente a "{new}".
+    ar: نموذجك الحالي غير متوافق مع واجهة برمجة التطبيقات، لذلك تم تغيير النموذج تلقائيًا إلى "{new}".
+    en: Your current model is not compatible with the API, so the model has been automatically changed to "{new}".
+    jp: 現在のモデルはAPIと互換性がないため、モデルが自動的に"{new}"に変更されました。
+    zh: 您当前的模型与API不兼容，因此模型已自动更改为"{new}"。
+    de: Dein aktuelles Modell ist nicht mit der API kompatibel, daher wurde das Modell automatisch auf "{new}" geändert.
+    fr: Votre modèle actuel n'est pas compatible avec l'API, le modèle a donc été automatiquement changé en "{new}".
+    ru: Ваша текущая модель не совместима с API, поэтому модель была автоматически изменена на "{new}".
+    pt: Seu modelo atual não é compatível com a API, portanto, o modelo foi alterado automaticamente para "{new}".
+    it: Il tuo modello attuale non è compatibile con l'API, quindi il modello è stato cambiato automaticamente in "{new}".
+    nl: Uw huidige model is niet compatibel met de API, dus het model is automatisch gewijzigd naar "{new}".
+  reset_imaginepy_styles:
+    es: Tu estilo actual de Imagine.py no está disponible. Por lo tanto, se ha cambiado automáticamente a {new}.
+    ar: نمط Imagine.py الحالي غير متاح. لذلك تم تغييره تلقائيًا إلى {new}.
+    en: Your current Imagine.py style is not available. Therefore, it has been automatically changed to {new}.
+    jp: 現在のImagine.pyスタイルは利用できません。したがって、自動的に{new}に変更されました。
+    zh: 您当前的Imagine.py样式不可用。因此，它已自动更改为{new}。
+    de: Dein aktueller Imagine.py-Stil ist nicht verfügbar. Daher wurde er automatisch auf {new} geändert.
+    fr: Votre style actuel Imagine.py n'est pas disponible. Par conséquent, il a été automatiquement changé en {new}.
+    ru: Ваш текущий стиль Imagine.py недоступен. Поэтому он был автоматически изменен на {new}.
+    pt: Seu estilo atual do Imagine.py não está disponível. Portanto, foi alterado automaticamente para {new}.
+    it: Il tuo stile attuale di Imagine.py non è disponibile. Pertanto, è stato cambiato automaticamente in {new}.
+    nl: Je huidige Imagine.py-stijl is niet beschikbaar. Daarom is het automatisch gewijzigd naar {new}.
+  reset_imaginepy_ratios:
+    es: Tu ratio actual de Imagine.py no está disponible. Por lo que se ha cambiado automáticamente a {new}.
+    ar: نسبة Imagine.py الحالية غير متاحة. لذلك تم تغييرها تلقائيًا إلى {new}.
+    en: Your current Imagine.py ratio is not available. Therefore, it has been automatically changed to {new}.
+    jp: 現在のImagine.py比率は利用できません。したがって、自動的に{new}に変更されました。
+    zh: 您当前的Imagine.py比率不可用。因此，它已自动更改为{new}。
+    de: Dein aktuelles Imagine.py-Verhältnis ist nicht verfügbar. Daher wurde es automatisch auf {new} geändert.
+    fr: Votre ratio actuel Imagine.py n'est pas disponible. Par conséquent, il a été automatiquement changé en {new}.
+    ru: Ваш текущий коэффициент Imagine.py недоступен. Поэтому он был автоматически изменен на {new}.
+    pt: Sua proporção atual do Imagine.py não está disponível. Portanto, foi alterada automaticamente para {new}.
+    it: Il tuo rapporto attuale di Imagine.py non è disponibile. Pertanto, è stato cambiato automaticamente in {new}.
+    nl: Je huidige Imagine.py-verhouding is niet beschikbaar. Daarom is het automatisch gewijzigd naar {new}.
   genimagen_rejected:
     es: 🥲 Tu solicitud no cumple con las políticas de uso de OpenAI...
     ar: 🥲 طلبك لا يتوافق مع سياسات استخدام OpenAI ...
@@ -1021,18 +986,6 @@ errores:
     pt: Não foi possível extrair o texto da imagem... 😔
     it: Impossibile estrarre il testo dall'immagine... 😔
     nl: Het is niet gelukt om tekst uit de afbeelding te halen... 😔
-  apis_vivas_not_ready_yet:
-    es: APIs vivas no está listo aún...
-    ar: واجهات برمجة التطبيقات الحية غير جاهزة بعد...
-    en: Live APIs are not ready yet...
-    jp: ライブAPIはまだ準備ができていません...
-    zh: 实时API尚未准备好...
-    de: Live-APIs sind noch nicht verfügbar...
-    fr: Les APIs en direct ne sont pas encore prêtes...
-    ru: Живые API еще не готовы...
-    pt: As APIs ao vivo ainda não estão prontas...
-    it: Le API live non sono ancora disponibili...
-    nl: Live-API's zijn nog niet beschikbaar...
   menu_modes_not_ready_yet:
     es: Las opciones de los menús no están listas aún...
     ar: خيارات القوائم ليست جاهزة بعد...

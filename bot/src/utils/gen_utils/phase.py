@@ -76,11 +76,14 @@ class ChatGPT:
         r = await make_transcription.write(self, audio_file)
         return r
     
-    async def imagen(self, prompt):
-        image_urls = await make_image.gen(self, prompt)
-        return image_urls
+    async def imagen(self, prompt, current_api, style, ratio, seed=None):
+        try:
+            images, seed = await make_image.gen(self, prompt, current_api, style, ratio, seed)
+            return images, seed
+        except Exception as e:
+            raise RuntimeError(f"phase.imagen > {e}")
     
     async def busqueduck(self, prompt):
-        from .duckduckgo import search
+        from .extrapis.duckduckgo import search
         formatted_results_backend, formatted_results_string = await search(self, prompt)
         return formatted_results_backend, formatted_results_string

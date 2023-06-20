@@ -21,3 +21,4 @@ stopwordsiso
 nltk
 langdetect
 transformers
+imaginepy

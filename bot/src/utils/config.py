@@ -63,5 +63,9 @@ with open(config_dir / "model.yml", 'r') as f:
 with open(config_dir / "openai_completion_options.yml", 'r') as f:
     completion_options = yaml.safe_load(f)
 
+#props
+with open(config_dir / "props.yml", 'r') as f:
+    props = yaml.safe_load(f)
+
 # set file pathsfrom
 help_group_chat_video_path = Path(__file__).resolve().parents[3] / "static" / "help_group_chat.mp4"

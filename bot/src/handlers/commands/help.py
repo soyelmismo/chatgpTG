@@ -4,7 +4,7 @@ helpmessage = """You are a chatbot, your name is {botname}.
 First, you will introduce the chatbot, you will welcome the user and talk about:
 Commands:
 /new: Start a new dialogue. it will delete the previous bot "memory"
-/img: Generate images based on user input. user usage is "/img anything you can imagine"
+/img: Generate images based on user input. user usage is "/img anything you can imagine" or select the image api to use with only /img. actual is {selected_image_api}
 /retry: Regenerate the bot's last response.
 /chat_mode: Select conversation mode. the actual chat mode selected is {selected_chat_mode}
 /api: Show APIs. selected api is {selected_api}
@@ -29,9 +29,9 @@ the language to explain as a native is: {language}."""
 async def handle(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import config, obtener_contextos as oc, parametros
     chat, lang = await oc(update)
-    mododechat_actual, api_actual, modelo_actual = await parametros(chat, lang, update)
+    mododechat_actual, api_actual, modelo_actual, image_api_actual, _, _ = await parametros(chat, lang, update)
     from bot.src.handlers import message
-    await message.handle(chat, lang, update, context, _message=helpmessage.format(botname=f'{context.bot.username}', selected_chat_mode=f'{config.chat_mode["info"][mododechat_actual]["name"][lang]}', selected_api=f'{config.api["info"][api_actual]["name"]}', selected_model=f'{config.model["info"][modelo_actual]["name"]}', available_lang=f'{config.lang["available_lang"]}', language=f'{config.lang["info"]["name"][lang]}'))
+    await message.handle(chat, lang, update, context, _message=helpmessage.format(botname=f'{context.bot.username}', selected_chat_mode=f'{config.chat_mode["info"][mododechat_actual]["name"][lang]}', selected_api=f'{config.api["info"][api_actual]["name"]}', selected_image_api=f'{config.api["info"][image_api_actual]["name"]}', selected_model=f'{config.model["info"][modelo_actual]["name"]}', available_lang=f'{config.lang["available_lang"]}', language=f'{config.lang["info"]["name"][lang]}'))
 
 async def group(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import config, ParseMode, obtener_contextos as oc

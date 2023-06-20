@@ -1,40 +1,78 @@
 import secrets
-from bot.src.utils.constants import constant_db_model, constant_db_chat_mode, constant_db_api
+from bot.src.utils.constants import constant_db_model, constant_db_chat_mode, constant_db_api, constant_db_image_api, constant_db_imaginepy_ratios, constant_db_imaginepy_styles, imaginepy_ratios, imaginepy_styles
+
+async def check_attribute(chat, attribute, available, cache, db_attribute, lang, update, error_message):
+    from bot.src.utils.proxies import datetime, db, config
+    current = cache[chat.id][0] if chat.id in cache else await db.get_chat_attribute(chat, db_attribute)
+    if current not in available:
+        current = available[secrets.randbelow(len(available))]
+        cache[chat.id] = (current, datetime.now())
+        await db.set_chat_attribute(chat, db_attribute, current)
+        await update.effective_chat.send_message(error_message.format(new=current))
+    if cache.get(chat.id) is None or cache.get(chat.id)[0] != current: 
+        cache[chat.id] = (current, datetime.now())
+    return current
+
 async def check(chat, lang, update):
-    from bot.src.utils.proxies import chat_mode_cache, api_cache, model_cache, apis_vivas, datetime, db, config
-    # Verificar si hay valores inválidos en el usuario
-    #chatmode
-    mododechat_actual = (
-        chat_mode_cache[chat.id][0] if chat.id in chat_mode_cache else
-        await db.get_chat_attribute(chat, f'{constant_db_chat_mode}')
+    from bot.src.utils.proxies import chat_mode_cache, api_cache, model_cache, image_api_cache, config, imaginepy_ratios_cache, imaginepy_styles_cache
+    checked_chat_mode = await check_attribute(
+        chat, 
+        'chat_mode', 
+        config.chat_mode["available_chat_mode"], 
+        chat_mode_cache, 
+        constant_db_chat_mode, 
+        lang, 
+        update, 
+        config.lang["errores"]["reset_chat_mode"][lang]
     )
-    if mododechat_actual not in config.chat_mode["available_chat_mode"]:
-        mododechat_actual = config.chat_mode["available_chat_mode"][1]
-        chat_mode_cache[chat.id] = (mododechat_actual, datetime.now())
-        await db.set_chat_attribute(chat, f'{constant_db_chat_mode}', mododechat_actual)
-        await update.effective_chat.send_message(f'{config.lang["errores"]["reset_chat_mode"][lang].format(new=mododechat_actual)}')
-    if chat_mode_cache.get(chat.id) is None or chat_mode_cache.get(chat.id)[0] != mododechat_actual: chat_mode_cache[chat.id] = (mododechat_actual, datetime.now())
-    #api
-    api_actual = (
-        api_cache[chat.id][0] if chat.id in api_cache else
-        await db.get_chat_attribute(chat, f'{constant_db_api}')
+    checked_api = await check_attribute(
+        chat, 
+        'api', 
+        config.api["available_api"], 
+        api_cache, 
+        constant_db_api, 
+        lang, 
+        update, 
+        config.lang["errores"]["reset_api"][lang]
     )
-    if not apis_vivas: raise LookupError(config.lang["errores"]["apis_vivas_not_ready_yet"][config.pred_lang])
-    if api_actual not in apis_vivas:
-        api_actual = apis_vivas[secrets.randbelow(len(apis_vivas))]
-        api_cache[chat.id] = (api_actual, datetime.now())
-        await db.set_chat_attribute(chat, f'{constant_db_api}', api_actual)
-        await update.effective_chat.send_message(f'{config.lang["errores"]["reset_api"][lang].format(new=config.api["info"][api_actual]["name"])}')
-    if api_cache.get(chat.id) is None or api_cache.get(chat.id)[0] != api_actual: api_cache[chat.id] = (api_actual, datetime.now())
-    #model
-    modelo_actual = (
-        model_cache[chat.id][0] if chat.id in model_cache else
-        await db.get_chat_attribute(chat, f'{constant_db_model}')
+    checked_image_api = await check_attribute(
+        chat, 
+        'image_api', 
+        config.api["available_image_api"], 
+        image_api_cache, 
+        constant_db_image_api, 
+        lang, 
+        update, 
+        config.lang["errores"]["reset_api"][lang]
     )
-    modelos_disponibles=config.api["info"][api_actual]["available_model"]
-    if modelo_actual not in modelos_disponibles:
-        modelo_actual = modelos_disponibles[secrets.randbelow(len(modelos_disponibles))]
-        await db.set_chat_attribute(chat, f'{constant_db_model}', modelo_actual)
-        await update.effective_chat.send_message(f'{config.lang["errores"]["reset_model"][lang].format(api_actual_name=config.api["info"][api_actual]["name"], new_model_name=config.model["info"][modelo_actual]["name"])}')
-    if model_cache.get(chat.id) is None or model_cache.get(chat.id)[0] != modelo_actual: model_cache[chat.id] = (modelo_actual, datetime.now())
-    return mododechat_actual, api_actual, modelo_actual
+    checked_model = await check_attribute(
+        chat, 
+        'model', 
+        config.api["info"][checked_api]["available_model"], 
+        model_cache, 
+        constant_db_model, 
+        lang, 
+        update, 
+        config.lang["errores"]["reset_model"][lang]
+    )
+    checked_imaginepy_styles = await check_attribute(
+        chat, 
+        'imaginepy_styles', 
+        imaginepy_styles, 
+        imaginepy_styles_cache, 
+        constant_db_imaginepy_styles, 
+        lang, 
+        update, 
+        config.lang["errores"]["reset_imaginepy_styles"][lang]
+    )
+    checked_imaginepy_ratios = await check_attribute(
+        chat, 
+        'imaginepy_ratios', 
+        imaginepy_ratios, 
+        imaginepy_ratios_cache, 
+        constant_db_imaginepy_ratios, 
+        lang, 
+        update, 
+        config.lang["errores"]["reset_imaginepy_ratios"][lang]
+    )
+    return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios

@@ -1,5 +1,5 @@
 available_api: ["openai", "you", "chatbase", "g4f", "evagpt4", "churchless"]
-available_imagen: ["openai"]
+available_image_api: ["openai", "imaginepy"]
 available_transcript: ["openai"]
 # debes declarar los api en el apartado de acá arriba
 info:
@@ -111,6 +111,21 @@ info:
     url: https://free.churchless.tech/v1
     key: MyDiscord
     available_model: ["gpt-3.5-turbo"]
+  imaginepy:
+    name: Imagine.py
+    description:
+      es: Convierte palabras en arte con diferentes estilos y ajustes creativos en una biblioteca en constante crecimiento.
+      ar: حوّل الكلمات إلى فن مع أنماط وإعدادات إبداعية مختلفة في مكتبة متزايدة باستمرار.
+      en: Turn words into art with different styles and creative adjustments in a constantly growing library.
+      jp: 常に成長するライブラリで、さまざまなスタイルやクリエイティブな調整で単語をアートに変換します。
+      zh: 在不断增长的库中，使用不同的风格和创意调整将单词转化为艺术。
+      de: Verwandeln Sie Worte mit verschiedenen Stilen und kreativen Anpassungen in einer ständig wachsenden Bibliothek in Kunst.
+      fr: Transformez des mots en art avec différents styles et ajustements créatifs dans une bibliothèque en constante croissance.
+      ru: Превращайте слова в искусство с различными стилями и творческими настройками в постоянно растущей библиотеке.
+      pt: Transforme palavras em arte com diferentes estilos e ajustes criativos em uma biblioteca em constante crescimento.
+      it: Trasforma le parole in arte con diversi stili e regolazioni creative in una biblioteca in costante crescita.
+      nl: Verander woorden in kunst met verschillende stijlen en creatieve aanpassingen in een voortdurend groeiende bibliotheek.
+
   # otra_api:
   #   name: Otra
   #   description: Test.
@@ -119,5 +134,5 @@ info:
   #   available_model: ["gpt-3.5-turbo", "gpt-4", "text-davinci-003"]
 
   # "otra_api" debes añadirlo en available_api
-  #(y available_imagen si esa api soporta generación de imágenes)
+  #(available_image_api y available_transcript si esa api soporta generación de imágenes y transcripciones)
   # quedaría available_api: ["openai", "otra_api"]

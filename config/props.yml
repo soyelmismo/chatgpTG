@@ -1,0 +1,71 @@
+available_props: ["api", "model", "image_api", "chat_mode", "lang"]
+
+info:
+  api:
+    name:
+      es: APIs 🔌
+      ar: واجهات برمجة التطبيقات 🔌
+      en: APIs 🔌
+      jp: API 🔌
+      zh: API 🔌
+      de: APIs 🔌
+      fr: APIs 🔌
+      ru: API 🔌
+      pt: APIs 🔌
+      it: API 🔌
+      nl: API's 🔌
+  model:
+    name:
+      es: Modelos 🧠
+      ar: نماذج 🧠
+      en: Models 🧠
+      jp: モデル 🧠
+      zh: 模型 🧠
+      de: Modelle 🧠
+      fr: Modèles 🧠
+      ru: Модели 🧠
+      pt: Modelos 🧠
+      it: Modelli 🧠
+      nl: Modellen 🧠
+  image_api:
+    name:
+      es: Imágenes 🖼️
+      ar: صور 🖼️
+      en: Images 🖼️
+      jp: 画像 🖼️
+      zh: 图片 🖼️
+      de: Bilder 🖼️
+      fr: Images 🖼️
+      ru: Изображения 🖼️
+      pt: Imagens 🖼️
+      it: Immagini 🖼️
+      nl: Afbeeldingen 🖼️
+  chat_mode:
+    name:
+      es: Modos de chat 💬
+      ar: أوضاع الدردشة 💬
+      en: Chat modes 💬
+      jp: チャットモード 💬
+      zh: 聊天模式 💬
+      de: Chat-Modi 💬
+      fr: Modes de chat 💬
+      ru: Режимы чата 💬
+      pt: Modos de chat 💬
+      it: Modalità di chat 💬
+      nl: Chatmodi 💬
+  lang:
+    name:
+      es: Idiomas 🇪🇸
+      ar: اللغات 🇦🇪
+      en: Languages 🇬🇧
+      jp: 言語 🇯🇵
+      zh: 语言 🇨🇳
+      de: Sprachen 🇩🇪
+      fr: Langues 🇫🇷
+      ru: Языки 🇷🇺
+      pt: Idiomas 🇵🇹
+      it: Lingue 🇮🇹
+      nl: Talen 🇳🇱
+
+imaginepy:
+  available_options: ["imaginepy_styles", "imaginepy_ratios"]

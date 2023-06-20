@@ -2,6 +2,7 @@ from bot.src.utils import config
 from bot.src.utils.constants import continue_key
 
 def get_resources_texts(dialog_messages, key):
+    texts = []
     for dialog_message in dialog_messages:
         if len(dialog_message.get(key, "")) >= 5:
             texts = dialog_message.get(key, "").strip()
