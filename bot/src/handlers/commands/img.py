@@ -18,7 +18,7 @@ async def remove_document_group(message_id, borrar=None, update=None, lang=None)
         if lang:
             await update.effective_chat.send_message(text=f'{config.lang["mensajes"]["fotos_borradas_listo"][lang]}', reply_to_message_id=message_id)
 
-async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype=None, caption=""):
+async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype=None, caption=None):
     try:
         await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
         document_groups[f'{mensaje_group_id}'] = document_group
