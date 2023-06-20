@@ -11,7 +11,9 @@ from telegram.ext import (
     filters
 )
 from .handlers import message, voice, ocr_image, document, timeout, error
-from .handlers.commands import start, help, retry, new, cancel, chat_mode, model, api, img, lang, status, reset, search, props, istyle, iratio
+from .handlers.commands import (
+start, help, retry, new, cancel, chat_mode, model,
+api, img, lang, status, reset, search, props, istyle, iratio)
 from .handlers.callbacks import imagine
 from .tasks import cache
 from .utils import config
@@ -28,6 +30,7 @@ async def post_init(application: Application):
     if config.switch_search == "True":
         commandos.insert(1, ("/search", "🔎"))
     await application.bot.set_my_commands(commandos)
+    print("-----BOT INICIADO-----")
 
 def build_application():
     return (

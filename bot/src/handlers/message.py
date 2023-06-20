@@ -1,6 +1,6 @@
 import string
 import nltk
-nltk.download('names')
+nltk.download('names', quiet=True)
 import secrets
 from bot.src.start import Update, CallbackContext
 from bot.src.utils.gen_utils.phase import ChatGPT

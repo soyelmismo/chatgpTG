@@ -3,8 +3,8 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from bot.src.utils.proxies import logger
-nltk.download('stopwords')
-nltk.download('punkt')
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
 
 languages_map={"ar": "arabic","bg": "bulgarian","ca": "catalan","cz": "czech","da": "danish","nl": "dutch","en": "english","fi": "finnish","fr": "french","de": "german","hi": "hindi","hu": "hungarian","id": "indonesian","it": "italian","nb": "norwegian","pl": "polish","pt": "portuguese","ro": "romanian","ru": "russian","sk": "slovak","es": "spanish","sv": "swedish","tr": "turkish","uk": "ukrainian","vi": "vietnamese"}
 
