@@ -9,7 +9,7 @@ async def handle(update: Update, context: CallbackContext):
     if len(dialog_messages) == 0:
         await tasks.releasemaphore(chat=chat)
         text = config.lang["mensajes"]["no_retry_mensaje"][lang]
-        await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id)
+        await update.effective_chat.send_message(text)
         return
     last_dialog_message = dialog_messages.pop()
     await db.set_dialog_messages(chat, dialog_messages, dialog_id=None)  # last message was removed from the context

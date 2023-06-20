@@ -22,6 +22,8 @@ async def handle(update: Update, context: CallbackContext) -> None:
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             e = 'QueryTimeout'
+        if "Replied message not found" in str(e):
+            e = 'No message to reply'
     except Exception as e:
         # Handle errors that may occur during error handling
         e = f'{config.lang["errores"]["handler_error_handler"][config.pred_lang]}: {e}'

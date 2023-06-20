@@ -27,7 +27,8 @@ async def _make_api_call(self, **kwargs):
             if isinstance(e, asyncio.TimeoutError): None
             if attempt < config.max_retries: await asyncio.sleep(1.75)
             else: # Si hemos alcanzado el máximo número de reintentos, lanzamos la excepción
-                yield "error", f'{config.lang["errores"]["reintentos_alcanzados"][self.lang].format(reintentos=config.max_retries)}'
+                e = f'{config.lang["errores"]["reintentos_alcanzados"][self.lang].format(reintentos=config.max_retries)} {e}'
+                yield "error", f'{e}'
                 raise ConnectionError(f"_make_api_call. {e}")
 
 async def _openai(self, **kwargs):

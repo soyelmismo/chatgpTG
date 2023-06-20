@@ -50,18 +50,14 @@ class ChatGPT:
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
             self.answer = await self._postprocess_answer()
-        except Exception as e:
-            e = f'_prepare_request: {e}'
-            raise BufferError(e)
+        except Exception as e: raise BufferError(f'_prepare_request: {e}')
 
     async def _handle_invalid_request_error(self, error, dialog_messages):
         try:
             if len(dialog_messages) == 0:
                 raise IndexError(f'{proxies.config.lang["errores"]["utils_dialog_messages_0"][self.lang]} [{self.api}]: {error}') from error
             dialog_messages = dialog_messages[1:]
-        except Exception as e:
-            e = f'_handle_invalid_request_error: {e}'
-            raise ValueError(e)
+        except Exception as e: raise ValueError(f'_handle_invalid_request_error: {e}')
 
     def _handle_exception(self, error):
         raise ValueError(f'{self.api}: {error}')
@@ -69,12 +65,12 @@ class ChatGPT:
     async def _postprocess_answer(self):
         try:
             return "" if self.answer == None else self.answer.strip()
-        except Exception as e:
-            raise ValueError(f'_postprocess_answer: {e}')
+        except Exception as e: raise ValueError(f'_postprocess_answer: {e}')
 
     async def transcribe(self, audio_file):
-        r = await make_transcription.write(self, audio_file)
-        return r
+        try:
+            return await make_transcription.write(self, audio_file)
+        except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
     async def imagen(self, prompt, current_api, style, ratio, seed=None):
         try:
@@ -84,6 +80,8 @@ class ChatGPT:
             raise RuntimeError(f"phase.imagen > {e}")
 
     async def busqueduck(self, prompt):
-        from .extrapis.duckduckgo import search
-        formatted_results_backend, formatted_results_string = await search(self, prompt)
-        return formatted_results_backend, formatted_results_string
+        try:
+            from .extrapis.duckduckgo import search
+            formatted_results_backend, formatted_results_string = await search(self, prompt)
+            return formatted_results_backend, formatted_results_string
+        except Exception as e: raise RuntimeError(f"phase.busqueduck > {e}")
