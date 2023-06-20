@@ -18,6 +18,7 @@ async def handle(update: Update, context: CallbackContext) -> None:
 
         # Send error message
         await update.effective_chat.send_message(message, parse_mode='HTML')
+    except telegram.error.TimedOut: None
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             e = 'QueryTimeout'
