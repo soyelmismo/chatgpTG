@@ -81,7 +81,6 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
             await chattype.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
             return None
 
-        print("prompt", prompt, "seed", seed)
         return prompt, seed
     except Exception as e:
         await handle_errors(f'get_prompt > {e}', chattype, lang, chat)
