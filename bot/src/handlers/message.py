@@ -137,12 +137,11 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 else: await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
-        # Actualizar mensaje de chat con la respuesta generada
-        _message, answer = await check_empty_messages(_message, answer)
-
-        return placeholder_message, _message, answer, keyboard
     except Exception as e:
         raise RuntimeError(f'stream_message > {e}')
+    finally:
+        _message, answer = await check_empty_messages(_message, answer)
+        return placeholder_message, _message, answer, keyboard
 
 async def actions(update, context):
     from bot.src.utils.proxies import (obtener_contextos as oc, debe_continuar)
