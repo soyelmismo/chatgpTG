@@ -75,7 +75,7 @@ def get_token():
     env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
     
     try:
-        return env['GPT4FREE_BING_U_COOKIE'][0]
+        return env.get('GPT4FREE_BING_U_COOKIE', [""])[0]
     except:
         print('Error: could not find bing _U cookie.')
         exit(1)

@@ -30,8 +30,8 @@ def session_auth(cookies):
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
 try:
     cookies = {
-        '__Secure-next-auth.session-token': env['GPT4FREE_CHATGPT_SESSION_TOKEN'][0]
-    }
+        '__Secure-next-auth.session-token': env.get('GPT4FREE_CHATGPT_SESSION_TOKEN', [""])[0]
+    }                                       
 except Exception:
     print('Failed to get "__Secure-next-auth.session-token" in chrome, please make sure you are authenticated on openai.com')
     exit(0)

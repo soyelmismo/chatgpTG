@@ -6,38 +6,38 @@ load_dotenv()
 
 # parse environment variables
 env = {key: value.split(',') if value else [] for key, value in os.environ.items()}
-telegram_token = env['TELEGRAM_TOKEN'][0]
-itemspage = int(env['MAX_ITEMS_PER_PAGE'][0])
-columnpage = int(env['MAX_COLUMNS_PER_PAGE'][0])
+telegram_token = env.get('TELEGRAM_TOKEN', [])[0]
+itemspage = int(env.get('MAX_ITEMS_PER_PAGE', [10])[0])
+columnpage = int(env.get('MAX_COLUMNS_PER_PAGE', [2])[0])
 
 user_whitelist = env.get('USER_WHITELIST', [])
 chat_whitelist = env.get('CHAT_WHITELIST', [])
-dialog_timeout = int(env['DIALOG_TIMEOUT'][0])
-n_images = int(env['OUTPUT_IMAGES'][0])
 
-mongus = env["MONGODB_HOST"][0]
+dialog_timeout = int(env.get('DIALOG_TIMEOUT', [7200])[0])
+n_images = int(env.get('OUTPUT_IMAGES', [4])[0])
+
+mongus = env.get("MONGODB_HOST", ['mongo'])[0]
 if "mongodb.net" in mongus:
     MONGODB_PROTO = "mongodb+srv"
 else:
     MONGODB_PROTO = "mongodb"
 
-mongodb_uri = f"{MONGODB_PROTO}://{env['MONGODB_USERNAME'][0]}:{env['MONGODB_PASSWORD'][0]}@{mongus}/?retryWrites=true&w=majority"
-timeout_ask = env['TIMEOUT_ASK'][0]
-apichecker = False
-switch_voice = env['FEATURE_TRANSCRIPTION'][0]
-switch_ocr = env['FEATURE_IMAGE_READ'][0]
-switch_docs = env['FEATURE_DOCUMENT_READ'][0]
-switch_imgs = env['FEATURE_IMAGE_GENERATION'][0]
-switch_search = env['FEATURE_BROWSING'][0]
-switch_urls = env['FEATURE_URL_READ'][0]
-audio_max_size = int(env['AUDIO_MAX_MB'][0])
-generatedimagexpiration = int(env['GENERATED_IMAGE_EXPIRATION_MINUTES'][0])
-file_max_size = int(env['DOC_MAX_MB'][0])
-url_max_size = int(env['URL_MAX_MB'][0])
-max_retries = int(env['REQUEST_MAX_RETRIES'][0])
-request_timeout = int(env['REQUEST_TIMEOUT'][0])
-pdf_page_lim = int(env['PDF_PAGE_LIMIT'][0])
-pred_lang = str(env['AUTO_LANG'][0])
+mongodb_uri = f"{MONGODB_PROTO}://{env.get('MONGODB_USERNAME', ['root'])[0]}:{env.get('MONGODB_PASSWORD', ['MMWjHEHT8zd3FMR5KPd7eu6MKV2ndpUd'])[0]}@{mongus}/?retryWrites=true&w=majority"
+timeout_ask = bool(env.get('TIMEOUT_ASK', [True])[0])
+switch_voice = bool(env.get('FEATURE_TRANSCRIPTION', [True])[0])
+switch_ocr = bool(env.get('FEATURE_IMAGE_READ', [True])[0])
+switch_docs = bool(env.get('FEATURE_DOCUMENT_READ', [True])[0])
+switch_imgs = bool(env.get('FEATURE_IMAGE_GENERATION', [True])[0])
+switch_search = bool(env.get('FEATURE_BROWSING', [True])[0])
+switch_urls = bool(env.get('FEATURE_URL_READ', [True])[0])
+audio_max_size = int(env.get('AUDIO_MAX_MB', [20])[0])
+generatedimagexpiration = int(env.get('GENERATED_IMAGE_EXPIRATION_MINUTES', ['5'])[0])
+file_max_size = int(env.get('DOC_MAX_MB', [10])[0])
+url_max_size = int(env.get('URL_MAX_MB', [5])[0])
+max_retries = int(env.get('REQUEST_MAX_RETRIES', [3])[0])
+request_timeout = int(env.get('REQUEST_TIMEOUT', [10])[0])
+pdf_page_lim = int(env.get('PDF_PAGE_LIMIT', [25])[0])
+pred_lang = str(env.get('AUTO_LANG', ['en'])[0])
 
 # set config paths
 config_dir = Path(__file__).resolve().parents[3] / "config"
