@@ -2,6 +2,7 @@ from typing import Optional, Any
 import uuid
 from . import config
 from datetime import datetime
+import pymongo
 import motor.motor_asyncio
 from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
                         constant_db_lang, constant_db_tokens, constant_db_image_api,
@@ -37,7 +38,10 @@ class Database:
             f'{constant_db_imaginepy_ratios}': imaginepy_ratios[0],
         }
         if not await self.chat_exists(chat):
-            await self.chats.insert_one(chat_dict)
+            try:
+                await self.chats.insert_one(chat_dict)
+            except pymongo.errors.DuplicateKeyError as e:
+                raise KeyError(f"Duplicate key error: {e}")
 
     async def new_dialog(self, chat):
         await self.chat_exists(chat, raise_exception=True)
