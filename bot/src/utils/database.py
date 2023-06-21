@@ -40,8 +40,7 @@ class Database:
         if not await self.chat_exists(chat):
             try:
                 await self.chats.insert_one(chat_dict)
-            except pymongo.errors.DuplicateKeyError as e:
-                raise KeyError(f"Duplicate key error: {e}")
+            except pymongo.errors.DuplicateKeyError: None
 
     async def new_dialog(self, chat):
         await self.chat_exists(chat, raise_exception=True)
