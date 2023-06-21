@@ -58,7 +58,7 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
         if not context.args:
             await tasks.releasemaphore(chat=chat)
             await options_handle(update, context)
-            return
+            return None, None
 
         first_arg = context.args[0]
         seed = None
@@ -78,7 +78,7 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
 
         if not prompt:
             await chattype.reply_text(f'{config.lang["mensajes"]["genimagen_notext"][lang]}', parse_mode=ParseMode.HTML)
-            return None
+            return None, None
 
         return str(prompt), seed
     except Exception as e:
@@ -144,9 +144,10 @@ async def handle(chat, lang, update, context, _message=None):
         from bot.src.handlers import semaphore as tasks
         chattype = update.callback_query.message if update.callback_query else update.message
         prompt, seed = await get_prompt(update, context, chattype, _message, chat, lang)
-        image_urls, current_api, seed = await get_image_urls(chattype, chat, lang, update, prompt, seed)
-        if image_urls is None: raise FileNotFoundError("No se obtuvieron imagenes.")
-        await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt, seed)
+        if prompt != None:
+            image_urls, current_api, seed = await get_image_urls(chattype, chat, lang, update, prompt, seed)
+            if image_urls is None: raise FileNotFoundError("No se obtuvieron imagenes.")
+            await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt, seed)
     except Exception as e:
         await handle_errors(f'image_handle > {e}', update, lang, chat)
     finally:

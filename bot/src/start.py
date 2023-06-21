@@ -121,4 +121,8 @@ def run_bot() -> None:
         add_handlers(application, user_filter, chat_filter)
         application.add_error_handler(error)
         application.run_polling()
+    except telegram.error.TimedOut: logger.error('Timed out')
+    except telegram.error.BadRequest as e:
+        if "Query is too old" in str(e): logger.error('QueryTimeout')
+        if "Replied message not found" in str(e): logger.error('No message to reply')
     except Exception as e: logger.error(f'{__name__}: <run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')
