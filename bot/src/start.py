@@ -30,7 +30,7 @@ async def post_init(application: Application):
     if config.switch_search == True:
         commandos.insert(1, ("/search", "🔎"))
     await application.bot.set_my_commands(commandos)
-    print("-----BOT INICIADO-----")
+    print(f'-----{config.lang["mensajes"]["bot_iniciado"][config.pred_lang]}-----')
 
 def build_application():
     return (
@@ -119,4 +119,4 @@ def run_bot() -> None:
         add_handlers(application, user_filter, chat_filter)
         application.add_error_handler(error)
         application.run_polling()
-    except Exception as e: logger.error(f'<run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')
+    except Exception as e: logger.error(f'{__name__}: <run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')

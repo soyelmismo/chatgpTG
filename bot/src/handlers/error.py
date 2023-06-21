@@ -4,7 +4,7 @@ from bot.src.utils.proxies import logger, config, ParseMode
 async def handle(update: Update, context: CallbackContext) -> None:
     try:
         # Log the error with traceback
-        logger.error(f'{config.lang["errores"]["handler_excepcion"][config.pred_lang]}:', exc_info=context.error)
+        logger.error(f'{__name__}: {config.lang["errores"]["handler_excepcion"][config.pred_lang]}:', exc_info=context.error)
 
         # Collect error message and traceback
         tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
@@ -43,4 +43,4 @@ async def mini_handle(e, update, lang, chat):
     await send_error_msg(e)
     
 async def send_error_msg(e):
-    logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: {e}')
+    logger.error(f'{__name__}: {config.lang["errores"]["error"][config.pred_lang]}: {e}')

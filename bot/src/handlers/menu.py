@@ -17,7 +17,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
-    except Exception as e: logger.error(f'{config.lang["errores"]["error"][config.pred_lang]}: <get_menu> {e}')
+    except Exception as e: logger.error(f'{__name__}: {config.lang["errores"]["error"][config.pred_lang]}: <get_menu> {e}')
 
 async def get_menu_type_dict(menu_type):
     if menu_type == "image_api":

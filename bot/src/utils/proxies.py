@@ -8,7 +8,7 @@ from telegram.constants import ParseMode, ChatAction
 import re
 from datetime import datetime
 db = database.Database()
-logger = logging.getLogger(__name__)
+logger = logging
 bb = asyncio.create_task
 bcs = asyncio.ensure_future
 loop = asyncio.get_event_loop()

@@ -16,7 +16,5 @@ async def handle(update: Update, context: CallbackContext, msgid=None):
         await update.effective_chat.send_message(f"{config.chat_mode['info'][mododechat_actual]['welcome_message'][lang]}", parse_mode=ParseMode.HTML) if not msgid else None
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
-    except Exception as e:
-        logger.error(f'<new_dialog_handle> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
-    finally:
-        await tasks.releasemaphore(chat=chat)
+    except Exception as e: logger.error(f'{__name__}: <new_dialog_handle> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
+    finally: await tasks.releasemaphore(chat=chat)

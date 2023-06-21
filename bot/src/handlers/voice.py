@@ -42,7 +42,7 @@ async def handle(chat, lang, update, context):
             interaction_cache[chat.id] = ("visto", datetime.now())
             await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         except Exception as e:
-            logger.error(f'<transcribe_message_handle> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
+            logger.error(f'{__name__}: <transcribe_message_handle> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
             await tasks.releasemaphore(chat=chat)
             return
     else:

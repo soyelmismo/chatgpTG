@@ -1,5 +1,8 @@
 FROM bitnami/minideb:latest
 
+#por alguna razon si se elimina esta variable, no se imprimen algunos mensajes de error o informacion relevante...
+ENV PYTHONUNBUFFERED=1
+
 RUN apt-get update
 
 #all in a shot

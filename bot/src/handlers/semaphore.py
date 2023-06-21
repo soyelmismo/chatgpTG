@@ -10,7 +10,7 @@ async def handle(chat, lang, task, update):
             task.cancel()
             await update.effective_chat.send_message(f'{config.lang["mensajes"]["cancelado"][lang]}', parse_mode=ParseMode.HTML)
         except RuntimeError as e:
-            if 'Event loop is closed' in str(e): logger.error("Error: el bucle de eventos ya finalizó")
+            if 'Event loop is closed' in str(e): logger.error(f"{__name__}: Error: el bucle de eventos ya finalizó")
         finally:
             await releasemaphore(chat)
             if chat.id in chat_tasks: del chat_tasks[chat.id]

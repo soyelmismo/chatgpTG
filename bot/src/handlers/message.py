@@ -24,8 +24,7 @@ async def wrapper(update: Update, context: CallbackContext):
         if not await debe_continuar(chat, lang, update, context): return
         task = bb(handle(chat, lang, update, context))
         await tasks.handle(chat, lang, task, update)
-    except Exception as e:
-        logger.error(f'<message_handle_wrapper> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
+    except Exception as e: logger.error(f'{__name__}: <message_handle_wrapper> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
 
 
 async def get_random_name():

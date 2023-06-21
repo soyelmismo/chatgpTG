@@ -7,8 +7,7 @@ async def handle(update: Update, context: CallbackContext):
         chat, _ = await oc(update)
         text, reply_markup = await menu.get(menu_type="lang", update=update, context=context, chat=chat, page_index=0)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except Exception as e:
-        logger.error(f'<lang_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]} {e}')
+    except Exception as e: logger.error(f'{__name__}: <lang_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]} {e}')
 async def callback(update: Update, context: CallbackContext):
     query, _, _, page_index, _ = await menu.handle(update)
     await menu.refresh(query, update, context, page_index, menu_type="lang")

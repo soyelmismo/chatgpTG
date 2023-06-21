@@ -15,7 +15,7 @@ async def deteccion(texto):
             texto, _ = await procesar_texto_normal(texto)
             return texto
     except Exception as e:
-        logger.error("Detección no detectó instancia, detectó", {e})
+        logger.error(f"{__name__}: Detección no detectó instancia, detectó {e}")
 
 async def procesar_lista_multilingue(lista):
     resultados = []
@@ -49,7 +49,7 @@ async def procesar_texto_normal(texto, idioma=None, lock=None):
         if lock: return "".join(textofiltrr)
         else: return "".join(textofiltrr), idioma
     else:
-        logger.error("No se detectó ningún idioma en el texto.")
+        logger.error(f"{__name__}: No se detectó ningún idioma en el texto.")
 
 
 cached_stopwords = {}

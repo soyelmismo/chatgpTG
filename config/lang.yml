@@ -194,6 +194,30 @@ metagen:
     pt: Configurações atuais
     it: Impostazioni correnti
     nl: Huidige instellingen
+  api:
+    es: API de chat
+    ar: واجهة برمجة تطبيقات الدردشة
+    en: Chat API
+    jp: チャットAPI
+    zh: 聊天API
+    de: Chat-API
+    fr: API de chat
+    ru: Чат API
+    pt: API de bate-papo
+    it: API di chat
+    nl: Chat-API
+  image_api:
+    es: API de imágenes
+    ar: واجهة برمجة تطبيقات الصور
+    en: Image API
+    jp: 画像API
+    zh: 图片API
+    de: Bild-API
+    fr: API d'images
+    ru: API изображений
+    pt: API de imagens
+    it: API delle immagini
+    nl: Afbeelding API
   modelo:
     es: Modelo
     ar: النموذج
@@ -291,6 +315,18 @@ metagen:
     pt: Razão
     it: Rapporto
     nl: Verhouding
+  imaginepy_actual_style:
+    es: Estilo actual de Imagine.py
+    ar: النمط الحالي لـ Imagine.py
+    en: Current style of Imagine.py
+    jp: Imagine.pyの現在のスタイル
+    zh: Imagine.py的当前样式
+    de: Aktueller Stil von Imagine.py
+    fr: Style actuel d'Imagine.py
+    ru: Текущий стиль Imagine.py
+    pt: Estilo atual do Imagine.py
+    it: Stile attuale di Imagine.py
+    nl: Huidige stijl van Imagine.py
 apicheck:
   inicio:
     es: Se ejecutó chequeo de APIs
@@ -393,6 +429,18 @@ commands:
 
 
 mensajes:
+  bot_iniciado:
+    es: BOT INICIADO
+    ar: بدء تشغيل الروبوت
+    en: BOT STARTED
+    jp: ボットが開始されました
+    zh: 机器人已启动
+    de: BOT GESTARTET
+    fr: BOT DÉMARRÉ
+    ru: БОТ ЗАПУЩЕН
+    pt: BOT INICIADO
+    it: BOT AVVIATO
+    nl: BOT GESTART
   preguntar_descargar_fotos:
     es: ¿Quieres descargar las fotos en su máxima calidad? Expirarán en {expirationtime} minutos!
     ar: هل تريد تنزيل الصور بأقصى جودة؟ ستنتهي صلاحيتها خلال {expirationtime} دقائق!

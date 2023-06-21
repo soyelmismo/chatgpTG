@@ -8,7 +8,7 @@ async def handle(update: Update, context: CallbackContext):
         chat, _ = await oc(update)
         text, reply_markup = await menu.get(menu_type="imaginepy", update=update, context=context,chat=chat, page_index=0)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except TypeError: logger.error(f'<imaginepy_options_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+    except TypeError: logger.error(f'{__name__}: <imaginepy_options_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
 async def callback(update: Update, context: CallbackContext):
     query, _, _, page_index, _ = await menu.handle(update)
     await menu.refresh(query, update, context, page_index, menu_type="imaginepy")
