@@ -1,14 +1,5 @@
 FROM bitnami/minideb:latest
 
-ENV PYTHONFAULTHANDLER=1 \
-    PYTHONPATH=/bot:/config:/static \
-    PYTHONUNBUFFERED=1 \
-    PYTHONHASHSEED=random \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100
-
 RUN apt-get update
 
 #all in a shot
