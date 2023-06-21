@@ -13,7 +13,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
         option_name = await get_option_name(menu_type, menu_type_dict, lang, current_key)
         text = await get_text(update, context, chat, lang, menu_type, menu_type_dict, option_name, current_key)
         item_keys = await get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update)
-        item_keys.remove("imagen") if config.switch_imgs != "True" and "imagen" in item_keys else None
+        item_keys.remove("imagen") if config.switch_imgs != True and "imagen" in item_keys else None
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup

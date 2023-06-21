@@ -27,7 +27,7 @@ async def post_init(application: Application):
         ("/retry", "🔄"),
         ("/help", "ℹ️")
     ]
-    if config.switch_search == "True":
+    if config.switch_search == True:
         commandos.insert(1, ("/search", "🔎"))
     await application.bot.set_my_commands(commandos)
     print("-----BOT INICIADO-----")
@@ -63,12 +63,12 @@ def get_chat_filter():
 
 def add_handlers(application, user_filter, chat_filter):
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & (user_filter | chat_filter), message.wrapper))
-    if config.switch_voice == "True":
+    if config.switch_voice == True:
         application.add_handler(MessageHandler(filters.AUDIO & (user_filter | chat_filter), voice.wrapper))
         application.add_handler(MessageHandler(filters.VOICE & (user_filter | chat_filter), voice.wrapper))
-    if config.switch_ocr == "True":
+    if config.switch_ocr == True:
         application.add_handler(MessageHandler(filters.PHOTO & (user_filter | chat_filter), ocr_image.wrapper))
-    if config.switch_docs == "True":
+    if config.switch_docs == True:
         docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc") | filters.Document.FileExtension("json"))
         application.add_handler(MessageHandler(docfilter & (user_filter | chat_filter), document.wrapper))
         application.add_handler(MessageHandler(filters.Document.Category('text/') & (user_filter | chat_filter), document.wrapper))
@@ -86,12 +86,12 @@ def add_handlers(application, user_filter, chat_filter):
     application.add_handler(CommandHandler("api", api.handle, filters=(user_filter | chat_filter)))
     application.add_handler(CommandHandler("props", props.handle, filters=(user_filter | chat_filter)))
 
-    if config.switch_imgs == "True":
+    if config.switch_imgs == True:
         application.add_handler(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))
         application.add_handler(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
         application.add_handler(CommandHandler("istyle", istyle.imagine, filters=(user_filter | chat_filter)))
         application.add_handler(CommandHandler("iratio", iratio.imagine, filters=(user_filter | chat_filter)))
-    if config.switch_search == "True":
+    if config.switch_search == True:
         application.add_handler(CommandHandler("search", search.wrapper, filters=(user_filter | chat_filter)))
     application.add_handler(CommandHandler("lang", lang.handle, filters=(user_filter | chat_filter)))
     application.add_handler(CallbackQueryHandler(lang.set, pattern="^set_lang"))
