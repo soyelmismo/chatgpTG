@@ -27,8 +27,10 @@ async def post_init(application: Application):
         ("/retry", "🔄"),
         ("/help", "ℹ️")
     ]
+    if config.switch_imgs == True:
+        commandos.insert(1, ("/img", "🎨"))
     if config.switch_search == True:
-        commandos.insert(1, ("/search", "🔎"))
+        commandos.insert(2, ("/search", "🔎"))
     await application.bot.set_my_commands(commandos)
     print(f'-----{config.lang["mensajes"]["bot_iniciado"][config.pred_lang]}-----')
 

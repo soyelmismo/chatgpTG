@@ -12,7 +12,10 @@ async def main(prompt, style, ratio, seed=None):
             prompt = prompt,
             style = Style.__members__[style],
             ratio = Ratio.__members__[ratio],
+            high_res_results = 1,
             seed =  seed,
+            priority = 1,
+            cfg = 15.9,
             steps = 300
         )
         img_data = await imagine.upscale(image=img_data)
