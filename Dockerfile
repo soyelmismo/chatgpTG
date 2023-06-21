@@ -46,6 +46,7 @@ COPY config/api.example.yml config/api.yml
 COPY config/chat_mode.example.yml config/chat_mode.yml
 COPY config/model.example.yml config/model.yml
 COPY config/lang.yml config/lang.yml
+COPY config/props.yml config/props.yml
 COPY config/openai_completion_options.example.yml config/openai_completion_options.yml
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
