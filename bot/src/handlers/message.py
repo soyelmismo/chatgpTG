@@ -131,17 +131,17 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
             answer = gen_answer[:4096]  # telegram message limit
             if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
             try:
-                await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             except telegram.error.BadRequest as e:
                 if str(e).startswith(msg_no_mod): continue
-                else: await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
     except Exception as e:
         raise RuntimeError(f'stream_message > {e}')
     finally:
         _message, answer = await check_empty_messages(_message, answer)
-        return placeholder_message, _message, answer, keyboard
+    return placeholder_message, _message, answer, keyboard
 
 async def actions(update, context):
     from bot.src.utils.proxies import (obtener_contextos as oc, debe_continuar)
