@@ -122,9 +122,11 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             await img.wrapper(update, context, _message=answer)
     # Manejar excepciones
     except Exception as e:
-        logger.error(f'<message_handle_fn> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
-        await mensaje_error_reintento(context, lang, placeholder_message, answer=None)
+        await mensaje_error_reintento(context, lang, placeholder_message, answer)
+        raise BufferError(f'<message_handle_fn> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
     finally:
+        if not answer:
+            answer = ""
         # Actualizar caché de interacciones y historial de diálogos del chat
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
@@ -167,8 +169,6 @@ async def process_urls(raw_msg, chat, lang, update):
 # Funciones auxiliares
 
 async def mensaje_error_reintento(context, lang, placeholder_message, answer=None):
-    if not answer:
-        answer = ""
     keyboard = []
     keyboard.append([])
     keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
