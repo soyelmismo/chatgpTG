@@ -86,13 +86,15 @@ class Database:
         await self.set_chat_attribute(chat, f'{constant_db_image_api}', initial_image)
         await self.set_chat_attribute(chat, f'{constant_db_imaginepy_styles}', initial_imaginepy_style)
         await self.set_chat_attribute(chat, f'{constant_db_imaginepy_ratios}', initial_imaginepy_ratio)
+        # Actualizar los valores en las caches
         from .proxies import chat_mode_cache, model_cache, api_cache, image_api_cache, imaginepy_styles_cache, imaginepy_ratios_cache
-        chat_mode_cache[chat.id] = (initial_chat_mode, datetime.now())
-        model_cache[chat.id] = (initial_model, datetime.now())
-        api_cache[chat.id] = (initial_api, datetime.now())
-        image_api_cache[chat.id] = (initial_image, datetime.now())
-        imaginepy_styles_cache[chat.id] = (initial_imaginepy_style, datetime.now())
-        imaginepy_ratios_cache[chat.id] = (initial_imaginepy_ratio, datetime.now())
+        now = datetime.now()
+        chat_mode_cache[chat.id] = (initial_chat_mode, now)
+        model_cache[chat.id] = (initial_model, now)
+        api_cache[chat.id] = (initial_api, now)
+        image_api_cache[chat.id] = (initial_image, now)
+        imaginepy_styles_cache[chat.id] = (initial_imaginepy_style, now)
+        imaginepy_ratios_cache[chat.id] = (initial_imaginepy_ratio, now)
 
     async def set_chat_attribute(self, chat, key: str, value: Any):
         await self.chat_exists(chat, raise_exception=True)

@@ -43,29 +43,24 @@ def build_application():
         .post_init(post_init)
         .build()
     )
-
 def get_user_filter():
-    if config.user_whitelist:
-        usernames = []
-        user_ids = []
-        for user in config.user_whitelist:
-            user = user.strip()
-            if user.isnumeric(): user_ids.append(int(user))
-            else: usernames.append(user)
-        return filters.User(username=usernames) | filters.User(user_id=user_ids)
-    else:
-        return filters.ALL
-
+    usernames = []
+    user_ids = []
+    for user in config.user_whitelist:
+        user = user.strip()
+        if user.isnumeric():
+            user_ids.append(int(user))
+        else:
+            usernames.append(user)
+    return filters.User(username=usernames) | filters.User(user_id=user_ids) if config.user_whitelist else filters.ALL
 def get_chat_filter():
-    if config.chat_whitelist:
-        chat_ids = []
-        for chat in config.chat_whitelist:
-            chat = chat.strip()
-            if chat[0] == "-" and chat[1:].isnumeric(): chat_ids.append(int(chat))
-        return filters.Chat(chat_id=chat_ids)
-    else: 
-        return filters.ALL
-    
+    chat_ids = []
+    for chat in config.chat_whitelist:
+        chat = chat.strip()
+        if chat[0] == "-" and chat[1:].isnumeric():
+            chat_ids.append(int(chat))
+    return filters.Chat(chat_id=chat_ids) if config.chat_whitelist else filters.ALL
+
 def add_handlers(application, user_filter, chat_filter):
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & (user_filter | chat_filter), message.wrapper))
     if config.switch_voice == "True":
@@ -123,9 +118,5 @@ def run_bot() -> None:
         chat_filter = get_chat_filter()
         add_handlers(application, user_filter, chat_filter)
         application.add_error_handler(error)
-        
         application.run_polling()
-    except telegram.error.TimedOut:
-        logger.error(f'{config.lang["errores"]["tiempoagotado"][config.pred_lang]}')
-    except Exception as e:
-        logger.error(f'<run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')
+    except Exception as e: logger.error(f'<run_bot> {config.lang["errores"]["error"][config.pred_lang]}: {e}.')

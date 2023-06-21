@@ -37,20 +37,20 @@ async def _openai(self, **kwargs):
         api_info = config.api["info"].get(self.api, {})
         openai.api_key = str(api_info.get("key", ""))
         openai.api_base=str(config.api["info"][self.api].get("url"))
-        self.diccionario.update({"messages": kwargs["messages"], "model": self.model} if kwargs["messages"] != None else {"prompt": kwargs["prompt"], "engine": self.model})
-        fn = openai.ChatCompletion.acreate if kwargs["messages"] != None else openai.Completion.acreate
-        r = await fn(stream=True, **self.diccionario)
-        async for r_item in r:
+        if kwargs["messages"] != None:
+            self.diccionario.update({"messages": kwargs["messages"], "model": self.model})
+            fn = openai.ChatCompletion.acreate
+        else:
+            self.diccionario.update({"prompt": kwargs["prompt"], "engine": self.model})
+            fn = openai.Completion.acreate
+        response = await fn(stream=True, **self.diccionario)
+        async for response_item in response:
             if kwargs['messages'] != None:
-                delta = r_item.choices[0].delta
-                if "content" in delta:
-                    self.answer += delta.get("content", "")
+                self.answer += response_item.choices[0].delta.get("content", "")
             else:
-                self.answer += r_item.choices[0].text
+                self.answer += response_item.choices[0].text
             yield "not_finished", self.answer
-    except Exception as e:
-        e = f'_get_openai_answer: {e}'
-        raise ConnectionError(e)
+    except Exception as e: raise ConnectionError(f'_get_openai_answer: {e}')
 
 async def _you(self, **kwargs):
     try:
