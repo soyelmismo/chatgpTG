@@ -91,8 +91,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
 
         reply_val = await get_reply_id(update, chat, _message, msgid)
 
-        placeholder_message, answer, keyboard = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val)
-
+        placeholder_message, _message, answer, keyboard = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val)
 
         keyboard = await get_keyboard(keyboard)
         await context.bot.edit_message_text(f'{answer}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
@@ -107,8 +106,6 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             await mensaje_error_reintento(context, lang, placeholder_message, answer)
             raise BufferError(f'<message_handle_fn> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
     finally:
-        # Actualizar mensaje de chat con la respuesta generada
-        _message, answer = await check_empty_messages(_message, answer)
         # Actualizar caché de interacciones y historial de diálogos del chat
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
@@ -140,7 +137,10 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 else: await context.bot.edit_message_text(f'{answer}...⏳', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
-        return placeholder_message, answer, keyboard
+        # Actualizar mensaje de chat con la respuesta generada
+        _message, answer = await check_empty_messages(_message, answer)
+
+        return placeholder_message, _message, answer, keyboard
     except Exception as e:
         raise RuntimeError(f'stream_message > {e}')
 
