@@ -25,7 +25,7 @@ async def handle(update: Update, context: CallbackContext) -> None:
         await send_error_msg(e)
         
 
-async def mini_handle(e, update, lang, chat):
+async def mini_handle(e, lang, chat, update=None):
     from bot.src.handlers import semaphore
     if "Request has inappropriate content!" in str(e) or "Your request was rejected as a result of our safety system." in str(e):
         text = f'{config.lang["errores"]["genimagen_rejected"][lang]}'
@@ -35,6 +35,6 @@ async def mini_handle(e, update, lang, chat):
         await update.effective_chat.send_message(text, parse_mode=ParseMode.HTML, reply_to_message_id=update.effective_message.message_id)
     await semaphore.releasemaphore(chat=chat)
     await send_error_msg(e)
-    
+
 async def send_error_msg(e):
     logger.error(f'{__name__}: {config.lang["errores"]["error"][config.pred_lang]}: {e}')

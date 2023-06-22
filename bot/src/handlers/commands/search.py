@@ -50,6 +50,6 @@ async def wrapper(update: Update, context: CallbackContext, _message=None):
         task = bb(handle(chat, lang, update, context, _message))
         await tasks.handle(chat, lang, task, update)
     except Exception as e:
-        await handle_errors(f'search_wrapper > {e}', update, lang, chat)
+        await handle_errors(f'search_wrapper > {e}', lang, chat)
     finally:
         await tasks.releasemaphore(chat=chat)

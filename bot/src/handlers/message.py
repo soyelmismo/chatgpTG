@@ -13,7 +13,7 @@ from datetime import datetime
 from . import url, timeout
 from .commands import new
 from .commands import img, cancel, retry
-from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names)
+from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names, asyncio)
 from bot.src.handlers.error import mini_handle as handle_errors
 
 async def wrapper(update: Update, context: CallbackContext):
@@ -80,7 +80,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
         task = bb(gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
         await tasks.handle(chat, lang, task, update)
     except Exception as e:
-        await handle_errors(f'message_handle > {e}', update, lang, chat)
+        await handle_errors(f'message_handle > {e}', lang, chat)
 
 async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid):
     try:
@@ -92,7 +92,6 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         reply_val = await get_reply_id(update, chat, _message, msgid)
 
         placeholder_message, _message, answer, keyboard = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val)
-
         keyboard = await get_keyboard(keyboard)
         await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         # Liberar semáforo
@@ -106,13 +105,14 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             await mensaje_error_reintento(context, lang, placeholder_message, answer)
             raise BufferError(f'<message_handle_fn> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
     finally:
+        await tasks.releasemaphore(chat=chat)
+        _message, answer = await check_empty_messages(_message, answer)
         # Actualizar caché de interacciones y historial de diálogos del chat
         interaction_cache[chat.id] = ("visto", datetime.now())
         await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         advertencia = await update_dialog_messages(chat, new_dialog_message)
         await enviar_advertencia_si_necesario(advertencia, update, lang, reply_val)
-        await tasks.releasemaphore(chat=chat)
 
 async def stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val):
     try:
@@ -132,16 +132,15 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
             if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
             try:
                 await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+            except asyncio.CancelledError: break
             except telegram.error.BadRequest as e:
                 if str(e).startswith(msg_no_mod): continue
                 else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             await sleep(timer)  # Esperar un poco para evitar el flooding
             prev_answer = answer
+        return placeholder_message, _message, answer, keyboard
     except Exception as e:
         raise RuntimeError(f'stream_message > {e}')
-    finally:
-        _message, answer = await check_empty_messages(_message, answer)
-    return placeholder_message, _message, answer, keyboard
 
 async def actions(update, context):
     from bot.src.utils.proxies import (obtener_contextos as oc, debe_continuar)
