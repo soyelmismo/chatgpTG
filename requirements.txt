@@ -1,6 +1,6 @@
 openai
 pydub
-python-telegram-bot[rate-limiter]
+python-telegram-bot[socks,rate-limiter]
 PyYAML
 tls_client
 retrying
