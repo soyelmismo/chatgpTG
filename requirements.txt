@@ -1,6 +1,6 @@
 openai
 pydub
-python-telegram-bot[rate-limiter]
+python-telegram-bot[socks,rate-limiter]
 PyYAML
 tls_client
 retrying
@@ -9,10 +9,10 @@ pydantic
 PyPDF2
 beautifulsoup4
 pytesseract
-httpx
+httpx[socks]
 html2text
 motor
-requests
+requests[socks]
 curl_cffi
 websockets
 duckduckgo_search
