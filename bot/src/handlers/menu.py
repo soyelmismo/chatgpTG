@@ -222,8 +222,7 @@ async def get_item_name(menu_type, **kwargs):
         #    "lang": lang,
         #}
         func = menu_type_to_function.get(menu_type)
-        #return await func(**kwargs)
-        return func(**kwargs)
+        return await func(**kwargs)
     except Exception as e: raise KeyError(f"get_item_name: {e}")
 
 async def get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lang):
