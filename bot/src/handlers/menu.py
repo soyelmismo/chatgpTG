@@ -213,7 +213,7 @@ async def get_item_name(menu_type):
         "imaginepy": get_name_from_metagen,
         "imaginepy_styles": get_name_from_imaginepy_styles,
         "imaginepy_ratios": get_name_from_imaginepy_ratios,
-        "imaginepy_models": get_name_from_imaginepy_models,
+        "imaginepy_models": get_name_from_imaginepy_models
     }
     try:
         #kwargs = {
