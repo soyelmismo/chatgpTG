@@ -199,7 +199,10 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
 async def get_name_from_lang_info(**kwargs): return kwargs["menu_type_dict"]['info']['name'][kwargs["current_key"]]
 async def get_name_of_lang(**kwargs):
     return config.lang[kwargs['current_key']]['info']['name']
-async def get_name_from_metagen(**kwargs): return config.lang[kwargs["lang"]]["metagen"][kwargs["current_key"]]
+async def get_name_from_metagen(**kwargs):
+    if kwargs["current_key"] == "imaginepy_models":
+        return config.lang[kwargs["lang"]]["metagen"]["modelo"]
+    return config.lang[kwargs["lang"]]["metagen"][kwargs["current_key"]]
 
 #async def get_item_name(menu_type, menu_type_dict, current_key, lang):
 async def get_item_name(menu_type):
