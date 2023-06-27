@@ -49,7 +49,7 @@ config_dir = basepath / "config"
 # Obtener la lista de archivos en la carpeta
 archivos = os.listdir(basepath / "locales")
 # Filtrar los archivos que tienen el formato <lang>.json
-archivos_idiomas = [archivo for archivo in archivos if archivo.endswith(".json")]
+archivos_idiomas = [archivo for archivo in archivos if archivo.endswith(".json") and archivo != "props.json"]
 # Extraer el código de idioma de cada archivo y generar la lista
 available_lang = [archivo.split(".")[1] for archivo in archivos_idiomas]
 
