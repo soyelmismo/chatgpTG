@@ -149,24 +149,26 @@ def run_parallel_tasks():
     return application, user_filter, chat_filter
     
 def run_bot() -> None:
-    try:
-        application, user_filter, chat_filter = run_parallel_tasks()
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    while True:
         try:
-            loop.run_until_complete(add_handlers_parallel(application, user_filter, chat_filter))
-            application.add_error_handler(error)
-            loop.run_until_complete(application.initialize())
-            loop.run_until_complete(application.run_polling())
-        finally:
-            loop.close()
-
-        application.shutdown()
-    except BadRequest as e:
-        if "Query is too old" in str(e): logger.error('QueryTimeout')
-        if "Replied message not found" in str(e): logger.error('No message to reply')
-    except Exception as e:
-        if "TimedOut" in str(e):
-            logger.error('Timed out')
-        else:
-            logger.error(f'{__name__}: <run_bot> {errorpredlang}: {e}.')
+            application, user_filter, chat_filter = run_parallel_tasks()
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(add_handlers_parallel(application, user_filter, chat_filter))
+                application.add_error_handler(error)
+                loop.run_until_complete(application.initialize())
+                loop.run_until_complete(application.run_polling())
+            finally:
+                loop.close()
+    
+            application.shutdown()
+        except BadRequest as e:
+            if "Query is too old" in str(e): logger.error('QueryTimeout')
+            if "Replied message not found" in str(e): logger.error('No message to reply')
+        except Exception as e:
+            if "TimedOut" in str(e):
+                logger.error('Timed out')
+            else:
+                logger.error(f'{__name__}: <run_bot> {errorpredlang}: {e}.')
+    

@@ -1,0 +1,231 @@
+import json
+import os
+from typing import Optional, Any
+import uuid
+from . import config
+from datetime import datetime
+import pymongo
+import motor.motor_asyncio
+from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
+                        constant_db_lang, constant_db_tokens, constant_db_image_api,
+                        imaginepy_ratios, imaginepy_styles, constant_db_imaginepy_styles,
+                        constant_db_imaginepy_ratios)
+
+class Database:
+    def __init__(self):
+        self.use_local_storage = True
+        self.local_storage_path = "database.json"
+        self.client = None
+        self.db = None
+        self.chats = None
+        self.dialogs = None
+        self.connect()
+        
+    def connect(self):
+        if self.use_local_storage:
+            self.load_from_local_storage()
+        else:
+            self.client = motor.motor_asyncio.AsyncIOMotorClient(config.mongodb_uri)
+            self.db = self.client["chatgpt"]
+            self.chats = self.db["chats"]
+            self.dialogs = self.db["dialogs"]
+
+    async def chat_exists(self, chat, raise_exception: bool = False):
+        if self.use_local_storage:
+            return chat.id in self.chats
+        else:
+            if await self.chats.count_documents({"_id": chat.id}) > 0:
+                return True
+            else:
+                if raise_exception:
+                    raise ValueError(f"Chat {chat.id} does not exist")
+                else:
+                    return False
+
+    async def add_chat(self, chat, lang: str):
+        if self.use_local_storage:
+            if not await self.chat_exists(chat):
+                self.chats[chat.id] = {
+                    "_id": chat.id,
+                    "last_interaction": datetime.now().isoformat(),
+                    "current_dialog_id": None,
+                    f'{constant_db_lang}': lang,
+                    f'{constant_db_chat_mode}': config.chat_mode["available_chat_mode"][1],
+                    f'{constant_db_model}': config.model["available_model"][0],
+                    f'{constant_db_api}': config.api["available_api"][0],
+                    f'{constant_db_image_api}': config.api["available_image_api"][0],
+                    f'{constant_db_imaginepy_styles}': imaginepy_styles[0],
+                    f'{constant_db_imaginepy_ratios}': imaginepy_ratios[0],
+                }
+        else:
+            chat_dict = {
+                "_id": chat.id,
+                "last_interaction": datetime.now(),
+                "current_dialog_id": None,
+                f'{constant_db_lang}': lang,
+                f'{constant_db_chat_mode}': config.chat_mode["available_chat_mode"][1],
+                f'{constant_db_model}': config.model["available_model"][0],
+                f'{constant_db_api}': config.api["available_api"][0],
+                f'{constant_db_image_api}': config.api["available_image_api"][0],
+                f'{constant_db_imaginepy_styles}': imaginepy_styles[0],
+                f'{constant_db_imaginepy_ratios}': imaginepy_ratios[0],
+            }
+            if not await self.chat_exists(chat):
+                try:
+                    await self.chats.insert_one(chat_dict)
+                except pymongo.errors.DuplicateKeyError:
+                    pass
+
+    async def new_dialog(self, chat):
+        await self.chat_exists(chat, raise_exception=True)
+        dialog_id = str(uuid.uuid4())
+        dialog_dict = {
+            "_id": dialog_id,
+            "chat_id": chat.id,
+            f'{constant_db_tokens}': 0,
+            "messages": [],
+        }
+
+        if self.use_local_storage:
+            self.dialogs[dialog_id] = dialog_dict
+        else:
+            await self.dialogs.insert_one(dialog_dict)
+
+        await self.set_chat_attribute(chat, "current_dialog_id", dialog_id)
+
+        return dialog_id
+
+    async def get_chat_attribute(self, chat, key: str):
+        await self.chat_exists(chat, raise_exception=True)
+
+        if self.use_local_storage:
+            chat_dict = self.chats[chat.id]
+        else:
+            chat_dict = await self.chats.find_one({"_id": chat.id})
+
+        if key not in chat_dict:
+            return None
+
+        return chat_dict[key]
+
+    async def reset_chat_attribute(self, chat):
+        await self.chat_exists(chat, raise_exception=True)
+
+        # Obtener los valores iniciales para cada atributo
+        initial_chat_mode = config.chat_mode["available_chat_mode"][0]
+        initial_api = config.api["available_api"][0]
+        initial_model = config.api["info"][initial_api]["available_model"][0]
+        initial_image = config.api["available_image_api"][0]
+        initial_imaginepy_style = imaginepy_styles[0]
+        initial_imaginepy_ratio = imaginepy_ratios[0]
+
+        # Actualizar los valores en la base de datos
+        await self.set_chat_attribute(chat, f'{constant_db_chat_mode}', initial_chat_mode)
+        await self.set_chat_attribute(chat, f'{constant_db_model}', initial_model)
+        await self.set_chat_attribute(chat, f'{constant_db_api}', initial_api)
+        await self.set_chat_attribute(chat, f'{constant_db_image_api}', initial_image)
+        await self.set_chat_attribute(chat, f'{constant_db_imaginepy_styles}', initial_imaginepy_style)
+        await self.set_chat_attribute(chat, f'{constant_db_imaginepy_ratios}', initial_imaginepy_ratio)
+
+        # Actualizar los valores en las caches
+        from .proxies import chat_mode_cache, model_cache, api_cache, image_api_cache, imaginepy_styles_cache, imaginepy_ratios_cache
+        now = datetime.now()
+        chat_mode_cache[chat.id] = (initial_chat_mode, now)
+        model_cache[chat.id] = (initial_model, now)
+        api_cache[chat.id] = (initial_api, now)
+        image_api_cache[chat.id] = (initial_image, now)
+        imaginepy_styles_cache[chat.id] = (initial_imaginepy_style, now)
+        imaginepy_ratios_cache[chat.id] = (initial_imaginepy_ratio, now)
+
+    async def set_chat_attribute(self, chat, key: str, value: Any):
+        await self.chat_exists(chat, raise_exception=True)
+
+        if self.use_local_storage:
+            self.chats[chat.id][key] = value
+        else:
+            await self.chats.update_one({"_id": chat.id}, {"$set": {key: value}})
+
+    async def set_dialog_attribute(self, chat, key: str, value: Any):
+        dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
+
+        if self.use_local_storage:
+            self.dialogs[dialog_id][key] = value
+        else:
+            await self.dialogs.update_one(
+                {"_id": dialog_id},
+                {"$set": {key: value}}
+            )
+
+    async def get_dialog_attribute(self, chat, key: str):
+        dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
+
+        if self.use_local_storage:
+            dialog_dict = self.dialogs[dialog_id]
+        else:
+            dialog_dict = await self.dialogs.find_one({"_id": dialog_id})
+
+        if key not in dialog_dict:
+            return None
+
+        return dialog_dict[key]
+
+    async def get_dialog_messages(self, chat, dialog_id: Optional[str] = None):
+        await self.chat_exists(chat, raise_exception=True)
+
+        if dialog_id is None:
+            dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
+
+        if self.use_local_storage:
+            dialog_dict = self.dialogs[dialog_id]
+        else:
+            dialog_dict = await self.dialogs.find_one({"_id": dialog_id, "chat_id": chat.id})
+
+        return dialog_dict["messages"]
+
+    async def set_dialog_messages(self, chat, dialog_messages: list, dialog_id: Optional[str] = None):
+        await self.chat_exists(chat, raise_exception=True)
+
+        if dialog_id is None:
+            dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
+
+        if self.use_local_storage:
+            self.dialogs[dialog_id]["messages"] = dialog_messages
+        else:
+            await self.dialogs.update_one(
+                {"_id": dialog_id, "chat_id": chat.id},
+                {"$set": {"messages": dialog_messages}}
+            )
+
+    async def delete_all_dialogs_except_current(self, chat):
+        chat = await self.chats.find_one({"_id": chat.id})
+        if not chat:
+            raise ValueError(f"Chat with ID {chat.id} does not exist")
+        current_dialog_id = chat["current_dialog_id"]
+
+        if self.use_local_storage:
+            self.dialogs = {dialog_id: dialog for dialog_id, dialog in self.dialogs.items() if dialog_id == current_dialog_id}
+        else:
+            await self.dialogs.delete_many({"chat_id": chat["_id"], "_id": {"$ne": current_dialog_id}})
+
+    def load_from_local_storage(self):
+        if os.path.exists(self.local_storage_path):
+            with open(self.local_storage_path, "r") as file:
+                data = json.load(file)
+                self.chats = data.get("chats", {})
+                self.dialogs = data.get("dialogs", {})
+        else:
+            self.chats = {}
+            self.dialogs = {}
+
+    def save_to_local_storage(self):
+        data = {
+            "chats": self.chats,
+            "dialogs": self.dialogs
+        }
+        with open(self.local_storage_path, "w") as file:
+            json.dump(data, file)
+
+    def __del__(self):
+        if self.use_local_storage:
+            self.save_to_local_storage()
+            
