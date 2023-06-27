@@ -1,9 +1,9 @@
-async def gen(self, prompt, current_api, style, ratio, seed=None):
+async def gen(self, prompt, current_api, style, ratio, seed=None, negative=None):
     try:
         from bot.src.utils.proxies import config
         from bot.src.utils.gen_utils.extrapis import imagine
         if current_api == "imaginepy":
-            image, seed = await imagine.main(prompt=prompt, style=style, ratio=ratio, seed=seed)
+            image, seed = await imagine.main(prompt=prompt, style=style, ratio=ratio, seed=seed, negative=negative)
             return image, seed
         else:
             import openai

@@ -6,19 +6,19 @@ async def handle(update: Update, context: CallbackContext, paraprops=None):
     mododechat_actual, api_actual, modelo_actual, checked_image_api, checked_imaginepy_styles, _ = await parametros(chat, lang, update)
     tokens_actual = await db.get_dialog_attribute(chat, f'{constant_db_tokens}')
 
-    nombreconfig=config.lang["metagen"]["configuracion"][lang]
-    api=config.lang["metagen"]["api"][lang]
+    nombreconfig=config.lang[lang]["metagen"]["configuracion"]
+    api=config.lang[lang]["metagen"]["api"]
     nombreapi=config.api["info"][api_actual]["name"]
-    apimagen=config.lang["metagen"]["image_api"][lang]
+    apimagen=config.lang[lang]["metagen"]["image_api"]
     nombreapimagen=config.api["info"][checked_image_api]["name"]
-    imaginestyle=config.lang["metagen"]["imaginepy_actual_style"][lang]
-    modelo=config.lang["metagen"]["modelo"][lang]
+    imaginestyle=config.lang[lang]["metagen"]["imaginepy_actual_style"]
+    modelo=config.lang[lang]["metagen"]["modelo"]
     nombremodelo=config.model["info"][modelo_actual]["name"]
-    tokensmax=config.lang["metagen"]["tokensmax"][lang]
+    tokensmax=config.lang[lang]["metagen"]["tokensmax"]
     modeltokens=config.model["info"][modelo_actual]["max_tokens"]
-    chatmode=config.lang["metagen"]["chatmode"][lang]
+    chatmode=config.lang[lang]["metagen"]["chatmode"]
     nombrechatmode=config.chat_mode["info"][mododechat_actual]["name"][lang]
-    tokens=config.lang["metagen"]["tokens"][lang]
+    tokens=config.lang[lang]["metagen"]["tokens"]
     textoprimer="""{nombreconfig}:\n\n{api}: {nombreapi} | {modelo}: {nombremodelo}\n{tokens}: {tokens_actual} / {modeltokens}\n{chatmode}: {nombrechatmode}\n{apimagen}: {apimageactual}"""
     if checked_image_api =="imaginepy": textoprimer += "\n{imaginestyle}: {imagineactual}"
     text = f'{textoprimer.format(nombreconfig=nombreconfig, api=api, nombreapi=nombreapi,modelo=modelo,nombremodelo=nombremodelo, tokensmax=tokensmax,modeltokens=modeltokens,chatmode=chatmode, nombrechatmode=nombrechatmode,tokens=tokens, tokens_actual=tokens_actual,apimagen=apimagen, apimageactual=nombreapimagen,imaginestyle=imaginestyle, imagineactual=checked_imaginepy_styles)}'

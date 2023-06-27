@@ -1,22 +1,22 @@
 from bot.src.start import Update, CallbackContext
-import bot.src.handlers.menu as menu
-from bot.src.utils.proxies import obtener_contextos as oc, config, db, imaginepy_ratios_cache, imaginepy_styles_cache, datetime,logger,ParseMode
+from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
+from bot.src.utils.proxies import obtener_contextos as oc, config, db, imaginepy_ratios_cache, imaginepy_styles_cache, datetime,logger,ParseMode,errorpredlang,menusnotready
 from bot.src.utils.constants import constant_db_imaginepy_ratios, constant_db_imaginepy_styles
 
 async def handle(update: Update, context: CallbackContext):
     try:
         chat, _ = await oc(update)
-        text, reply_markup = await menu.get(menu_type="imaginepy", update=update, context=context,chat=chat, page_index=0)
+        text, reply_markup = await gg(menu_type="imaginepy", update=update, context=context,chat=chat, page_index=0)
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    except TypeError: logger.error(f'{__name__}: <imaginepy_options_handle> {config.lang["errores"]["error"][config.pred_lang]}: {config.lang["errores"]["menu_modes_not_ready_yet"][config.pred_lang]}')
+    except TypeError: logger.error(f'{__name__}: <imaginepy_options_handle> {errorpredlang}: {menusnotready}')
 async def callback(update: Update, context: CallbackContext):
-    query, _, _, page_index, _ = await menu.handle(update)
-    await menu.refresh(query, update, context, page_index, menu_type="imaginepy")
+    query, _, _, page_index, _ = await hh(update)
+    await rr(query, update, context, page_index, menu_type="imaginepy")
 async def set(update: Update, context: CallbackContext):
     chat, _ = await oc(update)
-    query, propsmenu, seleccion, page_index, _ = await menu.handle(update)
+    query, propsmenu, seleccion, page_index, _ = await hh(update)
     menu_type = await admin_selecciones(propsmenu, seleccion, chat)
-    await menu.refresh(query, update, context, page_index, menu_type=menu_type, chat=chat)
+    await rr(query, update, context, page_index, menu_type=menu_type, chat=chat)
 
 async def admin_selecciones(propsmenu, seleccion, chat):
     menu_type = "imaginepy"

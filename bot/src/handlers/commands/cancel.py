@@ -9,9 +9,10 @@ async def handle(update: Update, context: CallbackContext):
     chat, lang = await oc(update)
     lock = chat_locks.get(chat.id)
     if not lock and not lock.locked() or chat.id not in chat_tasks:
-        text = config.lang["mensajes"]["nadacancelado"][lang]
+        text = config.lang[lang]["mensajes"]["nadacancelado"]
         await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.HTML)
-    else:
+    else:        
+        await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["cancelado"]}', reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.HTML)
         task = chat_tasks[chat.id]
         task.cancel()
         await tasks.releasemaphore(chat)

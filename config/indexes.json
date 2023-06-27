@@ -1,0 +1,12 @@
+{
+    "available_lang": ["es", "ar", "en", "jp", "zh", "de", "fr", "ru", "pt", "it", "nl"],
+    "available_chat_mode": ["nada", "assistant", "code_assistant", "translate", "math", "imagen", "dan", "karen", "historian", "chemistry", "psychologist", "rick_sanchez", "sql_assistant", "text_improver", "elon_musk", "lang_tutor", "startup_idea_generator", "motivator", "money_maker", "travel_guide", "accountant", "movie_expert"],
+    "available_props": ["api", "model", "chat_mode", "image_api", "lang"],
+    "imaginepy": {"available_options": ["imaginepy_styles", "imaginepy_ratios"]},
+    "available_model": ["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "text-curie-001", "text-babbage-001", "text-ada-001", "g4f-ails", "g4f-bing", "g4f-chatgpt", "g4f-phind", "g4f-yqcloud"],
+    "text_completions": ["text-davinci-003", "text-curie-001", "text-babbage-001", "text-ada-001"],
+    "available_api": ["openai", "you", "chatbase", "g4f", "evagpt4", "churchless"],
+    "available_image_api": ["openai", "imaginepy"],
+    "available_transcript": ["openai"]
+
+}

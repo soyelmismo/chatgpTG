@@ -56,3 +56,6 @@ async def parametros(chat, lang, update):
     from bot.src.utils.checks import c_parameters
     checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios = await c_parameters.check(chat, lang, update)
     return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios
+
+errorpredlang = config.lang[config.pred_lang]["errores"]["error"]
+menusnotready = config.lang[config.pred_lang]["errores"]["menu_modes_not_ready_yet"]

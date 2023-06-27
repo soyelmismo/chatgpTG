@@ -8,5 +8,5 @@ async def handle(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import config, obtener_contextos as oc, parametros
     chat, lang = await oc(update)
     await parametros(chat, lang, update)
-    from bot.src.handlers import message
-    await message.handle(chat, lang, update, context, _message=welcomessage.format(botname=f'{context.bot.username}', language=f'{config.lang["info"]["name"][lang]}'))
+    from bot.src.handlers.message import handle as messend
+    await messend(chat, lang, update, context, _message=welcomessage.format(botname=f'{context.bot.username}', language=f'{config.lang[lang]["info"]["name"]}'))

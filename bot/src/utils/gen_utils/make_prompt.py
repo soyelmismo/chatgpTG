@@ -12,14 +12,14 @@ def get_resources_texts(dialog_messages, key):
 def append_resources_texts(self, documento_texts, url_texts, search_texts, prompt):
     resources = ""
     if documento_texts:
-        resources += f'{config.lang["metagen"]["documentos"][self.lang]}: {documento_texts}\n\n'
+        resources += f'{config.lang[self.lang]["metagen"]["documentos"]}: {documento_texts}\n\n'
     if url_texts:
-        resources += f'{config.lang["metagen"]["urls"][self.lang]}: {url_texts}\n\n'
+        resources += f'{config.lang[self.lang]["metagen"]["urls"]}: {url_texts}\n\n'
     if search_texts:
-        resources += f'{config.lang["metagen"]["busquedaweb"][self.lang]}: {search_texts}\n\n'
+        resources += f'{config.lang[self.lang]["metagen"]["busquedaweb"]}: {search_texts}\n\n'
     if len(resources) > 4:
         prompt += resources
-        prompt += f'^{config.lang["metagen"]["mensaje"][self.lang]}: {prompt}][{config.lang["metagen"]["contexto"][self.lang]}^'
+        prompt += f'^{config.lang[self.lang]["metagen"]["mensaje"]}: {prompt}][{config.lang[self.lang]["metagen"]["contexto"]}^'
     return prompt
 
 def get_prompt_lines(dialog_messages, chat_mode, lang):
@@ -27,14 +27,14 @@ def get_prompt_lines(dialog_messages, chat_mode, lang):
     for dialog_message in dialog_messages:
         user_text = dialog_message.get("user", "").strip()
         if user_text:
-            prompt_lines.append(f'{config.lang["metagen"]["usuario"][lang]}: {user_text}\n')
+            prompt_lines.append(f'{config.lang[lang]["metagen"]["usuario"]}: {user_text}\n')
         bot_text = dialog_message.get("bot", "").strip()
         if bot_text:
-            prompt_lines.append(f'{config.chat_mode["info"][chat_mode]["name"][lang]}: {bot_text}\n')
+            prompt_lines.append(f'{config.chat_mode[lang]["info"][chat_mode]["name"]}: {bot_text}\n')
     return "".join(prompt_lines)
 
 def get_injectprompt(language, prompter):
-    especificacionlang = config.lang["metagen"]["especificacionlang"].format(language=language)
+    especificacionlang = config.especificacionlang.format(language=language)
     injectprompt = """{especificarlang}\n\n{elprompt}\n\n{especificarlang}\n\n"""
     return injectprompt.format(especificarlang=especificacionlang, elprompt=prompter)
     
@@ -42,7 +42,7 @@ def append_chat_mode(self, chat_mode, prompt):
     if chat_mode == "imagen":
         prompt += f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'
     elif chat_mode != "nada":
-        language = config.lang["info"]["name"][self.lang]
+        language = config.lang[self.lang]["info"]["name"]
         prompter = config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)
         prompt += get_injectprompt(language, prompter)
     return prompt
@@ -53,7 +53,7 @@ def continue_or_append_latest_message(self, _message, prompt, chat_mode):
         if prompt.endswith(".") or prompt.endswith("?"):
             prompt = prompt[:-3]
     else:
-        prompt += f'{config.lang["metagen"]["usuario"][self.lang]}: {_message}'
+        prompt += f'{config.lang[self.lang]["metagen"]["usuario"]}: {_message}'
         if chat_mode != "nada": prompt += f'{config.chat_mode["info"][chat_mode]["name"][self.lang]}:'
     return prompt
 
@@ -67,7 +67,7 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
         url_texts = get_resources_texts(dialog_messages, "url")
         search_texts = get_resources_texts(dialog_messages, "search")
         prompt = append_resources_texts(self, documento_texts, url_texts, search_texts, prompt)
-        prompt += f'{config.lang["metagen"]["log"][self.lang]}:\n\n'
+        prompt += f'{config.lang[self.lang]["metagen"]["log"]}:\n\n'
         prompt += get_prompt_lines(dialog_messages, chat_mode, lang=self.lang)
         prompt = append_chat_mode(self, chat_mode, prompt)
         prompt = continue_or_append_latest_message(self, _message, prompt, chat_mode)

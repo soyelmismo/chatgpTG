@@ -1,6 +1,5 @@
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers import semaphore as tasks
-import bot.src.handlers.message as message
 async def handle(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (config, datetime, obtener_contextos as oc, debe_continuar, db, interaction_cache)
     chat, lang = await oc(update)
@@ -8,7 +7,7 @@ async def handle(update: Update, context: CallbackContext):
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     if len(dialog_messages) == 0:
         await tasks.releasemaphore(chat=chat)
-        text = config.lang["mensajes"]["no_retry_mensaje"][lang]
+        text = config.lang[lang]["mensajes"]["no_retry_mensaje"]
         await update.effective_chat.send_message(text)
         return
     last_dialog_message = dialog_messages.pop()
@@ -17,4 +16,5 @@ async def handle(update: Update, context: CallbackContext):
     await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     await tasks.releasemaphore(chat=chat)
     _message = last_dialog_message["user"]
-    await message.handle(chat, lang, update, context, _message)
+    from bot.src.handlers.message import handle as messend
+    await messend(chat, lang, update, context, _message)

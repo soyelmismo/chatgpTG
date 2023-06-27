@@ -1,16 +1,19 @@
-from imaginepy import AsyncImagine, Style, Ratio
+from .tempimaginepy import AsyncImagine, Style, Ratio
 import uuid
 import io
 import secrets
 
-async def main(prompt, style, ratio, seed=None):
-    imagine = AsyncImagine()
+async def main(prompt, style, ratio, seed=None, negative=None):
+    style = Style.__members__[style]
+    imagine = AsyncImagine(style=style)
     try:
         if seed == None:
             seed = secrets.randbelow(10**16)
+            
         img_data = await imagine.sdprem(
             prompt = prompt,
-            style = Style.__members__[style],
+            negative = negative,
+            style = style,
             ratio = Ratio.__members__[ratio],
             high_res_results = 1,
             seed =  seed,
@@ -18,12 +21,22 @@ async def main(prompt, style, ratio, seed=None):
             cfg = 15.9,
             steps = 300
         )
-        img_data = await imagine.upscale(image=img_data)
         await imagine.close()
-        if img_data == None:
-            raise FileNotFoundError("no files")
     except Exception as e:
         raise BufferError(f"error imagine.py: {e}")
+    
+    try:    
+        imagine = AsyncImagine(style=style)
+        img_data = await imagine.upscale(image=img_data)
+        
+        await imagine.close()
+        
+        if img_data == None:
+            raise FileNotFoundError("no files")
+            
+    except Exception as e:
+        raise BufferError(f"error imagine.py: {e}")
+        
     img_io = io.BytesIO(img_data)
     img_io.name = f"{uuid.uuid4()}.png"
     return img_io, seed

@@ -18,9 +18,9 @@ async def ask(chat, lang, update: Update, _message):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     new_dialog_message = {"user": _message, "date": datetime.now()}
-    _ = await update_dialog_messages(chat, new_dialog_message)
+    _, _ = await update_dialog_messages(chat, new_dialog_message)
 
-    await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_ask"][lang]}', reply_markup=reply_markup)
+    await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["timeout_ask"]}', reply_markup=reply_markup)
 async def answer(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (obtener_contextos as oc,db,config)
     chat, lang = await oc(update)
@@ -30,7 +30,7 @@ async def answer(update: Update, context: CallbackContext):
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     await tasks.releasemaphore(chat=chat)
     if len(dialog_messages) == 0:
-        await update.effective_chat.send_message(f'{config.lang["mensajes"]["timeout_nodialog"][lang]}')
+        await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["timeout_nodialog"]}')
         await new.handle(update, context)
         return
     elif 'bot' in dialog_messages[-1]: # already answered, do nothing

@@ -1,7 +1,6 @@
 openai
 pydub
 python-telegram-bot[rate-limiter]
-PyYAML
 tls_client
 retrying
 fake_useragent
@@ -17,7 +16,6 @@ curl_cffi
 websockets
 duckduckgo_search
 python-dotenv
-stopwordsiso
 nltk
 langdetect
 transformers

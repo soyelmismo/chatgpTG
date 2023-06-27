@@ -1,10 +1,10 @@
 from bot.src.start import Update, CallbackContext
-import tempfile
+from tempfile import TemporaryDirectory
 from pathlib import Path
 from bot.src.utils.gen_utils.phase import ChatGPT
 async def handle(chat, lang, update, context):
     from . import semaphore as tasks
-    from bot.src.utils.proxies import (logger,db,interaction_cache,config,datetime,ChatAction)
+    from bot.src.utils.proxies import (logger,db,interaction_cache,config,datetime,ChatAction,errorpredlang)
     # Procesar sea voz o audio
     if update.message.voice: audio = update.message.voice
     elif update.message.audio: audio = update.message.audio
@@ -13,13 +13,13 @@ async def handle(chat, lang, update, context):
     if file_size_mb <= config.audio_max_size:
         try:
             await update.effective_chat.send_action(ChatAction.TYPING)
-            with tempfile.TemporaryDirectory() as tmp_dir:
+            with TemporaryDirectory() as tmp_dir:
                 # Descargar y convertir a MP3
                 tmp_dir = Path(tmp_dir)
                 ext = audio.mime_type
-                import mimetypes
+                from mimetypes import guess_extension
                 if ext == 'audio/opus': ext = '.opus'
-                else: ext = mimetypes.guess_extension(ext)
+                else: ext = guess_extension(ext)
                 doc_path = tmp_dir / Path("tempaudio" + ext)
 
                 # download
@@ -42,11 +42,11 @@ async def handle(chat, lang, update, context):
             interaction_cache[chat.id] = ("visto", datetime.now())
             await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         except Exception as e:
-            logger.error(f'{__name__}: <transcribe_message_handle> {config.lang["errores"]["error"][config.pred_lang]}: {e}')
+            logger.error(f'{__name__}: <transcribe_message_handle> {errorpredlang}: {e}')
             await tasks.releasemaphore(chat=chat)
             return
     else:
-        text = f'{config.lang["errores"]["audio_size_limit"][lang].format(audio_max_size=config.audio_max_size)}'
+        text = f'{config.lang[lang]["errores"]["audio_size_limit"].format(audio_max_size=config.audio_max_size)}'
     from bot.src.utils.misc import send_large_message
     await send_large_message(text, update)
     await tasks.releasemaphore(chat=chat)
@@ -55,7 +55,7 @@ async def handle(chat, lang, update, context):
 async def wrapper(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc, bb)
     chat, lang = await oc(update)
-    if not await debe_continuar(chat, lang, update, context): return
+    if not await debe_continuar(chat, lang, update, context, bypassmention=True): return
     task = bb(handle(chat, lang, update, context))
     from . import semaphore as tasks
     await tasks.handle(chat, lang, task, update)

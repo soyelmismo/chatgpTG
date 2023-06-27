@@ -21,7 +21,7 @@ async def check(chat, lang, update):
         chat_mode_cache, 
         constant_db_chat_mode, 
         update, 
-        config.lang["errores"]["reset_chat_mode"][lang]
+        config.lang[lang]["errores"]["reset_chat_mode"]
     )
     checked_api = await check_attribute(
         chat, 
@@ -29,7 +29,7 @@ async def check(chat, lang, update):
         api_cache, 
         constant_db_api, 
         update, 
-        config.lang["errores"]["reset_api"][lang]
+        config.lang[lang]["errores"]["reset_api"]
     )
     checked_image_api = await check_attribute(
         chat, 
@@ -37,7 +37,7 @@ async def check(chat, lang, update):
         image_api_cache, 
         constant_db_image_api, 
         update, 
-        config.lang["errores"]["reset_api"][lang]
+        config.lang[lang]["errores"]["reset_api"]
     )
     checked_model = await check_attribute(
         chat, 
@@ -45,7 +45,7 @@ async def check(chat, lang, update):
         model_cache, 
         constant_db_model, 
         update, 
-        config.lang["errores"]["reset_model"][lang]
+        config.lang[lang]["errores"]["reset_model"]
     )
     checked_imaginepy_styles = await check_attribute(
         chat, 
@@ -53,7 +53,7 @@ async def check(chat, lang, update):
         imaginepy_styles_cache, 
         constant_db_imaginepy_styles, 
         update, 
-        config.lang["errores"]["reset_imaginepy_styles"][lang]
+        config.lang[lang]["errores"]["reset_imaginepy_styles"]
     )
     checked_imaginepy_ratios = await check_attribute(
         chat, 
@@ -61,6 +61,6 @@ async def check(chat, lang, update):
         imaginepy_ratios_cache, 
         constant_db_imaginepy_ratios, 
         update, 
-        config.lang["errores"]["reset_imaginepy_ratios"][lang]
+        config.lang[lang]["errores"]["reset_imaginepy_ratios"]
     )
     return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios

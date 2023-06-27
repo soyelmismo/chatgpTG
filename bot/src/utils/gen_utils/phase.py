@@ -2,14 +2,14 @@ from bot.src.utils import proxies
 import openai
 from . import make_transcription, make_image
 from bot.src.utils.constants import constant_db_api, constant_db_tokens
-
+from bot.src.utils.gen_utils.make_completion import _make_api_call
 class ChatGPT:
     def __init__(self, chat, lang="es", model="gpt-3.5-turbo"):
         self.chat = chat
         self.model = model
         self.lang = lang
         self.answer = None
-        assert self.model in proxies.config.model["available_model"], f'{proxies.config.lang["errores"]["utils_modelo_desconocido"][self.lang]}: {self.model}'
+        assert self.model in proxies.config.model["available_model"], f'{proxies.config.lang[self.lang]["errores"]["utils_modelo_desconocido"]}: {self.model}'
         self.api = None
         self.diccionario = {}
         self.diccionario.clear()
@@ -22,12 +22,11 @@ class ChatGPT:
                     yield status, self.answer
             except openai.error.InvalidRequestError as e:  # too many tokens
                 if len(dialog_messages) == 0:
-                    raise IndexError(f'{proxies.config.lang["errores"]["utils_dialog_messages_0"][self.lang]} [{self.api}]: {e}') from e
+                    raise IndexError(f'{proxies.config.lang[self.lang]["errores"]["utils_dialog_messages_0"]} [{self.api}]: {e}') from e
                 # forget first message in dialog_messages
                 dialog_messages = dialog_messages[1:]
             except Exception as e:
-                e = f'send_message: {e}'
-                self._handle_exception(e)
+                self._handle_exception(f'send_message: {e}')
         yield "finished", self.answer
 
     async def _prepare_request(self, _message, dialog_messages, chat_mode):
@@ -46,7 +45,6 @@ class ChatGPT:
             tokens_actual = await proxies.db.get_dialog_attribute(self.chat, f'{constant_db_tokens}')
             max_tokens = ((max_tokens - tokens_actual) - 800)
             self.diccionario["max_tokens"] = max_tokens
-            from .make_completion import _make_api_call
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
             self.answer = await self._postprocess_answer()
@@ -55,7 +53,7 @@ class ChatGPT:
     async def _handle_invalid_request_error(self, error, dialog_messages):
         try:
             if len(dialog_messages) == 0:
-                raise IndexError(f'{proxies.config.lang["errores"]["utils_dialog_messages_0"][self.lang]} [{self.api}]: {error}') from error
+                raise IndexError(f'{proxies.config.lang[self.lang]["errores"]["utils_dialog_messages_0"]} [{self.api}]: {error}') from error
             dialog_messages = dialog_messages[1:]
         except Exception as e: raise ValueError(f'_handle_invalid_request_error: {e}')
 
@@ -72,16 +70,16 @@ class ChatGPT:
             return await make_transcription.write(self, audio_file)
         except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
-    async def imagen(self, prompt, current_api, style, ratio, seed=None):
+    async def imagen(self, prompt, current_api, style, ratio, seed=None, negative=None):
         try:
-            images, seed = await make_image.gen(self, prompt, current_api, style, ratio, seed)
+            images, seed = await make_image.gen(self, prompt, current_api, style, ratio, seed, negative)
             return images, seed
         except Exception as e:
             raise RuntimeError(f"phase.imagen > {e}")
 
-    async def busqueduck(self, prompt):
+    async def busqueduck(self, query):
         try:
             from .extrapis.duckduckgo import search
-            formatted_results_backend, formatted_results_string = await search(self, prompt)
+            formatted_results_backend, formatted_results_string = await search(self, query)
             return formatted_results_backend, formatted_results_string
         except Exception as e: raise RuntimeError(f"phase.busqueduck > {e}")

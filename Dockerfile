@@ -36,12 +36,12 @@ WORKDIR /
 COPY bot/ /bot
 COPY static/ /static
 COPY requirements.txt /requirements.txt
-COPY config/api.example.yml config/api.yml
-COPY config/chat_mode.example.yml config/chat_mode.yml
-COPY config/model.example.yml config/model.yml
-COPY config/lang.yml config/lang.yml
-COPY config/props.yml config/props.yml
-COPY config/openai_completion_options.example.yml config/openai_completion_options.yml
+COPY config/api.example.json config/api.json
+COPY config/chat_mode.example.json config/chat_mode.json
+COPY config/model.example.json config/model.json
+COPY config/lang.json config/lang.json
+COPY config/props.json config/props.json
+COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 

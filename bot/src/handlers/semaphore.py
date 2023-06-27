@@ -8,10 +8,8 @@ async def handle(chat, lang, task, update):
             await task
         except asyncio.CancelledError:
             task.cancel()
-            try: await update.effective_chat.send_message(f'{config.lang["mensajes"]["cancelado"][lang]}', parse_mode=ParseMode.HTML)
-            except Exception as e: logger.error(f"{__name__}: Error al enviar el mensaje de cancelación: {e}")
         except Exception as e:
-            if "access local variable 'answer' where" in e: None
+            if "access local variable 'answer' where" in str(e): None
             else: logger.error(f"{__name__}: Error: {e}")
         finally:
             await releasemaphore(chat)

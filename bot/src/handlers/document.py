@@ -1,7 +1,7 @@
 from bot.src.start import Update, CallbackContext
 
 from . import semaphore as tasks
-import tempfile
+from tempfile import TemporaryDirectory
 from pathlib import Path
 from bot.src.utils.misc import clean_text, update_dialog_messages
 from bot.src.utils.proxies import (ChatAction, ParseMode, datetime, config, interaction_cache, db)
@@ -12,7 +12,7 @@ async def handle(chat, lang, update, context):
         file_size_mb = document.file_size / (1024 * 1024)
         if file_size_mb <= config.file_max_size:
             await update.effective_chat.send_action(ChatAction.TYPING)
-            with tempfile.TemporaryDirectory() as tmp_dir:
+            with TemporaryDirectory() as tmp_dir:
                 tmp_dir = Path(tmp_dir)
                 ext = document.file_name.split(".")[-1]
                 doc_path = tmp_dir / Path(document.file_name)
@@ -20,19 +20,19 @@ async def handle(chat, lang, update, context):
                 doc_file = await context.bot.get_file(document.file_id)
                 await doc_file.download_to_drive(doc_path)
                 doc = await process_document(update, doc_path, ext, chat, lang)
-                text = f'{config.lang["mensajes"]["document_anotado_ask"][lang]}'
+                text = f'{config.lang[lang]["mensajes"]["document_anotado_ask"]}'
                 if doc[2]==True:
-                    text = f'{config.lang["metagen"]["advertencia"][lang]}: {config.lang["errores"]["advertencia_tokens_excedidos"][lang]}\n\n{text}'
+                    text = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{text}'
 
                 new_dialog_message = {"documento": f"{document.file_name} -> content: {doc[0]}", "placeholder": ".", "date": datetime.now()}
-                _ = await update_dialog_messages(chat, new_dialog_message)
+                _, _ = await update_dialog_messages(chat, new_dialog_message)
 
                 interaction_cache[chat.id] = ("visto", datetime.now())
                 await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         else:
-            text = config.lang["errores"]["document_size_limit"][lang].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size))
+            text = config.lang[lang]["errores"]["document_size_limit"].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size))
     except Exception as e:
-        text = f'{config.lang["errores"]["error"][lang]}: {e}'
+        text = f'{config.lang[lang]["errores"]["error"]}: {e}'
     finally:
         await tasks.releasemaphore(chat=chat)
         await update.message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -47,13 +47,13 @@ async def process_document(update, doc_path, ext, chat, lang):
 
 async def process_pdf(update, doc_path, lang):
     pdf_file = open(doc_path, 'rb')
-    import PyPDF2
-    read_pdf = PyPDF2.PdfReader(pdf_file)
+    from PyPDF2 import PdfReader
+    read_pdf = PdfReader(pdf_file)
     doc = ''
     lim = int(config.pdf_page_lim)
     paginas = int(len(read_pdf.pages))
     if int(paginas) > int(lim):
-        await update.message.reply_text(f'{config.lang["errores"]["pdf_pages_limit"][lang].format(paginas=(paginas - lim), pdf_page_lim=int(lim))}', parse_mode=ParseMode.HTML)
+        await update.message.reply_text(f'{config.lang[lang]["errores"]["pdf_pages_limit"].format(paginas=(paginas - lim), pdf_page_lim=int(lim))}', parse_mode=ParseMode.HTML)
         paginas = int(lim)
     for i in range(paginas):
         text = read_pdf.pages[i].extract_text()
@@ -62,7 +62,7 @@ async def process_pdf(update, doc_path, lang):
         parafo_count = 1
         for para in paras:
             if len(para) > 3:
-                doc += f'{config.lang["metagen"]["paginas"][lang]}{i+1}_{config.lang["metagen"]["parrafos"][lang]}{parafo_count}: {para}\n\n'      
+                doc += f'{config.lang[lang]["metagen"]["paginas"]}{i+1}_{config.lang[lang]["metagen"]["parrafos"]}{parafo_count}: {para}\n\n'      
                 parafo_count += 1
     return doc
 

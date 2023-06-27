@@ -1,0 +1,11 @@
+{
+    "available_props": {
+        "es": {
+            "api": "APIs 🔌",
+            "model": "Modelos 🧠",
+            "image_api": "Imágenes 🖼️",
+            "chat_mode": "Modos de chat 💬",
+            "lang": "Idiomas 🇪🇸"
+        }
+    }
+}

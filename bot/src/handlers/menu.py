@@ -2,7 +2,7 @@ from bot.src.start import Update, CallbackContext
 from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from bot.src.utils import proxies
-from bot.src.utils.proxies import menu_cache, config, db, obtener_contextos as oc, logger, parametros, interaction_cache, msg_no_mod, ParseMode, telegram
+from bot.src.utils.proxies import menu_cache, config, db, obtener_contextos as oc, logger, parametros, interaction_cache, msg_no_mod, ParseMode, telegram, errorpredlang
 from bot.src.utils import constants
 
 async def get(menu_type, update: Update, context: CallbackContext, chat, page_index):
@@ -17,7 +17,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
-    except Exception as e: logger.error(f'{__name__}: {config.lang["errores"]["error"][config.pred_lang]}: <get_menu> {e}')
+    except Exception as e: logger.error(f'{__name__}: {errorpredlang}: <get_menu> {e}')
 
 async def get_menu_type_dict(menu_type):
     if menu_type == "image_api":
@@ -47,7 +47,7 @@ async def get_name_from_info_dict(**kwargs): return kwargs["menu_type_dict"]["in
 async def get_name_from_info_dict_with_lang(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"][kwargs["lang"]]
 async def get_name_from_imaginepy_styles(**kwargs): return constants.imaginepy_styles[constants.imaginepy_styles.index(kwargs["current_key"])]
 async def get_name_from_imaginepy_ratios(**kwargs): return constants.imaginepy_ratios[constants.imaginepy_ratios.index(kwargs["current_key"])]
-async def get_name_from_lang(**kwargs): return kwargs["menu_type_dict"]["info"]["name"][kwargs["lang"]]
+async def get_name_from_lang(**kwargs): return kwargs["menu_type_dict"][kwargs["lang"]]["info"]["name"]
 async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
     if not current_key: return None
     menu_type_to_function = {
@@ -74,16 +74,16 @@ async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
 async def get_imaginepy_text(chat, lang):
     nombremenu = config.api["info"]["imaginepy"]["name"]
     descripcionmenu = config.api["info"]["imaginepy"]["description"][lang]
-    estilo = config.lang["metagen"]["imaginepy_styles"][lang]
-    ratio = config.lang["metagen"]["imaginepy_ratios"][lang]
+    estilo = config.lang[lang]["metagen"]["imaginepy_styles"]
+    ratio = config.lang[lang]["metagen"]["imaginepy_ratios"]
     styleactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_styles)
     ratioactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_ratios)
     textoprimero = """{nombre}\n{descripcion}\n\n{actual}:\n{estilo}: {styleactual}\n{ratio}: {ratioactual}"""
-    return f"{textoprimero.format(nombre=nombremenu, descripcion=descripcionmenu, actual=config.lang['info']['actual'][lang], estilo=estilo, styleactual=styleactual,ratio=ratio, ratioactual=ratioactual)}"
+    return f"{textoprimero.format(nombre=nombremenu, descripcion=descripcionmenu, actual=config.lang[lang]['info']['actual'], estilo=estilo, styleactual=styleactual,ratio=ratio, ratioactual=ratioactual)}"
 async def get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang):
-    description = (menu_type_dict['info']['description'][lang] if menu_type == "lang" else
+    description = (menu_type_dict[lang]['info']['description'] if menu_type == "lang" else
                     menu_type_dict['info'][current_key]['description'][lang])
-    return f"<b>{config.lang['info']['actual'][lang]}</b>: {str(option_name)}\n{description}"
+    return f"<b>{config.lang[lang]['info']['actual']}</b>: {str(option_name)}\n{description}"
 async def get_props_text(update, context):
     from .commands import status
     return await status.handle(update, context, paraprops=True)
@@ -92,12 +92,13 @@ async def get_text(update, context, chat, lang, menu_type, menu_type_dict, optio
         if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios"]: texto = await get_imaginepy_text(chat, lang)
         elif current_key: texto = await get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang)
         elif menu_type == "props": texto = await get_props_text(update, context)
-        return f"{texto}\n\n<b>{config.lang['info']['seleccion'][lang]}</b>"
+        return f"{texto}\n\n<b>{config.lang[lang]['info']['seleccion']}</b>"
     except Exception as e: 
         raise KeyError(f"get_text: {e}")
 
 async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
     async def get_keys_from_available(): return menu_type_dict[f"available_{menu_type}"]
+    async def get_keys_from_lang(): return config.available_lang
     async def get_keys_from_api_info(): return config.api["available_image_api"]
     async def get_keys_from_model():
         _, api_actual, _, _, _, _ = await parametros(chat, lang, update)
@@ -108,7 +109,7 @@ async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
     menu_type_to_function = {
         "api": get_keys_from_available,
         "chat_mode": get_keys_from_available,
-        "lang": get_keys_from_available,
+        "lang": get_keys_from_lang,
         "props": get_keys_from_available,
         "image_api": get_keys_from_api_info,
         "model": get_keys_from_model,
@@ -135,26 +136,52 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
         if cache_key in menu_cache: return menu_cache[cache_key]
         else:
             try:
+                from itertools import islice
+
                 per_page = config.itemspage
-                page_keys = item_keys[page_index * config.itemspage:(page_index + 1) * per_page]
+                page_keys = list(islice(item_keys, page_index * per_page, (page_index + 1) * per_page))
+                #per_page = config.itemspage
+                #page_keys = item_keys[page_index * config.itemspage:(page_index + 1) * per_page]
             except Exception as e: raise ValueError(f"page_keys > {e}")
             import math
             num_rows = math.ceil(len(page_keys) / config.columnpage)
             # Crear lista de tuplas para representar el teclado
             keyboard_data = []
-            try:
+            try: #
+                kwargs = {
+                    "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
+                    "lang": lang,
+                }
+                func = None #
+                if func == None:
+                    func = await get_item_name(menu_type)
                 for index, current_key in enumerate(page_keys):
-                    name = await get_item_name(menu_type, menu_type_dict, current_key, lang)
+                    kwargs["current_key"] = current_key
+                    
+                    name = await func(**kwargs) 
+                    #name = await get_item_name(menu_type, menu_type_dict, current_key, lang)
+                        
                     callback_data = f"set_{menu_type}|{current_key}|{page_index}|{menu_type}"
                     keyboard_data.append((index, name, callback_data))
             except Exception as e: raise KeyError(f"get_names > {e}")
             # Convertir la lista de tuplas en una matriz bidimensional de botones InlineKeyboardButton
             keyboard = []
             try:
+                def create_buttons(row_data):
+                    for index, name, callback_data in row_data:
+                        yield InlineKeyboardButton(name, callback_data=callback_data)
+                
                 for row in range(num_rows):
-                    buttons = [InlineKeyboardButton(name, callback_data=callback_data)
-                                for index, name, callback_data in keyboard_data[row * config.columnpage:(row + 1) * config.columnpage]]
+                    row_start = row * config.columnpage
+                    row_end = (row + 1) * config.columnpage
+                    row_data = keyboard_data[row_start:row_end]
+                
+                    buttons = list(create_buttons(row_data))
                     keyboard.append(buttons)
+                #for row in range(num_rows):
+                    #buttons = [InlineKeyboardButton(name, callback_data=callback_data)
+                                #for index, name, callback_data in keyboard_data[row * config.columnpage:(row + 1) * config.columnpage]]
+                    #keyboard.append(buttons)
             except Exception as e: raise KeyError(f"get_buttons > {e}")
             keyboard = await get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lang)
             menu_cache[cache_key] = keyboard
@@ -162,29 +189,32 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
     except Exception as e: raise KeyError(f"get_keyboard: {e}")
 
 async def get_name_from_lang_info(**kwargs): return kwargs["menu_type_dict"]['info']['name'][kwargs["current_key"]]
-async def get_name_from_metagen(**kwargs): return config.lang["metagen"][kwargs["current_key"]][kwargs["lang"]]
+async def get_name_of_lang(**kwargs):
+    return config.lang[kwargs['current_key']]['info']['name']
+async def get_name_from_metagen(**kwargs): return config.lang[kwargs["lang"]]["metagen"][kwargs["current_key"]]
 
-async def get_item_name(menu_type, menu_type_dict, current_key, lang):
-
+#async def get_item_name(menu_type, menu_type_dict, current_key, lang):
+async def get_item_name(menu_type):
     menu_type_to_function = {
         "api": get_name_from_info_dict,
         "model": get_name_from_info_dict,
         "image_api": get_name_from_info_dict,
         "chat_mode": get_name_from_info_dict_with_lang,
         "props": get_name_from_info_dict_with_lang,
-        "lang": get_name_from_lang_info,
+        "lang": get_name_of_lang,
         "imaginepy": get_name_from_metagen,
         "imaginepy_styles": get_name_from_imaginepy_styles,
         "imaginepy_ratios": get_name_from_imaginepy_ratios,
     }
     try:
-        kwargs = {
-            "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
-            "current_key": current_key,
-            "lang": lang,
-        }
+        #kwargs = {
+        #    "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
+        #    "current_key": current_key,
+        #    "lang": lang,
+        #}
         func = menu_type_to_function.get(menu_type)
-        return await func(**kwargs)
+        #return await func(**kwargs)
+        return func
     except Exception as e: raise KeyError(f"get_item_name: {e}")
 
 async def get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lang):
@@ -193,11 +223,11 @@ async def get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lan
         # Agregar botones de navegación, si es necesario
         if len(item_keys) > config.itemspage:
             if page_index != 0: navigation_buttons.append(InlineKeyboardButton("«", callback_data=f"set_{menu_type}|paginillas|{page_index - 1}|{menu_type}"))
-            if menu_type != "props": navigation_buttons.append(InlineKeyboardButton("⬇️", callback_data=f"set_props|paginillas|{page_index}|{menu_type}"))
+            if menu_type != "props": navigation_buttons.append(InlineKeyboardButton("↩️", callback_data=f"set_props|paginillas|{page_index}|{menu_type}"))
             if (page_index + 1) * config.itemspage < len(item_keys): navigation_buttons.append(InlineKeyboardButton("»", callback_data=f"set_{menu_type}|paginillas|{page_index + 1}|{menu_type}"))
         else:
-            if menu_type != "props": navigation_buttons.append(InlineKeyboardButton("⬇️", callback_data=f"set_props|paginillas|{page_index}|{menu_type}"))
-            if menu_type == "props": navigation_buttons.append(InlineKeyboardButton(f'{config.lang["commands"]["reset"][lang]} 🪃', callback_data=f'set_props|reset|0|{menu_type}'))
+            if menu_type != "props": navigation_buttons.append(InlineKeyboardButton("↩️", callback_data=f"set_props|paginillas|{page_index}|{menu_type}"))
+            if menu_type == "props": navigation_buttons.append(InlineKeyboardButton(f'{config.lang[lang]["commands"]["reset"]} 🪃', callback_data=f'set_props|reset|0|{menu_type}'))
         if navigation_buttons: keyboard.append(navigation_buttons)
         return keyboard
     except Exception as e: raise KeyError(f"get_navigation_buttons: {e}")
