@@ -22,7 +22,7 @@ async def handle(update: Update, context: CallbackContext, paraprops=None):
     tokens=config.lang[lang]["metagen"]["tokens"]
     textoprimer="""{nombreconfig}:\n\n{api}: {nombreapi} | {modelo}: {nombremodelo}\n{tokens}: {tokens_actual} / {modeltokens}\n{chatmode}: {nombrechatmode}\n{apimagen}: {apimageactual}"""
     if checked_image_api =="imaginepy": textoprimer += "\n{imaginestyle}: {imagineactual}\n{imaginemodel}: {checked_imaginepy_models}"
-    text = f'{textoprimer.format(nombreconfig=nombreconfig, api=api, nombreapi=nombreapi,modelo=modelo,nombremodelo=nombremodelo, tokensmax=tokensmax,modeltokens=modeltokens,chatmode=chatmode, nombrechatmode=nombrechatmode,tokens=tokens, tokens_actual=tokens_actual,apimagen=apimagen, apimageactual=nombreapimagen,imaginestyle=imaginestyle, imagineactual=checked_imaginepy_styles)}'
+    text = f'{textoprimer.format(imaginemodel=imaginemodel, checked_imaginepy_models=checked_imaginepy_models, nombreconfig=nombreconfig, api=api, nombreapi=nombreapi,modelo=modelo,nombremodelo=nombremodelo, tokensmax=tokensmax,modeltokens=modeltokens,chatmode=chatmode, nombrechatmode=nombrechatmode,tokens=tokens, tokens_actual=tokens_actual,apimagen=apimagen, apimageactual=nombreapimagen,imaginestyle=imaginestyle, imagineactual=checked_imaginepy_styles)}'
 
     if paraprops: return text
     await update.effective_chat.send_message(text, parse_mode=ParseMode.MARKDOWN)

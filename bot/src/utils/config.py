@@ -78,7 +78,7 @@ with open(config_dir / "openai_completion_options.json", 'r', encoding="utf-8") 
     completion_options = load(f)
 
 #props
-with open(config_dir / "props.json", 'r', encoding="utf-8") as f:
+with open(config_dir / "locales/props.json", 'r', encoding="utf-8") as f:
     props = load(f)
 
 # set file pathsfrom

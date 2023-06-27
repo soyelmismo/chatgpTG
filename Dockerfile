@@ -40,7 +40,6 @@ COPY config/api.example.json config/api.json
 COPY config/chat_mode.example.json config/chat_mode.json
 COPY config/model.example.json config/model.json
 COPY config/locales/ /config/locales
-COPY config/props.json config/props.json
 COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
