@@ -27,7 +27,8 @@
     "advertencia": "Waarschuwing",
     "imaginepy_styles": "Stijl",
     "imaginepy_ratios": "Verhouding",
-    "imaginepy_actual_style": "Huidige stijl van Imagine.py"
+    "imaginepy_actual_style": "Huidige stijl van Imagine.py",
+    "imaginepy_actual_model": "Huidig model van Imagine.py"
   },
   "apicheck": {
     "inicio": "API-controle uitgevoerd",

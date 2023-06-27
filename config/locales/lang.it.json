@@ -27,7 +27,8 @@
     "advertencia": "Avvertimento",
     "imaginepy_styles": "Stile",
     "imaginepy_ratios": "Rapporto",
-    "imaginepy_actual_style": "Stile attuale di Imagine.py"
+    "imaginepy_actual_style": "Stile attuale di Imagine.py",
+    "imaginepy_actual_model": "Modello attuale di Imagine.py"
   },
   "apicheck": {
     "inicio": "Eseguito controllo API",

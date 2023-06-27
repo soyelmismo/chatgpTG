@@ -27,7 +27,8 @@
     "advertencia": "警告",
     "imaginepy_styles": "スタイル",
     "imaginepy_ratios": "比率",
-    "imaginepy_actual_style": "Imagine.pyの現在のスタイル"
+    "imaginepy_actual_style": "Imagine.pyの現在のスタイル",
+    "imaginepy_actual_model": "Imagine.pyの現在のモデル"
   },
   "apicheck": {
     "inicio": "APIのチェックが実行されました",

@@ -29,7 +29,7 @@ the language to explain as a native is: {language}."""
 async def handle(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import config, obtener_contextos as oc, parametros
     chat, lang = await oc(update)
-    mododechat_actual, api_actual, modelo_actual, image_api_actual, _, _ = await parametros(chat, lang, update)
+    mododechat_actual, api_actual, modelo_actual, image_api_actual, _, _, _ = await parametros(chat, lang, update)
     from bot.src.handlers import message
     await message.handle(chat, lang, update, context, _message=helpmessage.format(botname=f'{context.bot.username}', selected_chat_mode=f'{config.chat_mode["info"][mododechat_actual]["name"][lang]}', selected_api=f'{config.api["info"][api_actual]["name"]}', selected_image_api=f'{config.api["info"][image_api_actual]["name"]}', selected_model=f'{config.model["info"][modelo_actual]["name"]}', available_lang=f'{config.available_lang}', language=f'{config.lang[lang]["info"]["name"]}'))
 

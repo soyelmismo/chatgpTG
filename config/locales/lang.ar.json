@@ -27,7 +27,8 @@
     "advertencia": "تحذير",
     "imaginepy_styles": "أسلوب",
     "imaginepy_ratios": "نسبة",
-    "imaginepy_actual_style": "النمط الحالي لـ Imagine.py"
+    "imaginepy_actual_style": "النمط الحالي لـ Imagine.py",
+    "imaginepy_actual_model": "النموذج الحالي لـ Imagine.py"
   },
   "apicheck": {
     "inicio": "تم تنفيذ فحص الواجهات البرمجية",

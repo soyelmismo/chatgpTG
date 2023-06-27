@@ -80,7 +80,7 @@ async def get_imaginepy_text(chat, lang):
     descripcionmenu = config.api["info"]["imaginepy"]["description"][lang]
     estilo = config.lang[lang]["metagen"]["imaginepy_styles"]
     ratio = config.lang[lang]["metagen"]["imaginepy_ratios"]
-    model = config.lang[lang]["metagen"]["imaginepy_models"]
+    model = config.lang[lang]["metagen"]["modelo"]
     styleactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_styles)
     ratioactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_ratios)
     modelactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_models)
@@ -107,7 +107,7 @@ async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
     async def get_keys_from_lang(): return config.available_lang
     async def get_keys_from_api_info(): return config.api["available_image_api"]
     async def get_keys_from_model():
-        _, api_actual, _, _, _, _ = await parametros(chat, lang, update)
+        _, api_actual, _, _, _, _, _ = await parametros(chat, lang, update)
         return config.api["info"][api_actual]["available_model"]
     async def get_keys_from_imaginepy(): return menu_type_dict["imaginepy"]["available_options"]
     async def get_keys_from_imaginepy_styles(): return constants.imaginepy_styles
