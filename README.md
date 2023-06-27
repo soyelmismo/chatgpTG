@@ -22,8 +22,7 @@
 
 # Historial de estrellas
 
-[![Star History Chart](https://api.star-history.com/svg?repos=soyelmismo/chatgpTG&type=Date)](https://star-history.com/#soyelmismo/chatgpTG&Date)
-
+<a href="https://github.com/xtekky/gpt4free/stargazers"><img width="350" alt="Star History Chart" src="https://api.star-history.com/svg?repos=soyelmismo/chatgpTG&type=Date"></a> 
 
 ## Nueva actualización:
 - sistema de tiempo de espera y reintento.
