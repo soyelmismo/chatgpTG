@@ -4,17 +4,21 @@ import io
 import secrets
 
 async def main(prompt, style, ratio, model, seed=None, negative=None):
-    style = Style.__members__[style]
-    imagine = AsyncImagine(style=style)
+    print("generador recibe", style, ratio, model)
+    model=Model.__members__[model]
+    style=Style.__members__[style]
+    ratio=Ratio.__members__[ratio]
+    print("desempaqueta como", style, ratio, model)
+    imagine = AsyncImagine()
     try:
         if seed == None:
             seed = secrets.randbelow(10**16)
 
         img_data = await imagine.sdprem(
             prompt=prompt,
-            model=Model.__members__[model],
+            model=model,
             style=style,
-            ratio=Ratio.__members__[ratio],
+            ratio=ratio,
             negative=negative,
             seed=seed,
             cfg=15.9,
