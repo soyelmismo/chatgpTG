@@ -70,9 +70,9 @@ class ChatGPT:
             return await make_transcription.write(self, audio_file)
         except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
-    async def imagen(self, prompt, current_api, style, ratio, seed=None, negative=None):
+    async def imagen(self, prompt, current_api, style, ratio, model, seed=None, negative=None):
         try:
-            images, seed = await make_image.gen(self, prompt, current_api, style, ratio, seed, negative)
+            images, seed = await make_image.gen(self, prompt, current_api, style, ratio, model, seed, negative)
             return images, seed
         except Exception as e:
             raise RuntimeError(f"phase.imagen > {e}")

@@ -28,6 +28,8 @@ async def get_menu_type_dict(menu_type):
         return constants.imaginepy_styles
     elif menu_type == "imaginepy_ratios":
         return constants.imaginepy_ratios
+    elif menu_type == "imaginepy_models":
+        return constants.imaginepy_models
     else:
         return getattr(config, menu_type)
 
@@ -47,6 +49,7 @@ async def get_name_from_info_dict(**kwargs): return kwargs["menu_type_dict"]["in
 async def get_name_from_info_dict_with_lang(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"][kwargs["lang"]]
 async def get_name_from_imaginepy_styles(**kwargs): return constants.imaginepy_styles[constants.imaginepy_styles.index(kwargs["current_key"])]
 async def get_name_from_imaginepy_ratios(**kwargs): return constants.imaginepy_ratios[constants.imaginepy_ratios.index(kwargs["current_key"])]
+async def get_name_from_imaginepy_models(**kwargs): return constants.imaginepy_models[constants.imaginepy_models.index(kwargs["current_key"])]
 async def get_name_from_lang(**kwargs): return kwargs["menu_type_dict"][kwargs["lang"]]["info"]["name"]
 async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
     if not current_key: return None
@@ -57,6 +60,7 @@ async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
         "model": get_name_from_info_dict,
         "imaginepy_styles": get_name_from_imaginepy_styles,
         "imaginepy_ratios": get_name_from_imaginepy_ratios,
+        "imaginepy_models": get_name_from_imaginepy_models,
         "chat_mode": get_name_from_info_dict_with_lang,
         "lang": get_name_from_lang,
         "image_api": get_name_from_info_dict,
@@ -76,10 +80,12 @@ async def get_imaginepy_text(chat, lang):
     descripcionmenu = config.api["info"]["imaginepy"]["description"][lang]
     estilo = config.lang[lang]["metagen"]["imaginepy_styles"]
     ratio = config.lang[lang]["metagen"]["imaginepy_ratios"]
+    model = config.lang[lang]["metagen"]["imaginepy_models"]
     styleactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_styles)
     ratioactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_ratios)
-    textoprimero = """{nombre}\n{descripcion}\n\n{actual}:\n{estilo}: {styleactual}\n{ratio}: {ratioactual}"""
-    return f"{textoprimero.format(nombre=nombremenu, descripcion=descripcionmenu, actual=config.lang[lang]['info']['actual'], estilo=estilo, styleactual=styleactual,ratio=ratio, ratioactual=ratioactual)}"
+    modelactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_models)
+    textoprimero = """{nombre}\n{descripcion}\n\n{actual}:\n{estilo}: {styleactual}\n{model}: {modelactual}\n{ratio}: {ratioactual}"""
+    return f"{textoprimero.format(nombre=nombremenu, descripcion=descripcionmenu, actual=config.lang[lang]['info']['actual'], estilo=estilo, styleactual=styleactual,ratio=ratio, ratioactual=ratioactual, model=model, modelactual=modelactual)}"
 async def get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang):
     description = (menu_type_dict[lang]['info']['description'] if menu_type == "lang" else
                     menu_type_dict['info'][current_key]['description'][lang])
@@ -89,7 +95,7 @@ async def get_props_text(update, context):
     return await status.handle(update, context, paraprops=True)
 async def get_text(update, context, chat, lang, menu_type, menu_type_dict, option_name=None, current_key=None):
     try:
-        if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios"]: texto = await get_imaginepy_text(chat, lang)
+        if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios", "imaginepy_models"]: texto = await get_imaginepy_text(chat, lang)
         elif current_key: texto = await get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang)
         elif menu_type == "props": texto = await get_props_text(update, context)
         return f"{texto}\n\n<b>{config.lang[lang]['info']['seleccion']}</b>"
@@ -106,6 +112,7 @@ async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
     async def get_keys_from_imaginepy(): return menu_type_dict["imaginepy"]["available_options"]
     async def get_keys_from_imaginepy_styles(): return constants.imaginepy_styles
     async def get_keys_from_imaginepy_ratios(): return constants.imaginepy_ratios
+    async def get_keys_from_imaginepy_models(): return constants.imaginepy_models
     menu_type_to_function = {
         "api": get_keys_from_available,
         "chat_mode": get_keys_from_available,
@@ -116,6 +123,7 @@ async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
         "imaginepy": get_keys_from_imaginepy,
         "imaginepy_styles": get_keys_from_imaginepy_styles,
         "imaginepy_ratios": get_keys_from_imaginepy_ratios,
+        "imaginepy_models": get_keys_from_imaginepy_models,
     }
     try:
         func = menu_type_to_function.get(menu_type)

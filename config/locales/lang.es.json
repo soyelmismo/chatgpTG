@@ -80,6 +80,7 @@
     "reset_model": "Tu modelo actual no es compatible con la API, por lo que se ha cambiado el modelo automáticamente a '{new}'.",
     "reset_imaginepy_styles": "Tu estilo actual de Imagine.py no está disponible. Por lo tanto, se ha cambiado automáticamente a {new}.",
     "reset_imaginepy_ratios": "Tu ratio actual de Imagine.py no está disponible. Por lo que se ha cambiado automáticamente a {new}.",
+    "reset_imaginepy_models": "Tu modelo actual de Imagine.py no está disponible. Por lo que se ha cambiado automáticamente a {new}.",
     "genimagen_rejected": "🥲 Tu solicitud no cumple con las políticas de uso de OpenAI...",
     "genimagen_other": "🥲 Ha ocurrido un error al procesar tu solicitud. Por favor, intenta de nuevo más tarde...",
     "genimagen_badrequest": "🥲 Ha ocurrido un error en la solicitud. Por favor, verifica el formato y contenido de tu mensaje...",

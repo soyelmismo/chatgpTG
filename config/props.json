@@ -86,7 +86,8 @@
     "imaginepy": {
         "available_options": [
             "imaginepy_styles",
-            "imaginepy_ratios"
+            "imaginepy_ratios",
+            "imagineoy_models"
         ]
     }
 }

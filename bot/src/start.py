@@ -13,7 +13,7 @@ from telegram.ext import (
 from .handlers import message, voice, ocr_image, document, timeout, error
 from .handlers.commands import (
 start, help, retry, new, cancel, chat_mode, model,
-api, img, lang, status, reset, search, props, istyle, iratio)
+api, img, lang, status, reset, search, props, istyle, iratio, imodel)
 from .handlers.callbacks import imagine
 from .tasks import cache
 from .utils import config
@@ -119,6 +119,7 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
         add_this.append(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
         add_this.append(CommandHandler("istyle", istyle.imagine, filters=(user_filter | chat_filter)))
         add_this.append(CommandHandler("iratio", iratio.imagine, filters=(user_filter | chat_filter)))
+        add_this.append(CommandHandler("imodel", imodel.imagine, filters=(user_filter | chat_filter)))
     if config.switch_search == True:
         add_this.append(CommandHandler("search", search.wrapper, filters=(user_filter | chat_filter)))
     
@@ -147,28 +148,12 @@ def run_parallel_tasks():
         chat_filter = chat_filter_future.result()
 
     return application, user_filter, chat_filter
-    
+
 def run_bot() -> None:
-    while True:
-        try:
-            application, user_filter, chat_filter = run_parallel_tasks()
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(add_handlers_parallel(application, user_filter, chat_filter))
-                application.add_error_handler(error)
-                loop.run_until_complete(application.initialize())
-                loop.run_until_complete(application.run_polling())
-            finally:
-                loop.close()
-    
-            application.shutdown()
-        except BadRequest as e:
-            if "Query is too old" in str(e): logger.error('QueryTimeout')
-            if "Replied message not found" in str(e): logger.error('No message to reply')
-        except Exception as e:
-            if "TimedOut" in str(e):
-                logger.error('Timed out')
-            else:
-                logger.error(f'{__name__}: <run_bot> {errorpredlang}: {e}.')
-    
+    application, user_filter, chat_filter = run_parallel_tasks()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(add_handlers_parallel(application, user_filter, chat_filter))
+    application.add_error_handler(error)
+    loop.run_until_complete(application.initialize())
+    loop.run_until_complete(application.run_polling())

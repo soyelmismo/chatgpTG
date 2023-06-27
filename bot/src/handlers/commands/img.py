@@ -90,15 +90,16 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
 
 async def get_image_urls(chattype, chat, lang, update, prompt, seed=None, negative=None):
     try:
-        style=None
-        ratio=None
-        _, _, _, current_api, style, ratio = await parametros(chat, lang, update)
+        style = None
+        ratio = None
+        model = None
+        _, _, _, current_api, style, ratio, model = await parametros(chat, lang, update)
         insta = ChatGPT(chat)
         for attempt in range(1, (config.max_retries) + 1):
             try:
                 await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
-                image_urls, seed = await asyncio.wait_for(insta.imagen(prompt, current_api, style, ratio, seed, negative), timeout=60)
-                return image_urls, current_api, seed, style, ratio
+                image_urls, seed = await asyncio.wait_for(insta.imagen(prompt, current_api, style, ratio, model, seed, negative), timeout=60)
+                return image_urls, current_api, seed, style, ratio, model
             except Exception as e:
                 if isinstance(e, asyncio.TimeoutError): None
                 if attempt < config.max_retries: await asyncio.sleep(0.75)
@@ -107,7 +108,7 @@ async def get_image_urls(chattype, chat, lang, update, prompt, seed=None, negati
     except Exception as e:
         raise TypeError(f'get_image_urls > {e}')
 
-async def send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt=None, seed=None, negative=None, style=None, ratio=None):
+async def send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt=None, seed=None, negative=None, style=None, ratio=None, model=None):
     try:
         image_group = []
         document_group = []
@@ -115,7 +116,7 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
             caption = f'✏️ "<strong><code>{prompt}</code></strong>"'
             if negative != None:
                 caption += f'\n❌ "<code>{negative}</code>"'
-            caption += f'\n\n🌱 <code>{seed}</code>\n🎨 <strong>{style}</strong>\n📐 <strong>{ratio}</strong>'
+            caption += f'\n\n🌱 <code>{seed}</code>\n🎨 <strong>{style}</strong>\n🧵<strong>{model}</strong>\n📐 <strong>{ratio}</strong>'
             image_urls.seek(0)  # Ensure we're at the start of the file
             image = InputMediaPhoto(image_urls)
             image_group.append(image)
@@ -152,9 +153,9 @@ async def handle(chat, lang, update, context, _message=None):
         chattype = update.callback_query.message if update.callback_query else update.message
         prompt, seed, negative = await get_prompt(update, context, chattype, _message, chat, lang)
         if prompt != None:
-            image_urls, current_api, seed, style, ratio = await get_image_urls(chattype, chat, lang, update, prompt, seed, negative)
+            image_urls, current_api, seed, style, ratio, model = await get_image_urls(chattype, chat, lang, update, prompt, seed, negative)
             if image_urls is None: raise FileNotFoundError("No se obtuvieron imagenes.")
-            await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt, seed, negative, style, ratio)
+            await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt, seed, negative, style, ratio, model)
     except Exception as e:
         await handle_errors(f'image_handle > {e}', lang, chat, update)
     finally:

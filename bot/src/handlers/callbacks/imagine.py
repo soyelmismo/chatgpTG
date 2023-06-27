@@ -1,7 +1,7 @@
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
-from bot.src.utils.proxies import obtener_contextos as oc, config, db, imaginepy_ratios_cache, imaginepy_styles_cache, datetime,logger,ParseMode,errorpredlang,menusnotready
-from bot.src.utils.constants import constant_db_imaginepy_ratios, constant_db_imaginepy_styles
+from bot.src.utils.proxies import obtener_contextos as oc, config, db, imaginepy_ratios_cache, imaginepy_styles_cache, imaginepy_models_cache, datetime,logger,ParseMode,errorpredlang,menusnotready
+from bot.src.utils.constants import constant_db_imaginepy_ratios, constant_db_imaginepy_styles, constant_db_imaginepy_models
 
 async def handle(update: Update, context: CallbackContext):
     try:
@@ -31,4 +31,9 @@ async def admin_selecciones(propsmenu, seleccion, chat):
         if seleccion != "paginillas":
             imaginepy_styles_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_imaginepy_styles}', seleccion)
+    elif propsmenu == "set_imaginepy_models":
+        menu_type = "imaginepy_models"
+        if seleccion != "paginillas":
+            imaginepy_models_cache[chat.id] = (seleccion, datetime.now())
+            await db.set_chat_attribute(chat, f'{constant_db_imaginepy_models}', seleccion)
     return menu_type

@@ -80,6 +80,7 @@
     "reset_model": "現在のモデルはAPIと互換性がないため、モデルが自動的に'{new}'に変更されました。",
     "reset_imaginepy_styles": "現在のImagine.pyスタイルは利用できません。したがって、自動的に{new}に変更されました。",
     "reset_imaginepy_ratios": "現在のImagine.py比率は利用できません。したがって、自動的に{new}に変更されました。",
+    "reset_imaginepy_models": "現在のImagine.pyモデルは利用できません。そのため、自動的に{new}に変更されました。",
     "genimagen_rejected": "🥲 あなたのリクエストはOpenAIの利用ポリシーに準拠していません...",
     "genimagen_other": "🥲 リクエストの処理中にエラーが発生しました。後でもう一度試してください...",
     "genimagen_badrequest": "🥲 リクエストにエラーが発生しました。メッセージのフォーマットと内容を確認してください...",

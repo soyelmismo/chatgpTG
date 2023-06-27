@@ -1,5 +1,8 @@
 import secrets
-from bot.src.utils.constants import constant_db_model, constant_db_chat_mode, constant_db_api, constant_db_image_api, constant_db_imaginepy_ratios, constant_db_imaginepy_styles, imaginepy_ratios, imaginepy_styles
+from bot.src.utils.constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
+                                     constant_db_image_api, constant_db_imaginepy_ratios,
+                                     constant_db_imaginepy_styles, imaginepy_ratios,
+                                     imaginepy_styles, imaginepy_models, constant_db_imaginepy_models)
 
 async def check_attribute(chat, available, cache, db_attribute, update, error_message):
     from bot.src.utils.proxies import datetime, db
@@ -14,7 +17,7 @@ async def check_attribute(chat, available, cache, db_attribute, update, error_me
     return current
 
 async def check(chat, lang, update):
-    from bot.src.utils.proxies import chat_mode_cache, api_cache, model_cache, image_api_cache, config, imaginepy_ratios_cache, imaginepy_styles_cache
+    from bot.src.utils.proxies import chat_mode_cache, api_cache, model_cache, image_api_cache, config, imaginepy_ratios_cache, imaginepy_styles_cache, imaginepy_models_cache
     checked_chat_mode = await check_attribute(
         chat, 
         config.chat_mode["available_chat_mode"], 
@@ -63,4 +66,12 @@ async def check(chat, lang, update):
         update, 
         config.lang[lang]["errores"]["reset_imaginepy_ratios"]
     )
-    return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios
+    checked_imaginepy_models = await check_attribute(
+        chat, 
+        imaginepy_models, 
+        imaginepy_models_cache, 
+        constant_db_imaginepy_models, 
+        update, 
+        config.lang[lang]["errores"]["reset_imaginepy_models"]
+    )
+    return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios, checked_imaginepy_models
