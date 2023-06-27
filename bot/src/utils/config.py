@@ -57,7 +57,7 @@ especificacionlang = "El bot debe responder a todos los mensajes exclusivamente 
 lang = {}
 
 for locale in available_lang:
-    with open(config_dir / f"locales/lang.{locale}.json", "r", encoding="utf-8") as infile:
+    with open(basepath / f"locales/lang.{locale}.json", "r", encoding="utf-8") as infile:
         lang[locale] = load(infile)
 
 # apis
