@@ -98,7 +98,6 @@ async def get_image_urls(chattype, chat, lang, update, prompt, seed=None, negati
         for attempt in range(1, (config.max_retries) + 1):
             try:
                 await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
-                print("peticion", style, ratio, model)
                 image_urls, seed = await asyncio.wait_for(insta.imagen(prompt, current_api, style, ratio, model, seed, negative), timeout=60)
                 return image_urls, current_api, seed, style, ratio, model
             except Exception as e:
@@ -115,7 +114,6 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
         image_group = []
         document_group = []
         if current_api == "imaginepy":
-            print("send_image_group recibe", style, ratio, model)
             caption = f'✏️ "<strong><code>{prompt}</code></strong>"'
             if negative != None:
                 caption += f'\n❌ "<code>{negative}</code>"'
@@ -158,7 +156,6 @@ async def handle(chat, lang, update, context, _message=None):
         if prompt != None:
             image_urls, current_api, seed, style, ratio, model = await get_image_urls(chattype, chat, lang, update, prompt, seed, negative)
             if image_urls is None: raise FileNotFoundError("No se obtuvieron imagenes.")
-            print("se enviara a send_image_group", style, ratio, model)
             await send_image_group(update, context, lang, chat, image_urls, chattype, current_api, prompt, seed, negative, style, ratio, model)
     except Exception as e:
         await handle_errors(f'image_handle > {e}', lang, chat, update)

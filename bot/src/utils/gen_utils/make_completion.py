@@ -1,6 +1,6 @@
 from bot.src.utils import config
 import asyncio
-from bot.src.utils.gen_utils.extrapis import duckduckgo
+from bot.src.apis import duckduckgo
 import openai
 from bot.src.utils.gen_utils.openai_decorator.openai_decorator import openaifunc, get_openai_funcs
 import json

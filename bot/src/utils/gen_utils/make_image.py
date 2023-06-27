@@ -1,7 +1,7 @@
 async def gen(self, prompt, current_api, style, ratio, model, seed=None, negative=None):
     try:
         from bot.src.utils.proxies import config
-        from bot.src.utils.gen_utils.extrapis import imagine
+        from bot.src.apis import imagine
         if current_api == "imaginepy":
             image, seed = await imagine.main(prompt=prompt, style=style, ratio=ratio, model=model, seed=seed, negative=negative)
             return image, seed

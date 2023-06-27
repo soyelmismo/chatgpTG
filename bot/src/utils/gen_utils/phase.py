@@ -79,7 +79,7 @@ class ChatGPT:
 
     async def busqueduck(self, query):
         try:
-            from .extrapis.duckduckgo import search
+            from bot.src.apis.duckduckgo import search
             formatted_results_backend, formatted_results_string = await search(self, query)
             return formatted_results_backend, formatted_results_string
         except Exception as e: raise RuntimeError(f"phase.busqueduck > {e}")

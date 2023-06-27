@@ -4,11 +4,6 @@ import io
 import secrets
 
 async def main(prompt, style, ratio, model, seed=None, negative=None):
-    print("generador recibe", style, ratio, model)
-    model=Model.__members__[model]
-    style=Style.__members__[style]
-    ratio=Ratio.__members__[ratio]
-    print("desempaqueta como", style, ratio, model)
     imagine = AsyncImagine()
     try:
         if seed == None:
@@ -16,9 +11,9 @@ async def main(prompt, style, ratio, model, seed=None, negative=None):
 
         img_data = await imagine.sdprem(
             prompt=prompt,
-            model=model,
-            style=style,
-            ratio=ratio,
+            model=Model.__members__[model],
+            style=Style.__members__[style],
+            ratio=Ratio.__members__[ratio],
             negative=negative,
             seed=seed,
             cfg=15.9,

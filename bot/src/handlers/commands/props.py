@@ -1,23 +1,13 @@
-import time
-import asyncio
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 from bot.src.utils.checks.c_callback import check as is_this_shit_callback
 from bot.src.utils.proxies import obtener_contextos as oc, config, logger, errorpredlang, menusnotready, ParseMode
 async def handle(update: Update, context: CallbackContext):
     try:
-
         chat, _ = await oc(update)
         text, reply_markup = await gg(menu_type="props", update=update, context=context, chat=chat, page_index=0)
-        tiempo_inicio = time.time()
-        #await context.bot.send_message(chat_id=chat.id,text=text,reply_markup=reply_markup,parse_mode=ParseMode.HTML,)
-        #await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         await context.bot.send_message(chat_id=chat.id,text=text,reply_markup=reply_markup,parse_mode=ParseMode.HTML)
-        tiempo_fin = time.time()
-        duracion = tiempo_fin - tiempo_inicio
 
-        print(f"La operación tardó {duracion:.2f} segundos en completarse")
-        
     except Exception as e: logger.error(f'{__name__}: <props_handle> {errorpredlang}: {menusnotready} {e}')
 async def callback(update: Update, context: CallbackContext):
     query, _, _, page_index, _ = await hh(update)
