@@ -162,7 +162,7 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
                 }
                 func = None #
                 if func == None:
-                    func = await get_item_name(menu_type)
+                    func = await get_item_name(menu_type, **kwargs)
                 for index, current_key in enumerate(page_keys):
                     kwargs["current_key"] = current_key
                     
@@ -202,7 +202,7 @@ async def get_name_of_lang(**kwargs):
 async def get_name_from_metagen(**kwargs): return config.lang[kwargs["lang"]]["metagen"][kwargs["current_key"]]
 
 #async def get_item_name(menu_type, menu_type_dict, current_key, lang):
-async def get_item_name(menu_type):
+async def get_item_name(menu_type, **kwargs):
     menu_type_to_function = {
         "api": get_name_from_info_dict,
         "model": get_name_from_info_dict,
@@ -223,7 +223,7 @@ async def get_item_name(menu_type):
         #}
         func = menu_type_to_function.get(menu_type)
         #return await func(**kwargs)
-        return func
+        return func(**kwargs)
     except Exception as e: raise KeyError(f"get_item_name: {e}")
 
 async def get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lang):
