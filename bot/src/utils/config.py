@@ -47,7 +47,7 @@ config_dir = basepath / "config"
 
 #language
 # Obtener la lista de archivos en la carpeta
-archivos = os.listdir(config_dir / "locales")
+archivos = os.listdir(basepath / "locales")
 # Filtrar los archivos que tienen el formato <lang>.json
 archivos_idiomas = [archivo for archivo in archivos if archivo.endswith(".json")]
 # Extraer el código de idioma de cada archivo y generar la lista
@@ -59,7 +59,6 @@ lang = {}
 for locale in available_lang:
     with open(config_dir / f"locales/lang.{locale}.json", "r", encoding="utf-8") as infile:
         lang[locale] = load(infile)
-
 
 # apis
 with open(config_dir / "api.json", 'r', encoding="utf-8") as f:
@@ -78,7 +77,7 @@ with open(config_dir / "openai_completion_options.json", 'r', encoding="utf-8") 
     completion_options = load(f)
 
 #props
-with open(config_dir / "locales/props.json", 'r', encoding="utf-8") as f:
+with open(basepath / "locales/props.json", 'r', encoding="utf-8") as f:
     props = load(f)
 
 # set file pathsfrom
