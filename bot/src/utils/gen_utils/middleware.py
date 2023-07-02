@@ -1,10 +1,15 @@
 import httpx
 
 async def get_ip(self):
+    # Si usarás otro dominio y es https://, comprueba si te devuelve la ip real, en ese caso,
+    # deberías usar http://
     url = "http://mip.resisto.rodeo"  # Reemplaza con tu dominio o dirección IP
-
+    headers = {
+        "Accept": "*/*",
+        "User-Agent": "GPTG" 
+    }
     async with httpx.AsyncClient(proxies=self.proxies) as client:
-        response = await client.get(url)
+        response = await client.get(url, headers=headers)
         ip = response.text.strip()  # Elimina espacios en blanco alrededor de la IP
         print(ip)
         return ip

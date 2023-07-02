@@ -3,7 +3,7 @@ from bot.src.utils.proxies import logger, config
 import langdetect
 import nltk
 if config.proxy_raw is not None:
-    print(f"proxy de mierda:::{config.proxy_raw}")
+    print(f"Proxy: {config.proxy_raw}")
     nltk.set_proxy(config.proxy_raw)
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
