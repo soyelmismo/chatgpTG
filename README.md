@@ -38,7 +38,7 @@
 
 2. Obtén tu token de bot de Telegram de [@BotFather](https://t.me/BotFather)
 
-3. Edita `config/api.example.yml` para configurar tu OpenAI-API-KEY o añadir apis personalizadas
+3. Edita `config/api.example.json` para configurar tu API-KEY o añadir apis personalizadas
 
 4. Añade tu token de telegram, base de datos Mongo, modifica otras variables en 'docker-compose.example.yml' y renombra `docker-compose.example.yml` a `docker-compose.yml`
 
