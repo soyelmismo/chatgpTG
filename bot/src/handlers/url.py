@@ -1,4 +1,3 @@
-from . import semaphore as tasks
 from bot.src.utils.misc import clean_text, update_dialog_messages
 async def extract_from_url(url: str) -> str:
     from bot.src.utils.proxies import config
@@ -31,8 +30,8 @@ async def handle(chat, lang, update, urls):
             doc, _, advertencia = await clean_text(doc, chat)
             if advertencia==True:
                 textomensaje = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{textomensaje}'
-            new_dialog_message = {"url": f"{url} -> content: {doc}", "placeholder": ".", "date": datetime.now()}
-            _, _ = await update_dialog_messages(chat, new_dialog_message)
+            new_dialog_message = {"url": f"{url} -> content: {doc}", "date": datetime.now()}
+            await update_dialog_messages(chat, new_dialog_message)
         except ValueError as e:
             if "lenghtexceed" in str(e):
                 textomensaje = f'{config.lang[lang]["errores"]["url_size_limit"]}: {e}'

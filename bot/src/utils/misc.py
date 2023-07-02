@@ -30,7 +30,7 @@ async def update_dialog_messages(chat, new_dialog_message=None):
         dialog_id=None
     )
     await db.set_dialog_attribute(chat, f'{constant_db_tokens}', int(tokencount))
-    return advertencia, dialog_messages
+    return advertencia, dialog_messages, int(tokencount)
 
 async def ver_modelo_get_tokens(chat):
     model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')

@@ -31,7 +31,7 @@ async def handle(chat, lang, update, context):
                 if advertencia==True:
                     text = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{text}'
                 new_dialog_message = {"user": f'{config.lang[lang]["metagen"]["transcripcion_imagen"]}: "{doc}"', "date": datetime.now()}
-                _, _ = await update_dialog_messages(chat, new_dialog_message)
+                await update_dialog_messages(chat, new_dialog_message)
     except RuntimeError:
         text = f'{config.lang[lang]["errores"]["error"]}: {config.lang[lang]["errores"]["tiempoagotado"]}'
     await update.message.reply_text(f'{text}', parse_mode=ParseMode.MARKDOWN)

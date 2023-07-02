@@ -169,12 +169,12 @@ async def callback(update: Update, context: CallbackContext):
     action = query.data.split("|")[2]
     msgid = query.data.split("|")[1]
     if action == "recibir":
-        await callback_recibir(update, context, query, msgid, lang)
+        await callback_recibir(update, context, msgid, lang)
     elif action == "borrar":
         await remove_document_group(message_id=msgid, borrar=True, update=update, lang=lang)
     await query.message.delete()
 
-async def callback_recibir(update, context, query, msgid, lang):
+async def callback_recibir(update, context, msgid, lang):
     documentos = document_groups.get(f'{msgid}')
     if not documentos:
         await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=update.effective_message.message_id)

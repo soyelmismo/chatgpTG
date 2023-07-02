@@ -36,7 +36,7 @@ async def process_input_data(input_data, max_tokens):
             if len(output_data) == 0:
                 break
             removed_message = output_data.pop(0)  # Elimina el mensaje más antiguo
-            removed_tokens = sum(len(tokenizer.encode(removed_message[key])) for key in ["user", "bot", "url", "documento", "search"] if removed_message.get(key))
+            removed_tokens = sum(len(tokenizer.encode(removed_message[key])) for key in ["user", "bot", "func_cont", "url", "documento", "search"] if removed_message.get(key))
             total_tokens -= removed_tokens
             advertencia = True
 
@@ -49,13 +49,13 @@ async def process_input_data(input_data, max_tokens):
     return output_data, total_tokens, advertencia
 
 async def process_message(message, max_tokens):
-    keys = ["user", "bot", "url", "documento", "search"]
+    keys = ["user", "bot", "func_cont", "url", "documento", "search"]
     total_tokens = 0
     new_message = {}
 
-    for key in keys:
-        if message.get(key):
-            content = str(message[key])
+    for key, value in message.items():
+        if key in keys:
+            content = str(value)
             tokens = tokenizer.encode(content)
             content_tokens = len(tokens)
             if total_tokens + content_tokens > max_tokens:
@@ -66,4 +66,7 @@ async def process_message(message, max_tokens):
                 new_content = content
             new_message[key] = str(new_content)
             total_tokens += content_tokens
+        else:
+            new_message[key] = value
+
     return new_message, total_tokens

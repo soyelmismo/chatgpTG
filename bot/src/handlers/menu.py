@@ -211,11 +211,6 @@ async def get_item_name(menu_type):
         "imaginepy_models": get_name_from_imaginepy_models
     }
     try:
-        #kwargs = {
-        #    "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
-        #    "current_key": current_key,
-        #    "lang": lang,
-        #}
         return menu_type_to_function.get(menu_type)
     except Exception as e: raise KeyError(f"get_item_name: {e}")
 

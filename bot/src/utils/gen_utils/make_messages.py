@@ -62,11 +62,14 @@ def continue_or_append_latest_message(_message, messages):
 
 def append_functions(messages, dialog_messages):
     for dialog_message in dialog_messages:
-        messages.append({
-            "role": 'function',
-            "name": dialog_message.get('function', ''),
-            "content": dialog_message.get('content', ''),
-        })
+        name = dialog_message.get('function')
+        content = dialog_message.get('func_cont')
+        if name:
+            messages.append({
+                "role": 'function',
+                "name": name,
+                "content": content,
+            })
     return messages
 
 async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):

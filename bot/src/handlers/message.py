@@ -120,7 +120,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         interaction_cache[chat.id] = ("visto", datetime.now())
         asyncio.create_task(db.set_chat_attribute(chat, "last_interaction", datetime.now()))
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
-        advertencia, _ = await update_dialog_messages(chat, new_dialog_message)
+        advertencia, _, _ = await update_dialog_messages(chat, new_dialog_message)
         asyncio.create_task(enviar_advertencia_si_necesario(advertencia, update, lang, reply_val))
 
 async def stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val):

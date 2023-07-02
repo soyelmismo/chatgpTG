@@ -20,3 +20,4 @@ nltk
 langdetect
 transformers
 imaginepy
+docstring_parser

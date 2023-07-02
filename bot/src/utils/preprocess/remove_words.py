@@ -33,7 +33,7 @@ async def procesar_item(item, idioma):
     new_item = {}
     for key, value in item.items():
         try:
-            if key in ["user", "bot", "search", "url", "documento"]: new_item[key], idioma = await procesar_texto(value, idioma)
+            if key in ["user", "bot", "func_cont", "search", "url", "documento"]: new_item[key], idioma = await procesar_texto(value, idioma)
             else: new_item[key] = value  
         except KeyError:
             # Manejo de error por valor inexistente
