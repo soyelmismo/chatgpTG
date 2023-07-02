@@ -28,7 +28,7 @@ async def wrapper(update: Update, context: CallbackContext):
         # check if bot was mentioned (for groups)
         if not await debe_continuar(chat, lang, update, context): return
         task = bb(handle(chat, lang, update, context))
-        await tasks.handle(chat, lang, task, update)
+        await tasks.handle(chat, task)
     except Exception as e: logger.error(f'{__name__}: <message_handle_wrapper> {errorpredlang}: {e}')
 
 
@@ -87,7 +87,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             model_cache[chat.id] = (current_model, datetime.now())
         await tasks.releasemaphore(chat=chat)
         task = bb(gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
-        await tasks.handle(chat, lang, task, update)
+        await tasks.handle(chat, task)
     except Exception as e:
         await handle_errors(f'message_handle > {e}', lang, chat)
 

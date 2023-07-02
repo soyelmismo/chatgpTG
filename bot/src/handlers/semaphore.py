@@ -1,6 +1,6 @@
-from bot.src.utils.proxies import chat_locks, chat_tasks, config, logger, asyncio, ParseMode
+from bot.src.utils.proxies import chat_locks, chat_tasks, logger, asyncio
 
-async def handle(chat, lang, task, update):
+async def handle(chat, task):
     async with chat_locks[chat.id]:
         chat_tasks[chat.id] = task
         try:

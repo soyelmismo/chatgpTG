@@ -58,4 +58,4 @@ async def wrapper(update: Update, context: CallbackContext):
     if not await debe_continuar(chat, lang, update, context, bypassmention=True): return
     task = bb(handle(chat, lang, update, context))
     from . import semaphore as tasks
-    await tasks.handle(chat, lang, task, update)
+    await tasks.handle(chat, task)

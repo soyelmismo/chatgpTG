@@ -143,58 +143,50 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
 
         if cache_key in menu_cache: return menu_cache[cache_key]
         else:
-            try:
-                from itertools import islice
-
-                per_page = config.itemspage
-                page_keys = list(islice(item_keys, page_index * per_page, (page_index + 1) * per_page))
-                #per_page = config.itemspage
-                #page_keys = item_keys[page_index * config.itemspage:(page_index + 1) * per_page]
-            except Exception as e: raise ValueError(f"page_keys > {e}")
+            from itertools import islice
+            per_page = config.itemspage
+            page_keys = list(islice(item_keys, page_index * per_page, (page_index + 1) * per_page))
             import math
             num_rows = math.ceil(len(page_keys) / config.columnpage)
             # Crear lista de tuplas para representar el teclado
-            keyboard_data = []
-            try: #
-                kwargs = {
-                    "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
-                    "lang": lang,
-                }
-                func = None #
-                if func == None:
-                    func = await get_item_name(menu_type)
-                for index, current_key in enumerate(page_keys):
-                    kwargs["current_key"] = current_key
-                    
-                    name = await func(**kwargs) 
-                    #name = await get_item_name(menu_type, menu_type_dict, current_key, lang)
-                        
-                    callback_data = f"set_{menu_type}|{current_key}|{page_index}|{menu_type}"
-                    keyboard_data.append((index, name, callback_data))
-            except Exception as e: raise KeyError(f"get_names > {e}")
+            kwargs = {
+                "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
+                "lang": lang,
+            }
+            func = await get_item_name(menu_type)
+            keyboard_data = await gen_keyboard_data(page_keys, func, menu_type, page_index, **kwargs)
             # Convertir la lista de tuplas en una matriz bidimensional de botones InlineKeyboardButton
-            keyboard = []
-            try:
-                def create_buttons(row_data):
-                    for index, name, callback_data in row_data:
-                        yield InlineKeyboardButton(name, callback_data=callback_data)
-                
-                for row in range(num_rows):
-                    row_start = row * config.columnpage
-                    row_end = (row + 1) * config.columnpage
-                    row_data = keyboard_data[row_start:row_end]
-                
-                    buttons = list(create_buttons(row_data))
-                    keyboard.append(buttons)
-                #for row in range(num_rows):
-                    #buttons = [InlineKeyboardButton(name, callback_data=callback_data)
-                                #for index, name, callback_data in keyboard_data[row * config.columnpage:(row + 1) * config.columnpage]]
-                    #keyboard.append(buttons)
-            except Exception as e: raise KeyError(f"get_buttons > {e}")
+            keyboard = await gen_keyboard_buttons(num_rows, keyboard_data)
             keyboard = await get_navigation_buttons(keyboard, item_keys, page_index, menu_type, lang)
             menu_cache[cache_key] = keyboard
             return keyboard
     except Exception as e: raise KeyError(f"get_keyboard: {e}")
+
+async def gen_keyboard_data(page_keys, func, menu_type, page_index, **kwargs):
+    keyboard_data = []
+    for index, current_key in enumerate(page_keys):
+        kwargs["current_key"] = current_key
+
+        name = await func(**kwargs) 
+
+        callback_data = f"set_{menu_type}|{current_key}|{page_index}|{menu_type}"
+        keyboard_data.append((index, name, callback_data))
+    return keyboard_data
+
+def create_buttons(row_data):
+    for index, name, callback_data in row_data:
+        yield InlineKeyboardButton(name, callback_data=callback_data)
+
+async def gen_keyboard_buttons(num_rows, keyboard_data):
+    keyboard = []
+    for row in range(num_rows):
+        row_start = row * config.columnpage
+        row_end = (row + 1) * config.columnpage
+        row_data = keyboard_data[row_start:row_end]
+        buttons = list(create_buttons(row_data))
+        keyboard.append(buttons)
+    return keyboard
+
 
 async def get_name_from_lang_info(**kwargs): return kwargs["menu_type_dict"]['info']['name'][kwargs["current_key"]]
 async def get_name_of_lang(**kwargs):

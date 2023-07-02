@@ -48,7 +48,7 @@ async def wrapper(update: Update, context: CallbackContext, _message=None):
         await parametros(chat, lang, update)
         if not await debe_continuar(chat, lang, update, context, bypassmention=True): return
         task = bb(handle(chat, lang, update, context, _message))
-        await tasks.handle(chat, lang, task, update)
+        await tasks.handle(chat, task)
     except Exception as e:
         await handle_errors(f'search_wrapper > {e}', lang, chat)
     finally:

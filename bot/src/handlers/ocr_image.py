@@ -43,5 +43,5 @@ async def wrapper(update: Update, context: CallbackContext):
     await parametros(chat, lang, update)
     if not await debe_continuar(chat, lang, update, context): return
     task = bb(handle(chat, lang, update, context))
-    await tasks.handle(chat, lang, task, update)
+    await tasks.handle(chat, task)
 

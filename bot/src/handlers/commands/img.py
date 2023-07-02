@@ -38,7 +38,7 @@ async def create_document_group(update, context, lang, image_group, document_gro
     except Exception as e:
         raise LookupError(f'create_document_group > {e}')
 
-async def send_media_group_with_retry(update: Update, text, context: CallbackContext, chat_id, media_group, keyboard, reply_to_message_id=None, mensaje_group_id=None, caption=None):
+async def send_media_group_with_retry(update: Update, text, context: CallbackContext, chat_id, media_group, keyboard, reply_to_message_id=None, caption=None):
     try:
         media_msg = await context.bot.send_media_group(chat_id=chat_id, media=media_group, caption=caption, parse_mode=ParseMode.HTML, reply_to_message_id=reply_to_message_id)
         if text:
@@ -50,9 +50,6 @@ async def send_media_group_with_retry(update: Update, text, context: CallbackCon
                 await update.effective_chat.send_message(text, parse_mode=ParseMode.MARKDOWN, reply_markup={"inline_keyboard": keyboard})
         else:
             raise RuntimeError(f'send_media_group_with_retry > {e}')
-
-import re
-import hashlib
 
 async def get_prompt(update: Update, context: CallbackContext, chattype, _message, chat, lang):
     try:
@@ -146,7 +143,7 @@ async def wrapper(update: Update, context: CallbackContext, _message=None):
     if not await debe_continuar(chat, lang, update, context, bypassmention=True): return
     task = bb(handle(chat, lang, update, context, _message))
     await tasks.releasemaphore(chat=chat)
-    await tasks.handle(chat, lang, task, update)
+    await tasks.handle(chat, task)
 
 async def handle(chat, lang, update, context, _message=None):
     try:
@@ -172,26 +169,27 @@ async def callback(update: Update, context: CallbackContext):
     action = query.data.split("|")[2]
     msgid = query.data.split("|")[1]
     if action == "recibir":
-        documentos = document_groups.get(f'{msgid}')
-        if not documentos:
-            await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=update.effective_message.message_id)
-            await query.message.delete()
-        else:
-            try:
-                if not pendientes.get(msgid):
-                    pendientes[msgid] = True
-                    await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None, reply_to_message_id=msgid)
-                    await remove_document_group(message_id=msgid, borrar=True)
-                    await query.message.delete()
-                    pendientes.pop(msgid)
-            except telegram.error.BadRequest as e:
-                if rmnf in str(e):
-                    await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None)
-                else:
-                    raise ValueError(f"telegram BadRequest > {e}")
+        await callback_recibir(update, context, query, msgid, lang)
     elif action == "borrar":
         await remove_document_group(message_id=msgid, borrar=True, update=update, lang=lang)
-        await query.message.delete()
+    await query.message.delete()
+
+async def callback_recibir(update, context, query, msgid, lang):
+    documentos = document_groups.get(f'{msgid}')
+    if not documentos:
+        await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=update.effective_message.message_id)
+    else:
+        try:
+            if not pendientes.get(msgid):
+                pendientes[msgid] = True
+                await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None, reply_to_message_id=msgid)
+                await remove_document_group(message_id=msgid, borrar=True)
+                pendientes.pop(msgid)
+        except telegram.error.BadRequest as e:
+            if rmnf in str(e):
+                await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None)
+            else:
+                raise ValueError(f"telegram BadRequest > {e}")
 
 
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
