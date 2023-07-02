@@ -1,4 +1,9 @@
+from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names, asyncio, errorpredlang)
+
 from nltk import download as ddl
+if config.proxy_raw is not None:
+    from nltk import set_proxy
+    set_proxy(config.proxy_raw)
 from nltk.corpus import names as cc
 ddl('names', quiet=True)
 from secrets import choice
@@ -14,7 +19,6 @@ from datetime import datetime
 from . import url, timeout
 from .commands import new
 from .commands import img, cancel, retry
-from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names, asyncio, errorpredlang)
 from bot.src.handlers.error import mini_handle as handle_errors
 
 async def wrapper(update: Update, context: CallbackContext):
@@ -107,7 +111,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     except Exception as e:
         if "Can't parse entities" in str(e): None
         else:
-            asyncio.create_task(mensaje_error_reintento(context, lang, placeholder_message, answer))
+            await mensaje_error_reintento(context, lang, placeholder_message, answer)
             raise BufferError(f'<message_handle_fn> {errorpredlang}: {e}')
     finally:
         await tasks.releasemaphore(chat=chat)
@@ -141,11 +145,14 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 except asyncio.CancelledError: break
                 except telegram.error.BadRequest as e:
                     if str(e).startswith(msg_no_mod): continue
+                    elif "Message text is empty" in str(e): raise RuntimeError("NoMSG")
                     else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
                 await sleep(timer)  # Esperar un poco para evitar el flooding
                 prev_answer = answer
         except Exception as e:
-            raise e
+            await mensaje_error_reintento(context, lang, placeholder_message, answer)
+            await tasks.releasemaphore(chat=chat)
+            raise RuntimeError(f'<message_stream> {errorpredlang}: {e}')
         return placeholder_message, _message, answer, keyboard
     except Exception as e:
         raise RuntimeError(f'stream_message > {e}')

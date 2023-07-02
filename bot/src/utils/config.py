@@ -40,6 +40,11 @@ request_timeout = int(env.get('REQUEST_TIMEOUT', [10])[0])
 pdf_page_lim = int(env.get('PDF_PAGE_LIMIT', [25])[0])
 pred_lang = str(env.get('AUTO_LANG', ['en'])[0])
 
+custom_imaginepy_url = str(env.get('IMAGINE_URL', [None])[0])
+
+proxy_raw = env.get('API_TUNNEL', [None])[0]
+apisproxy = {proxy_raw.split("://")[0] + "://": proxy_raw} if proxy_raw is not None else None
+
 basepath = Path(__file__).resolve().parents[3]
 # set config paths
 config_dir = basepath / "config"

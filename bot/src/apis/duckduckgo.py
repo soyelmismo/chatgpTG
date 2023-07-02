@@ -6,7 +6,7 @@ async def search(self=None, query=None, gptcall=None):
         if not query: return
         if not self.lang: self.lang=pred_lang
         resultados=[]
-        with DDGS() as ddgs:
+        with DDGS(proxies=self.proxies) as ddgs:
             ddgs_gen = ddgs.text(query, backend="api", region=f'{self.lang}-{self.lang}', safesearch='Off', timelimit='y')
             for r in islice(ddgs_gen, 10): resultados.append(r)
         formatted_backend = []

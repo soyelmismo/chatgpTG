@@ -7,7 +7,7 @@ async def extract_from_url(url: str) -> str:
     headers = {
         "User-Agent": "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/113.0 Firefox/113.0"
     }
-    async with AsyncClient(headers=headers, follow_redirects=True) as client:
+    async with AsyncClient(headers=headers, follow_redirects=True, proxies=config.apisproxy) as client:
         response = await client.get(url)
     response.raise_for_status()
     content_length = int(response.headers.get('Content-Length', 0))

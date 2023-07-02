@@ -32,7 +32,7 @@ async def post_init(application: Application):
     if config.switch_search == True:
         commandos.insert(2, ("/search", "🔎"))
     await application.bot.set_my_commands(commandos)
-    logger.info(f'-----{config.lang[config.pred_lang]["mensajes"]["bot_iniciado"]}-----')
+    print(f'-----{config.lang[config.pred_lang]["mensajes"]["bot_iniciado"]}-----')
 
 def build_application():
     return (

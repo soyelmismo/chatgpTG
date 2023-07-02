@@ -13,8 +13,9 @@ async def handle(update: Update, context: CallbackContext):
         await update.effective_chat.send_message(text, reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.HTML)
     else:        
         await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["cancelado"]}', reply_to_message_id=update.effective_message.message_id, parse_mode=ParseMode.HTML)
-        task = chat_tasks[chat.id]
-        task.cancel()
-        await tasks.releasemaphore(chat)
-        interaction_cache[chat.id] = ("visto", datetime.now())
-        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+        task = chat_tasks.get(chat.id)
+        if task is not None:
+            task.cancel()
+            await tasks.releasemaphore(chat)
+            interaction_cache[chat.id] = ("visto", datetime.now())
+            await db.set_chat_attribute(chat, "last_interaction", datetime.now())

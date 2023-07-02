@@ -1,5 +1,6 @@
 from bot.src.utils import proxies
 import openai
+import asyncio
 from . import make_transcription, make_image
 from bot.src.utils.constants import constant_db_api, constant_db_tokens
 from bot.src.utils.gen_utils.make_completion import _make_api_call
@@ -9,11 +10,15 @@ class ChatGPT:
         self.model = model
         self.lang = lang
         self.answer = None
+        self.proxies = proxies.config.apisproxy
         assert self.model in proxies.config.model["available_model"], f'{proxies.config.lang[self.lang]["errores"]["utils_modelo_desconocido"]}: {self.model}'
-        self.api = None
+        self.api=(proxies.api_cache[self.chat.id][0] if self.chat.id in proxies.api_cache else asyncio.run(proxies.db.get_chat_attribute(self.chat, f'{constant_db_api}')))
         self.diccionario = {}
         self.diccionario.clear()
         self.diccionario.update(proxies.config.completion_options)
+        if self.proxies is not None:
+            from bot.src.utils.gen_utils import middleware
+            asyncio.ensure_future(middleware.resetip(self))
 
     async def send_message(self, _message, dialog_messages=[], chat_mode="assistant"):
         while self.answer is None:
@@ -33,9 +38,10 @@ class ChatGPT:
         from .make_messages import handle as mms
         from .make_prompt import handle as mpm
         try:
-            self.api=(proxies.api_cache[self.chat.id][0] if self.chat.id in proxies.api_cache else await proxies.db.get_chat_attribute(self.chat, f'{constant_db_api}'))
-            is_model_not_in_text_completions = self.model not in proxies.config.model["text_completions"]
-            messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if is_model_not_in_text_completions else (None, await mpm(self, _message, dialog_messages, chat_mode))
+            print("1")
+            is_model_in_text_completions = True if self.model in proxies.config.model["text_completions"] else None
+            print(is_model_in_text_completions)
+            messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if not is_model_in_text_completions else (None, await mpm(self, _message, dialog_messages, chat_mode))
             kwargs = {
                 "prompt": prompt,
                 "messages": messages

@@ -148,3 +148,6 @@ event_log.txt
 proxies/
 bot/src/utils/checks/proxies.py
 bot/src/utils/checks/c_parameters_old.py
+bot/src/apis/imaginepy/
+bot/src/utils/database.py.ogog
+bot/src/utils/database.py.jsontemp

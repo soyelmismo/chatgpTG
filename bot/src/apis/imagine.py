@@ -1,10 +1,10 @@
-from imaginepy import AsyncImagine, Style, Ratio, Model
+from .imaginepy import AsyncImagine, Style, Ratio, Model
 import uuid
 import io
 import secrets
 
-async def main(prompt, style, ratio, model, seed=None, negative=None):
-    imagine = AsyncImagine()
+async def main(self, prompt, style, ratio, model, seed=None, negative=None, endpoint=None):
+    imagine = AsyncImagine(api=endpoint, proxies=self.proxies)
     try:
         if seed == None:
             seed = secrets.randbelow(10**16)

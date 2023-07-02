@@ -2,7 +2,7 @@ import requests
 import json
 
 class Model:
-    def __init__(self, model):
+    def __init__(self, model, proxy: dict = None):
         self.url = "https://ava-alpha-api.codelink.io/api/chat"
         self.headers = {
             "content-type": "application/json"
@@ -12,6 +12,7 @@ class Model:
             "temperature": 0.6,
             "stream": True
         }
+        self.proxy = proxy
         self.accumulated_content = ""
 
     def _process_line(self, line):
@@ -34,7 +35,7 @@ class Model:
     def ChatCompletion(self, messages):
         self.payload["messages"] = messages
 
-        with requests.post(self.url, headers=self.headers, data=json.dumps(self.payload), stream=True) as response:
+        with requests.post(self.url, headers=self.headers, data=json.dumps(self.payload), stream=True, proxies=self.proxy) as response:
             for line in response.iter_lines():
                 self._process_line(line)
 
