@@ -21,7 +21,10 @@ class Database:
         self.data = None
 
         if self.use_json:
-            self.data_file = Path("/database/database.json")
+            self.data_files = {
+                "chats": Path("/database/chats.json"),
+                "dialogs": Path("/database/dialogs.json")
+            }
             self.load_data_from_json()
         else:
             self.client = AsyncIOMotorClient(config.mongodb_uri)
@@ -30,19 +33,18 @@ class Database:
             self.dialogs = self.db["dialogs"]
 
     def load_data_from_json(self):
-        if self.data_file.exists():
-            with self.data_file.open(encoding="utf-8") as file:
-                self.data = json.load(file)
-        else:
-            self.data = {
-                "chats": {},
-                "dialogs": {}
-            }
-            self.save_data_to_json()  # Guardar datos en el archivo JSON vacío
+        self.data = {}
+        for key, file_path in self.data_files.items():
+            if file_path.exists():
+                with file_path.open(encoding="utf-8") as file:
+                    self.data[key] = json.load(file)
+            else:
+                self.data[key] = {}
+                self.save_data_to_json(key)  # Guardar datos en el archivo JSON vacío
 
-    def save_data_to_json(self):
-        data = self.convert_datetime(self.data)
-        with self.data_file.open("w", encoding="utf-8") as file:
+    def save_data_to_json(self, key: str):
+        data = self.convert_datetime(self.data[key])
+        with self.data_files[key].open("w", encoding="utf-8") as file:
             json.dump(data, file, indent=2, ensure_ascii=False)
             
     def convert_datetime(self, data):
@@ -84,7 +86,7 @@ class Database:
                     constant_db_imaginepy_ratios: imaginepy_ratios[0],
                     constant_db_imaginepy_models: imaginepy_models[0],
                 }
-                self.save_data_to_json()
+                self.save_data_to_json("chats")
             else:
                 chat_dict = {
                     "_id": str(chat.id),
@@ -92,7 +94,7 @@ class Database:
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],
-                    constant_db_model: config.model["available_model"][0],
+                    constant_db_model: config.api["info"][initial_api]["available_model"][0],
                     constant_db_api: config.api["available_api"][0],
                     constant_db_image_api: config.api["available_image_api"][0],
                     constant_db_imaginepy_styles: imaginepy_styles[0],
@@ -114,7 +116,8 @@ class Database:
                 "messages": [],
             }
             self.data["chats"][str(chat.id)]["current_dialog_id"] = dialog_id
-            self.save_data_to_json()
+            self.save_data_to_json("dialogs")
+            self.save_data_to_json("chats")
         else:
             dialog_dict = {
                 "_id": dialog_id,
@@ -162,7 +165,7 @@ class Database:
             self.data["chats"][str(chat.id)][constant_db_imaginepy_styles] = initial_imaginepy_style
             self.data["chats"][str(chat.id)][constant_db_imaginepy_ratios] = initial_imaginepy_ratio
             self.data["chats"][str(chat.id)][constant_db_imaginepy_models] = initial_imaginepy_model
-            self.save_data_to_json()  # Guardar datos en el archivo JSON
+            self.save_data_to_json("chats")  # Guardar datos en el archivo JSON
         else:
             # Actualizar los valores en la base de datos
             await self.set_chat_attribute(chat, constant_db_chat_mode, initial_chat_mode)
@@ -177,7 +180,7 @@ class Database:
         await self.chat_exists(chat, raise_exception=True)
         if self.use_json:
             self.data["chats"][str(chat.id)][key] = value
-            self.save_data_to_json()
+            self.save_data_to_json("chats")
         else:
             await self.chats.update_one({"_id": str(chat.id)}, {"$set": {key: value}})
 
@@ -186,7 +189,7 @@ class Database:
             dialog_id = self.data["chats"].get(str(chat.id), {}).get("current_dialog_id")
             if dialog_id and dialog_id in self.data["dialogs"]:
                 self.data["dialogs"][dialog_id][key] = value
-                self.save_data_to_json()
+                self.save_data_to_json("dialogs")
         else:
             dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
 
@@ -230,7 +233,7 @@ class Database:
                 dialog_id = self.data["chats"].get(str(chat.id), {}).get("current_dialog_id")
             if dialog_id and dialog_id in self.data["dialogs"]:
                 self.data["dialogs"][dialog_id]["messages"] = dialog_messages
-                self.save_data_to_json()
+                self.save_data_to_json("dialogs")
         else:
 
             if dialog_id is None:
@@ -251,7 +254,7 @@ class Database:
                     for dialog_id, dialog_data in self.data["dialogs"].items()
                     if not (dialog_data["chat_id"] == chat_id and dialog_id != current_dialog_id)
                 }
-                self.save_data_to_json()
+                self.save_data_to_json("dialogs")
         else:
             chat = await self.chats.find_one({"_id": str(chat.id)})
             if not chat:

@@ -133,10 +133,17 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
         # Configurar teclado
         keyboard = await get_keyboard()
         await update.effective_chat.send_action(ChatAction.TYPING)
-        placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
         try:
             insta = ChatGPT(chat, lang, model=current_model)
             gen = insta.send_message(_message, dialog_messages, chat_mode)
+            if config.usar_streaming == False:
+                try:
+                    print("Metodo non")
+                    await gen.asend(None)
+                except Exception as e: print(e)
+            else:
+                print("usando metodo stream")
+            placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
             async for status, gen_answer in gen:
                 answer = gen_answer[:4096]  # telegram message limit
                 if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue

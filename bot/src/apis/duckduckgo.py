@@ -19,7 +19,7 @@ async def search(self=None, query=None, gptcall=None, timelimit: str = None, typ
             title = resultado['title']
             href = resultado['href'] if type == "text" else resultado['url']
             body = resultado['body']
-            formatted_result = f"- [{title}]({href})"
+            formatted_result = f"- [{title}]({href}): {body}"
             backend_result = f"[{title}]({href}): {body}"
             formatted_results.append(formatted_result)
             formatted_backend.append(backend_result)

@@ -21,3 +21,4 @@ langdetect
 transformers
 imaginepy
 docstring_parser
+python_weather

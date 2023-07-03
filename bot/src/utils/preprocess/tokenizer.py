@@ -1,9 +1,9 @@
-from transformers import OpenAIGPTTokenizer
+from transformers import BertTokenizer
 import bot.src.utils.preprocess.remove_words as remove_words
 from .remove_words import config
 from typing import List, Dict, Any, Tuple
 
-tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt', proxies=config.apisproxy)
+tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased', proxies=config.apisproxy)
 async def handle(input_data: str | List[Dict[str, Any]], max_tokens: int) -> str | List[Dict] | Tuple[int, bool]:
     max_tokens = int(max_tokens)
     try:

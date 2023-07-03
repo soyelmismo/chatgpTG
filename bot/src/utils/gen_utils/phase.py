@@ -4,6 +4,7 @@ import asyncio
 from . import make_transcription, make_image
 from bot.src.utils.constants import constant_db_api, constant_db_tokens
 from bot.src.utils.gen_utils.make_completion import _make_api_call
+from bot.src.utils.preprocess.parse_headers import parse_values_to_json
 class ChatGPT:
     def __init__(self, chat, lang="es", model="gpt-3.5-turbo"):
         self.chat = chat
@@ -16,6 +17,7 @@ class ChatGPT:
         self.diccionario = {}
         self.diccionario.clear()
         self.diccionario.update(proxies.config.completion_options)
+        self.diccionario["stream"] = proxies.config.usar_streaming
         if self.proxies is not None:
             from bot.src.utils.gen_utils import middleware
             asyncio.ensure_future(middleware.resetip(self))
@@ -35,15 +37,19 @@ class ChatGPT:
         yield "finished", self.answer
 
     async def _prepare_request(self, _message, dialog_messages, chat_mode):
-        from .make_messages import handle as mms
-        from .make_prompt import handle as mpm
+        from bot.src.utils.preprocess.make_messages import handle as mms
+        from bot.src.utils.preprocess.make_prompt import handle as mpm
         try:
-            is_model_in_text_completions = True if self.model in proxies.config.model["text_completions"] else None
-            messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if not is_model_in_text_completions else (None, await mpm(self, _message, dialog_messages, chat_mode))
+            messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if self.model not in proxies.config.model["text_completions"] else (None, await mpm(self, _message, dialog_messages, chat_mode))
             kwargs = {
                 "prompt": prompt,
                 "messages": messages
             }
+            
+            #if proxies.config.api["info"][self.api].get("headers"):
+                #kwargs["headers"] = parse_values_to_json(proxies.config.api["info"][self.api]["headers"])
+                #print(f'{kwargs}')
+                
             from bot.src.utils.misc import ver_modelo_get_tokens
             max_tokens = await ver_modelo_get_tokens(self.chat)
             tokens_actual = await proxies.db.get_dialog_attribute(self.chat, f'{constant_db_tokens}')

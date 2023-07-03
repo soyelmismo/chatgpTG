@@ -1,4 +1,5 @@
 from bot.src.utils.misc import clean_text, update_dialog_messages
+
 async def extract_from_url(url: str) -> str:
     from bot.src.utils.proxies import config
     from httpx import AsyncClient
@@ -19,6 +20,7 @@ async def extract_from_url(url: str) -> str:
     text_maker.single_line_break = True
     doc = str(text_maker.handle(html_content))
     return doc
+    
 async def handle(chat, lang, update, urls):
     from bot.src.utils.proxies import config, datetime, ChatAction, ParseMode, interaction_cache, db
     textomensaje=""
