@@ -6,23 +6,31 @@ from typing import Callable
 openai_functions = []
 
 def extract_function_info(func: Callable) -> dict:
-    # Parse the docstring
     parsed_docstring = docstring_parser.parse(func.__doc__)
-
-    # Get information about function parameters
     params = inspect.signature(func).parameters
+
+    type_mapping = {
+        "int": "integer",
+        "float": "number",
+        "str": "string",
+        "bool": "boolean",
+        "list": "array",
+        "tuple": "array",
+        "dict": "object",
+        "None": "null",
+    }
 
     properties = {}
     required_params = []
     for k, v in params.items():
         if k == "self":
-            continue  # Skip 'self' parameter for instance methods
+            continue
 
-        param_type = v.annotation.__name__ if v.annotation != inspect.Parameter.empty else "string"
+        param_type = type_mapping.get(v.annotation.__name__, "string") if v.annotation != inspect.Parameter.empty else "string"
         param_description = ""
-        default_value = v.default if v.default != inspect.Parameter.empty else None
 
-        # Find the corresponding parameter in the parsed docstring
+        default_value_exists = v.default != inspect.Parameter.empty
+
         for param_doc in parsed_docstring.params:
             if param_doc.arg_name == k:
                 param_description = param_doc.description
@@ -33,9 +41,7 @@ def extract_function_info(func: Callable) -> dict:
             "description": param_description,
         }
 
-        if default_value is not None:
-            properties[k]["default"] = default_value
-        else:
+        if not default_value_exists:
             required_params.append(k)
 
     spec = {
@@ -52,14 +58,11 @@ def extract_function_info(func: Callable) -> dict:
 
 def openaifunc(func: Callable) -> Callable:
     @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        return await func(*args, **kwargs)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
 
     spec = extract_function_info(func)
     openai_functions.append(spec)
-    # Print the list of decorated functions
-    for func in openai_functions:
-        print(func)
 
     return wrapper
 

@@ -1,29 +1,28 @@
 import openai
 import json
-import asyncio
+from asyncio import sleep
 from datetime import datetime
 from bot.src.apis import duckduckgo, smart_gsm
 #from bot.src.utils.gen_utils.openai_decorator.openai_decorator import openaifunc, get_openai_funcs
 from .openai_functions_extraction import openaifunc, get_openai_funcs
-from bot.src.utils.config import api, proxy_raw
-
-usar_funciones = True
-
+from bot.src.utils.config import api, proxy_raw, usar_funciones
 
 @openaifunc
-async def search_on_internet(self, query: str = "") -> str:
+async def search_on_internet(self, query: str, search_type: str, timelimit: str = None) -> str:
     """
-    Internet access. Search information on the web. Talk freely to the user about the results giving pleasant answers.
+    Search information and news on internet
+    Reveives a search query to search information on the web returning it to talk freely to the user about the results giving pleasant answers.
 
     Args:
-        query (str): the text / query that will be searched on the internet
+        query (str): the text that will be searched on the internet
+        search_type (str): use "text" or "news" depending of what the user has requested
+        timelimit (str): use "d" if latest news from today, for other time limits: "w", "m", "y". Defaults to None. they are d(day), w(week), m(month), y(year).
     
     Returns:
-        str: the search results to inform the user
+        str: the search / news results to inform the user
     """
-    print("buscando en internet...")
     if query:
-        return await duckduckgo.search(self, query = query, gptcall = True)
+        return await duckduckgo.search(self, query = query, gptcall = True, timelimit = timelimit, type = search_type)
     else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
 
 @openaifunc
@@ -37,7 +36,6 @@ async def search_smartphone_info(self, model: str) -> str:
     Returns:
         str: all the device specifications to be tell to the user
     """
-    print("buscando en smart_gsm...")
     if model:
         return await smart_gsm.get_device(self, query = model)
     else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
@@ -45,17 +43,15 @@ async def search_smartphone_info(self, model: str) -> str:
 
 async def process_function_argument(response):
     arguments_list = []
-    try:
-        async for response_item in response:
-            print(response_item)
-            if response_item.choices[0].delta.get("finish_reason") == "function_call": break
+    async for response_item in response:
+        try:
             arguments_value = response_item.choices[0].delta.function_call.get("arguments", "")
             if arguments_value is not None: arguments_list.append(arguments_value)
-    except Exception as e: print(f'error: {e}')
+            if response_item.choices[0].delta.get("finish_reason") == "function_call": break
+        except: continue
     # Now that we have the list of argument fragments, join them into a single string
     if not arguments_list: return None
     arguments_str = "".join(arguments_list)
-    print(arguments_str)
     # Now that we have the complete JSON string, we can parse it
     try:
         arguments = json.loads(arguments_str)
@@ -64,14 +60,12 @@ async def process_function_argument(response):
         print(f"Failed to parse JSON string: {arguments_str}")
         return None, None
 
-
 async def handle_response_item(self, response, fn, usar_funciones, kwargs):
     function_name = ""
     async for response_item in response:
         if usar_funciones and response_item.choices[0].delta.get("function_call"):
             if not function_name:
                 function_name = response_item.choices[0].delta.function_call.get("name")
-                print(function_name)
             arguments = await process_function_argument(response)
             if arguments:
                 function_response = await globals()[function_name](self, **arguments)
@@ -87,17 +81,12 @@ async def handle_response_item(self, response, fn, usar_funciones, kwargs):
                 self.diccionario["messages"] = kwargs["messages"]
             self.diccionario.pop("functions")
             self.diccionario.pop("function_call")
+            await sleep(0.254)
             new_response = await fn(stream=True, **self.diccionario)
-            print(self.diccionario)
             async for new_response_item in new_response:
-                if new_response_item.choices[0].finish_reason == "stop":
-                    yield "finished", self.answer
                 self.answer += new_response_item.choices[0].delta.get("content", "")
                 yield "not_finished", self.answer
         else:
-            if response_item.choices[0].finish_reason == "stop":
-                yield "finished", self.answer
-                return
             self.answer += response_item.choices[0].delta.get("content", "")
             yield "not_finished", self.answer
 
@@ -113,7 +102,7 @@ async def _openai(self, **kwargs):
         if kwargs["messages"] != None:
             self.diccionario.update({"messages": kwargs["messages"], "model": self.model})
             if usar_funciones:
-                self.diccionario["functions"] = get_openai_funcs()
+                self.diccionario["functions"] = await get_openai_funcs()
                 self.diccionario["function_call"] = "auto"
             fn = openai.ChatCompletion.acreate
         else:

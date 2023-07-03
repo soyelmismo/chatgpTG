@@ -24,6 +24,7 @@ if json_database != True:
 
     mongodb_uri = f"{MONGODB_PROTO}://{env.get('MONGODB_USERNAME', ['root'])[0]}:{env.get('MONGODB_PASSWORD', ['MMWjHEHT8zd3FMR5KPd7eu6MKV2ndpUd'])[0]}@{mongus}/?retryWrites=true&w=majority"
 
+usar_funciones = bool(env.get('FEATURE_FUNCTION_CALLS', [True])[0])
 timeout_ask = bool(env.get('TIMEOUT_ASK', [True])[0])
 switch_voice = bool(env.get('FEATURE_TRANSCRIPTION', [True])[0])
 switch_ocr = bool(env.get('FEATURE_IMAGE_READ', [True])[0])

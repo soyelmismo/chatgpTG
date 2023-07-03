@@ -75,7 +75,6 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
             prompt += f'{config.lang[self.lang]["metagen"]["log"]}:\n\n'
         prompt += get_prompt_lines(dialog_messages, chat_mode, lang=self.lang)
         prompt = continue_or_append_latest_message(self, _message, prompt, chat_mode)
-        print(prompt)
         return prompt
     except Exception as e:
         e = f'_generate_prompt: {e}'

@@ -38,9 +38,7 @@ class ChatGPT:
         from .make_messages import handle as mms
         from .make_prompt import handle as mpm
         try:
-            print("1")
             is_model_in_text_completions = True if self.model in proxies.config.model["text_completions"] else None
-            print(is_model_in_text_completions)
             messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if not is_model_in_text_completions else (None, await mpm(self, _message, dialog_messages, chat_mode))
             kwargs = {
                 "prompt": prompt,

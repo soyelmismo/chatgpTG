@@ -11,7 +11,6 @@ async def get_ip(self):
     async with httpx.AsyncClient(proxies=self.proxies) as client:
         response = await client.get(url, headers=headers)
         ip = response.text.strip()  # Elimina espacios en blanco alrededor de la IP
-        print(ip)
         return ip
 
 async def resetip(self):
@@ -36,7 +35,6 @@ async def process_request(self):
 
     async with httpx.AsyncClient(proxies=self.proxies) as client:
         response = await client.post(url, headers={"Authorization": "Bearer " + str(api["info"].get(self.api, {}).get("key", ""))})
-        print(response)
         return response is not None
 
 apisdict = {}
