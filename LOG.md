@@ -1,4 +1,9 @@
 ## Cambios anteriores:
+- sistema de tiempo de espera y reintento.
+- simplificación y mejora de las indicaciones.
+- optimización de los mensajes cuando se alcanza el límite de tokens.
+- utilizar el máximo de tokens posibles para completar / siempre por debajo del límite de tokens.
+- Nuevas variables: REQUEST_MAX_RETRIES y REQUEST_TIMEOUT, REQUEST_TIMEOUT es en segundos.
 - Reestructuración de código.
 - La generación de imágenes ahora pregunta si descargar o eliminar los documentos, tiempo de expiración por defecto: 5 minutos.
 - 3 comandos nuevos. /search, /status y /reset.

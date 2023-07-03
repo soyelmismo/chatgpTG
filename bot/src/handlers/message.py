@@ -102,7 +102,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     try:
         placeholder_message, _message, answer, keyboard = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val)
         keyboard = await get_keyboard(keyboard)
-        asyncio.create_task(context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode))
+        asyncio.create_task(context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode))
         # Liberar semáforo
         asyncio.create_task(tasks.releasemaphore(chat=chat))
         if config.switch_imgs == True and chat_mode == "imagen":
@@ -141,12 +141,12 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 answer = gen_answer[:4096]  # telegram message limit
                 if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
                 try:
-                    await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                    await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
                 except asyncio.CancelledError: break
                 except telegram.error.BadRequest as e:
                     if str(e).startswith(msg_no_mod): continue
                     elif "Message text is empty" in str(e): raise RuntimeError("NoMSG")
-                    else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                    else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
                 await sleep(timer)  # Esperar un poco para evitar el flooding
                 prev_answer = answer
         except Exception as e:
@@ -211,7 +211,7 @@ async def verificar_mensaje_y_enviar_error_si_vacio(_message, update, lang):
 async def get_parse_mode(chat_mode):
     return {
         "html": ParseMode.HTML,
-        "markdown": ParseMode.MARKDOWN_V2
+        "markdown": ParseMode.MARKDOWN
     }[config.chat_mode["info"][chat_mode]["parse_mode"]]
 
 async def get_keyboard(keyboard=None):
@@ -225,11 +225,11 @@ async def get_keyboard(keyboard=None):
 
 async def update_placeholder_message(context, answer, keyboard, placeholder_message, parse_mode):
     try:
-        await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod): None
         else:
-            asyncio.create_task(context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=2), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode))
+            asyncio.create_task(context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode))
 
 async def get_reply_id(update, chat, _message, msgid=None):
     if msgid:
