@@ -6,15 +6,21 @@ async def handle(update: Update, context: CallbackContext):
     if not await debe_continuar(chat, lang, update, context): return
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     if len(dialog_messages) == 0:
-        await tasks.releasemaphore(chat=chat)
-        text = config.lang[lang]["mensajes"]["no_retry_mensaje"]
-        await update.effective_chat.send_message(text)
+        await send_no_retry(update, chat, config, lang)
         return
     last_dialog_message = dialog_messages.pop()
     await db.set_dialog_messages(chat, dialog_messages, dialog_id=None)  # last message was removed from the context
     interaction_cache[chat.id] = ("visto", datetime.now())
     await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     await tasks.releasemaphore(chat=chat)
-    _message = last_dialog_message["user"]
+    _message = last_dialog_message.get("user", None)
+    if not _message:
+        await send_no_retry(update, chat, config, lang)
+        return
     from bot.src.handlers.message import handle as messend
     await messend(chat, lang, update, context, _message)
+
+async def send_no_retry(update, chat, config, lang):
+    await tasks.releasemaphore(chat=chat)
+    text = config.lang[lang]["mensajes"]["no_retry_mensaje"]
+    await update.effective_chat.send_message(text)
