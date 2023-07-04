@@ -86,12 +86,17 @@ async def handle_response_item(self, old_response, fn, kwargs):
         if hasattr(old_response.choices[0], "message") and "function_call" in old_response.choices[0].message:
             function_name = old_response.choices[0].message.function_call.get("name")
             arguments = json.loads(old_response.choices[0].message.function_call.get("arguments"))
+        else:
+            yield None, eval(self.iter)
     else:
         async for response_item in old_response:
             if hasattr(response_item.choices[0], "delta") and "function_call" in response_item.choices[0].delta:
                 if not function_name:
                     function_name = response_item.choices[0].delta.function_call.get("name")
                 arguments = await process_function_argument(old_response)
+            else:
+                self.answer += eval(self.iter)
+                yield "not_finished", self.answer
     if arguments:
         function_response = await globals()[function_name](self, **arguments)
         new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
@@ -104,15 +109,15 @@ async def handle_response_item(self, old_response, fn, kwargs):
         })
         self.diccionario["max_tokens"] = tokencount
         self.diccionario["messages"] = kwargs["messages"]
-    self.diccionario.pop("functions")
-    self.diccionario.pop("function_call")
-    response = await fn(**self.diccionario)
-    if self.diccionario.get("stream") == False:
-        yield None, eval(self.iter)
-    else:
-        async for response_item in response:
-            self.answer += eval(self.iter)
-            yield "not_finished", self.answer
+        self.diccionario.pop("functions")
+        self.diccionario.pop("function_call")
+        response = await fn(**self.diccionario)
+        if self.diccionario.get("stream") == False:
+            yield None, eval(self.iter)
+        else:
+            async for response_item in response:
+                self.answer += eval(self.iter)
+                yield "not_finished", self.answer
 
 async def _openai(self, **kwargs):
     try:
@@ -124,16 +129,8 @@ async def _openai(self, **kwargs):
         openai.api_base = str(api["info"][self.api].get("url"))
         self, fn = await last_config(self, kwargs)
         response = await fn(**self.diccionario)
-        if usar_funciones:
-            async for response_status, answer in handle_response_item(self, response, fn, kwargs):
-                yield response_status, answer
-        else:
-            if self.diccionario.get("stream") == False:
-                yield None, eval(self.iter)
-            else:
-                async for response_item in response:
-                    self.answer += eval(self.iter)
-                    yield "not_finished", self.answer
+        async for response_status, answer in handle_response_item(self, response, fn, kwargs):
+            yield response_status, answer
     except Exception as e:
         raise ConnectionError(f'_get_openai_answer: {e}')
 
@@ -156,7 +153,7 @@ async def last_config(self, kwargs):
             self.diccionario["function_call"] = "auto"
         fn = openai.ChatCompletion.acreate
     else:
-        self.diccionario.update({"prompt": kwargs["prompt"], "engine": self.model})
+        self.diccionario.update({"prompt": kwargs["prompt"], "model": self.model})
         fn = openai.Completion.acreate
 
     return self, fn

@@ -102,9 +102,9 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     try:
         placeholder_message, _message, answer, keyboard = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val)
         keyboard = await get_keyboard(keyboard)
-        asyncio.create_task(context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode))
+        await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         # Liberar semáforo
-        asyncio.create_task(tasks.releasemaphore(chat=chat))
+        await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == True and chat_mode == "imagen":
             asyncio.create_task(img.wrapper(update, context, _message=answer))
     # Manejar excepciones
@@ -114,7 +114,6 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
             await mensaje_error_reintento(context, lang, placeholder_message, answer)
             raise BufferError(f'<message_handle_fn> {errorpredlang}: {e}')
     finally:
-        await tasks.releasemaphore(chat=chat)
         _message, answer = await check_empty_messages(_message, answer)
         # Actualizar caché de interacciones y historial de diálogos del chat
         interaction_cache[chat.id] = ("visto", datetime.now())
@@ -122,6 +121,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         advertencia, _, _ = await update_dialog_messages(chat, new_dialog_message)
         asyncio.create_task(enviar_advertencia_si_necesario(advertencia, update, lang, reply_val))
+        await tasks.releasemaphore(chat=chat)
 
 async def stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val):
     try:
@@ -137,12 +137,7 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
             insta = ChatGPT(chat, lang, model=current_model)
             gen = insta.send_message(_message, dialog_messages, chat_mode)
             if config.usar_streaming == False:
-                try:
-                    print("Metodo non")
-                    await gen.asend(None)
-                except Exception as e: print(e)
-            else:
-                print("usando metodo stream")
+                await gen.asend(None)
             placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
             async for status, gen_answer in gen:
                 answer = gen_answer[:4096]  # telegram message limit
@@ -158,7 +153,6 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 prev_answer = answer
         except Exception as e:
             await mensaje_error_reintento(context, lang, placeholder_message, answer)
-            await tasks.releasemaphore(chat=chat)
             raise RuntimeError(f'<message_stream> {errorpredlang}: {e}')
         return placeholder_message, _message, answer, keyboard
     except Exception as e:
@@ -178,8 +172,7 @@ async def actions(update, context):
         if not await debe_continuar(chat, lang, update, context, bypassmention=True): return
         asyncio.create_task(handle(chat, lang, update, context, _message=continue_key, msgid=msgid))
     else:
-        asyncio.create_task(query.message.delete())
-        asyncio.create_task(retry.handle(update=update, context=context))
+        await retry.handle(update=update, context=context)
 
 async def process_urls(raw_msg, chat, lang, update):
     from bot.src.utils.proxies import config
@@ -201,6 +194,7 @@ async def mensaje_error_reintento(context, lang, placeholder_message, answer=Non
     keyboard = []
     keyboard.append([])
     keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
+    await tasks.releasemaphore(chat=chat)
     await context.bot.edit_message_text(f'{answer}\n\n{config.lang[lang]["errores"]["error_inesperado"]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
 
 async def get_update_params(chat):
