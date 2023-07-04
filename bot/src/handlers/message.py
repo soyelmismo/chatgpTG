@@ -190,7 +190,7 @@ async def process_urls(raw_msg, chat, lang, update):
 
 # Funciones auxiliares
 
-async def mensaje_error_reintento(context, lang, placeholder_message, answer=None):
+async def mensaje_error_reintento(context, chat, lang, placeholder_message, answer=None):
     keyboard = []
     keyboard.append([])
     keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
