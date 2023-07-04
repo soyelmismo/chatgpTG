@@ -99,7 +99,7 @@
             "url": "http://127.0.0.1:1337",
             "key": "",
             "available_model": [
-                "g4f-bing",
+                "bing",
                 "g4f-chatgpt",
                 "g4f-yqcloud"
             ]

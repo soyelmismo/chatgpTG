@@ -7,7 +7,7 @@
         "text-babbage-001",
         "text-ada-001",
         "g4f-ails",
-        "g4f-bing",
+        "bing",
         "g4f-chatgpt",
         "g4f-phind",
         "g4f-yqcloud"
@@ -206,7 +206,7 @@
             },
             "max_tokens": 4096
         },
-        "g4f-bing": {
+        "bing": {
             "name": "Bing",
             "description": {
                 "es": "el chatbot oficial de bing.com",
