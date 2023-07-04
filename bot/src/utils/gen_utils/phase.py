@@ -18,9 +18,8 @@ class ChatGPT:
         self.diccionario.clear()
         self.diccionario.update(proxies.config.completion_options)
         self.diccionario["stream"] = proxies.config.usar_streaming
-        if self.proxies is not None:
-            from bot.src.utils.gen_utils import middleware
-            asyncio.ensure_future(middleware.resetip(self))
+        from bot.src.utils.gen_utils import middleware
+        asyncio.ensure_future(middleware.resetip(self))
 
     async def send_message(self, _message, dialog_messages=[], chat_mode="assistant"):
         while self.answer is None:

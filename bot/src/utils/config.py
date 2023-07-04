@@ -41,7 +41,6 @@ url_max_size = int(env.get('URL_MAX_MB', [5])[0])
 max_retries = int(env.get('REQUEST_MAX_RETRIES', [3])[0])
 
 request_timeout = int(env.get('REQUEST_TIMEOUT', [10])[0])
-print(type(usar_streaming), usar_streaming)
 pdf_page_lim = int(env.get('PDF_PAGE_LIMIT', [25])[0])
 pred_lang = str(env.get('AUTO_LANG', ['en'])[0])
 

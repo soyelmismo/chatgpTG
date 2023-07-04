@@ -21,8 +21,6 @@ async def get_device(self, query: str = ""):
             permalink = response_obj[0].get("permalink")
             if not permalink: return "Dile al usuario que falló la búsqueda o que posiblemente no exista ese modelo de telefono"
 
-            asyncio.sleep(0.543)
-
             data = await extract_from_url(f"{base}/{permalink}")
             return data
         except Exception: return "Dile al usuario que falló la búsqueda" 

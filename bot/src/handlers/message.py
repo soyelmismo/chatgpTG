@@ -239,7 +239,7 @@ async def get_reply_id(update, chat, _message, msgid=None):
         return update.effective_message.message_id
     return None
 
-async def check_empty_messages(_message, answer):
+async def check_empty_messages(_message=None, answer=None):
     if _message == continue_key or _message==None:
         _message = " "
     if answer == None:
