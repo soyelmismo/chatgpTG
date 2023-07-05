@@ -22,8 +22,9 @@ async def resetip(self):
         proxy = next(iter(self.proxies.values()))
     else:
         proxy = None
+
     new_ip = await get_ip(proxy)
-    print(new_ip)
+
     if not apisdict.get(self.api):
         apisdict[self.api] = {"ip": None}
     if not apisdict.get(self.api).get("ip") or apisdict.get(self.api).get("ip") != new_ip:

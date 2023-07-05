@@ -2,9 +2,9 @@ from bot.src.utils import proxies
 import openai
 import asyncio
 from . import make_transcription, make_image
-from bot.src.utils.constants import constant_db_api, constant_db_tokens
+from bot.src.utils.constants import constant_db_api
 from bot.src.utils.gen_utils.make_completion import _make_api_call
-from bot.src.utils.preprocess.parse_headers import parse_values_to_json
+
 class ChatGPT:
     def __init__(self, chat, lang="es", model="gpt-3.5-turbo"):
         self.chat = chat
@@ -19,7 +19,7 @@ class ChatGPT:
         self.diccionario.update(proxies.config.completion_options)
         self.diccionario["stream"] = proxies.config.usar_streaming
         from bot.src.utils.gen_utils import middleware
-        asyncio.ensure_future(middleware.resetip(self))
+        asyncio.run(middleware.resetip(self))
 
     async def send_message(self, _message, dialog_messages=[], chat_mode="assistant"):
         while self.answer is None:
@@ -48,9 +48,7 @@ class ChatGPT:
                 "messages": messages,
                 "_message": _message
             }
-            #if proxies.config.api["info"][self.api].get("headers"):
-                #kwargs["headers"] = parse_values_to_json(proxies.config.api["info"][self.api]["headers"])
-                #print(f'{kwargs}')
+
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
 
