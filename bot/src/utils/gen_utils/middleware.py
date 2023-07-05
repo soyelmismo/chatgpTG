@@ -18,7 +18,7 @@ async def resetip(self):
         return None
 
     global apisdict
-    if self.proxy:
+    if self.proxies:
         proxy = next(iter(self.proxies.values()))
     else:
         proxy = None
