@@ -32,12 +32,12 @@ async def putos_tokens(chat, _message):
     _, mensaje_tokens = await reconteo_tokens(chat, pre_tokens, max_tokens)
 
     await db.set_dialog_attribute(chat, f'{constant_db_tokens}', dialogos_tokens + mensaje_tokens)
-    completion_tokens = int(max_tokens - dialogos_tokens - mensaje_tokens - (dialogos_tokens * 0.15))
+    completion_tokens = int(max_tokens - dialogos_tokens - mensaje_tokens - (dialogos_tokens * 0.15) - 300)
     while completion_tokens < 0:
         if len(data) > 0:
             data.pop(0)
         data, dialogos_tokens = await reconteo_tokens(chat, data, max_tokens)
-        completion_tokens = int(max_tokens - dialogos_tokens - mensaje_tokens - (dialogos_tokens * 0.15))
+        completion_tokens = int(max_tokens - dialogos_tokens - mensaje_tokens - (dialogos_tokens * 0.15) - 300)
     return data, completion_tokens, chat_mode
 
 async def reconteo_tokens(chat, input_data, max_tokens):
