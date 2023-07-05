@@ -6,11 +6,7 @@
         "text-curie-001",
         "text-babbage-001",
         "text-ada-001",
-        "g4f-ails",
-        "bing",
-        "g4f-chatgpt",
-        "g4f-phind",
-        "g4f-yqcloud"
+        "bing"
     ],
     "text_completions": [
         "text-davinci-003",
@@ -189,23 +185,6 @@
             },
             "max_tokens": 2049
         },
-        "g4f-ails": {
-            "name": "Ails",
-            "description": {
-                "es": "Ai.ls es una pagina con acceso a chatgpt gratis",
-                "ar": "Ai.ls هي صفحة توفر الوصول إلى ChatGPT مجانًا.",
-                "en": "Ai.ls is a webpage that provides free access to ChatGPT.",
-                "jp": "Ai.lsは、ChatGPTへの無料アクセスを提供するウェブページです。",
-                "zh": "Ai.ls是一个提供免费访问ChatGPT的网页。",
-                "de": "Ai.ls ist eine Webseite, die kostenlosen Zugang zu ChatGPT bietet.",
-                "fr": "Ai.ls est une page web qui offre un accès gratuit à ChatGPT.",
-                "ru": "Ai.ls - это веб-страница, которая предоставляет бесплатный доступ к ChatGPT.",
-                "pt": "Ai.ls é uma página da web que fornece acesso gratuito ao ChatGPT.",
-                "it": "Ai.ls è una pagina web che fornisce accesso gratuito a ChatGPT.",
-                "nl": "Ai.ls is een webpagina die gratis toegang biedt tot ChatGPT."
-            },
-            "max_tokens": 4096
-        },
         "bing": {
             "name": "Bing",
             "description": {
@@ -222,57 +201,6 @@
                 "nl": "De officiële chatbot van bing.com."
             },
             "max_tokens": 4096
-        },
-        "g4f-chatgpt": {
-            "name": "Openai",
-            "description": {
-                "es": "acceso directo a chat.openai.com",
-                "ar": "اختصار للوصول إلى chat.openai.com",
-                "en": "Shortcut to access chat.openai.com.",
-                "jp": "chat.openai.comへのショートカット。",
-                "zh": "访问chat.openai.com的快捷方式。",
-                "de": "Verknüpfung zum Zugriff auf chat.openai.com.",
-                "fr": "Raccourci pour accéder à chat.openai.com.",
-                "ru": "Быстрый доступ к chat.openai.com.",
-                "pt": "Atalho para acessar chat.openai.com.",
-                "it": "Scorciatoia per accedere a chat.openai.com.",
-                "nl": "Snelkoppeling om toegang te krijgen tot chat.openai.com."
-            },
-            "max_tokens": 8192
-        },
-        "g4f-phind": {
-            "name": "Phind",
-            "description": {
-                "es": "phind.com es algo asi como un buscador de codigo para programar",
-                "ar": "Phind.com هو عبارة عن محرك بحث للأكواد المستخدمة في البرمجة.",
-                "en": "Phind.com is a search engine for programming code.",
-                "jp": "Phind.comは、プログラムコードの検索エンジンです。",
-                "zh": "Phind.com是一个编程代码搜索引擎。",
-                "de": "Phind.com ist eine Suchmaschine für Programmiercode.",
-                "fr": "Phind.com est un moteur de recherche de code de programmation.",
-                "ru": "Phind.com - это поисковая система для кода программирования.",
-                "pt": "Phind.com é um mecanismo de busca para código de programação.",
-                "it": "Phind.com è un motore di ricerca per il codice di programmazione.",
-                "nl": "Phind.com is een zoekmachine voor programmeercode."
-            },
-            "max_tokens": 2048
-        },
-        "g4f-yqcloud": {
-            "name": "Yqcloud",
-            "description": {
-                "es": "chat9.yqcloud.top es otro chatbot gpt gratuito",
-                "ar": "Chat9.yqcloud.top هو آخر بوت دردشة GPT مجاني.",
-                "en": "Chat9.yqcloud.top is another free GPT chatbot.",
-                "jp": "Chat9.yqcloud.topは、別の無料のGPTチャットボットです。",
-                "zh": "Chat9.yqcloud.top是另一个免费的GPT聊天机器人。",
-                "de": "Chat9.yqcloud.top ist ein weiterer kostenloser GPT-Chatbot.",
-                "fr": "Chat9.yqcloud.top est un autre chatbot GPT gratuit.",
-                "ru": "Chat9.yqcloud.top - еще один бесплатный чат-бот GPT.",
-                "pt": "Chat9.yqcloud.top é outro chatbot GPT gratuito.",
-                "it": "Chat9.yqcloud.top è un altro chatbot GPT gratuito.",
-                "nl": "Chat9.yqcloud.top is een andere gratis GPT-chatbot."
-            },
-            "max_tokens": 2048
         }
     }
 }

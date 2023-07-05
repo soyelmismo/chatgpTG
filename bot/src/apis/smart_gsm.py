@@ -1,5 +1,4 @@
 import httpx
-import asyncio
 from json import loads
 from bot.src.handlers.url import extract_from_url
 

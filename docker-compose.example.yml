@@ -54,8 +54,5 @@ services:
       - REQUEST_TIMEOUT=7
       - REQUEST_MAX_RETRIES=3
 
-      - GPT4FREE_BING_U_COOKIE=1ic.......
-      - GPT4FREE_CHATGPT_SESSION_TOKEN=eyJhb....
-
 #opcional    volumes:
 #      - /ruta-fuera-del-docker/mi-configuracion:/config

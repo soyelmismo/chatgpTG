@@ -3,7 +3,6 @@
         "openai",
         "you",
         "chatbase",
-        "g4f",
         "evagpt4",
         "churchless"
     ],
@@ -79,29 +78,6 @@
             "available_model": [
                 "gpt-3.5-turbo",
                 "gpt-4"
-            ]
-        },
-        "g4f": {
-            "name": "GPT4Free",
-            "description": {
-                "es": "API de APIs.",
-                "ar": "واجهة برمجة تطبيقات للواجهات البرمجية.",
-                "en": "API of APIs.",
-                "jp": "APIのAPI。",
-                "zh": "API的API。",
-                "de": "API von APIs.",
-                "fr": "API des APIs.",
-                "ru": "API API.",
-                "pt": "API de APIs.",
-                "it": "API di API.",
-                "nl": "API van APIs."
-            },
-            "url": "http://127.0.0.1:1337",
-            "key": "",
-            "available_model": [
-                "bing",
-                "g4f-chatgpt",
-                "g4f-yqcloud"
             ]
         },
         "evagpt4": {
