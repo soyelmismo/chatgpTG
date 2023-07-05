@@ -19,23 +19,18 @@ class ChatGPT:
         self.diccionario.update(proxies.config.completion_options)
         self.diccionario["stream"] = proxies.config.usar_streaming
         from bot.src.utils.gen_utils import middleware
-        asyncio.run(middleware.resetip(self))
+        asyncio.create_task(middleware.resetip(self))
 
-    async def send_message(self, _message, dialog_messages=[], chat_mode="assistant"):
+    async def send_message(self, _message, chat_mode="assistant"):
         while self.answer is None:
             try:
-                async for status, self.answer in self._prepare_request(_message, dialog_messages, chat_mode):
+                async for status, self.answer in self._prepare_request(_message, chat_mode):
                     yield status, self.answer
-            except openai.error.InvalidRequestError as e:  # too many tokens
-                if len(dialog_messages) == 0:
-                    raise IndexError(f'{proxies.config.lang[self.lang]["errores"]["utils_dialog_messages_0"]} [{self.api}]: {e}') from e
-                # forget first message in dialog_messages
-                dialog_messages = dialog_messages[1:]
             except Exception as e:
                 self._handle_exception(f'send_message: {e}')
         yield "finished", self.answer
 
-    async def _prepare_request(self, _message, dialog_messages, chat_mode):
+    async def _prepare_request(self, _message, chat_mode):
         from bot.src.utils.preprocess.make_messages import handle as mms
         from bot.src.utils.preprocess.make_prompt import handle as mpm
         try:
@@ -81,7 +76,7 @@ class ChatGPT:
             images, seed = await make_image.gen(self, prompt, current_api, style, ratio, model, seed, negative)
             return images, seed
         except Exception as e:
-            raise RuntimeError(f"phase.imagen > {e}")
+            raise RuntimeError(f"phase.imagen > {current_api}: {e}")
 
     async def busqueduck(self, query):
         try:

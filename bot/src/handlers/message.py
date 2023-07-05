@@ -61,7 +61,6 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
         await parametros(chat, lang, update)
         raw_msg, _message = await process_message(update, context, chat, _message)
         await process_urls(raw_msg, chat, lang, update)
-        dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
         chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
                     await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
         chat_mode_cache[chat.id] = (chat_mode, datetime.now())
@@ -72,7 +71,8 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             
         if isinstance(last_interaction, str):
             last_interaction = datetime.fromisoformat(last_interaction)
-    
+
+        dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
         if (datetime.now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
             if config.timeout_ask:
                 await timeout.ask(chat, lang, update, _message)
@@ -86,12 +86,12 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
             model_cache[chat.id] = (current_model, datetime.now())
         await tasks.releasemaphore(chat=chat)
-        task = bb(gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid))
+        task = bb(gen(update, context, _message, chat, lang, chat_mode, current_model, msgid))
         await tasks.handle(chat, task)
     except Exception as e:
         await handle_errors(f'message_handle > {e}', lang, chat)
 
-async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid=None):
+async def gen(update, context, _message, chat, lang, chat_mode, current_model, msgid=None):
     # Verificar si el mensaje está vacío
     if await verificar_mensaje_y_enviar_error_si_vacio(_message, update, lang): return
     # Configurar modo de análisis de mensajes
@@ -104,7 +104,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
     try:
         try:
-            _message, answer = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message)
+            _message, answer = await stream_message(update, context, chat, lang, current_model, _message, chat_mode, parse_mode, keyboard, placeholder_message)
             keyboard = await get_keyboard(keyboard)
             await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         except Exception as e:
@@ -129,7 +129,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         asyncio.create_task(enviar_advertencia_si_necesario(advertencia, update, lang, reply_val))
         await tasks.releasemaphore(chat=chat)
 
-async def stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message):
+async def stream_message(update, context, chat, lang, current_model, _message, chat_mode, parse_mode, keyboard, placeholder_message):
     try:
         # Configurar parámetros de actualización
         upd, timer = await get_update_params(chat)
@@ -139,7 +139,7 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
         try:
             await update.effective_chat.send_action(ChatAction.TYPING)
             insta = ChatGPT(chat, lang, model=current_model)
-            gen = insta.send_message(_message, dialog_messages, chat_mode)
+            gen = insta.send_message(_message, chat_mode)
             if config.usar_streaming == False:
                 await gen.asend(None)
             async for status, gen_answer in gen:
@@ -155,7 +155,7 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 await sleep(timer)  # Esperar un poco para evitar el flooding
                 prev_answer = answer
         except Exception as e:
-            await mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer)
+            await mensaje_error_reintento(context, chat, lang, placeholder_message, answer)
             raise RuntimeError(f'<message_stream> {errorpredlang}: {e}')
         return _message, answer
     except Exception as e:
@@ -187,14 +187,12 @@ async def process_urls(raw_msg, chat, lang, update):
                 if textomensaje:
                     await update.effective_chat.send_message(textomensaje, reply_to_message_id=update.effective_message.message_id)
                 await tasks.releasemaphore(chat=chat)
-                #return True
     except AttributeError:
         pass
-    #return False
 
 # Funciones auxiliares
 
-async def mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer=""):
+async def mensaje_error_reintento(context, chat, lang, placeholder_message, answer=""):
     try:
         keyboard = []
         keyboard.append([])

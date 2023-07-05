@@ -9,13 +9,9 @@ def append_resources_messages(self, messages, dialog_messages):
         documento, url, search = process_resources_message(dialog_message)
         documento_texts, url_texts, search_texts = append_resources_texts(documento, url, search, documento_texts, url_texts, search_texts, lang=self.lang)
     if documento_texts or url_texts or search_texts:
-        #messages.append({
-        #    "role": "system",
-        #    "content": f'{str(documento_texts) if documento_texts else ""}\n{str(url_texts) if url_texts else ""}\n{str(search_texts) if search_texts else ""}\n: {config.lang[self.lang]["metagen"]["contexto"]}'
-        #})
         messages.append({
             "role": "system",
-            "content": f'{str(documento_texts) if documento_texts else ""}\n{str(url_texts) if url_texts else ""}\n{str(search_texts) if search_texts else ""}'
+            "content": f'{str(documento_texts) if documento_texts else ""}\n{str(url_texts) if url_texts else ""}\n{str(search_texts) if search_texts else ""}\n: {config.lang[self.lang]["metagen"]["contexto"]}'
         })
     return messages
 def process_resources_message(dialog_message):

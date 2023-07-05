@@ -6,6 +6,8 @@ from bot.src.utils.config import api, proxy_raw, usar_funciones
 from bot.src.apis import duckduckgo, smart_gsm, wttr
 from .openai_functions_extraction import openaifunc
 
+ERRFUNC = "Error retrieving function."
+FUNCNOARG = "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
 @openaifunc
 async def search_on_internet(self, query: str, search_type: str, timelimit: str = None) -> str:
     """
@@ -23,8 +25,8 @@ async def search_on_internet(self, query: str, search_type: str, timelimit: str 
     if query:
         try:
             return await duckduckgo.search(self, query = query, gptcall = True, timelimit = timelimit, type = search_type)
-        except: return "Error retrieving function."
-    else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
+        except Exception: return ERRFUNC
+    else: return FUNCNOARG
 
 @openaifunc
 async def search_smartphone_info(self, model: str) -> str:
@@ -40,8 +42,8 @@ async def search_smartphone_info(self, model: str) -> str:
     if model:
         try:
             return await smart_gsm.get_device(self, query = model)
-        except: return "Error retrieving function."
-    else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
+        except Exception: return ERRFUNC
+    else: return FUNCNOARG
 
 @openaifunc
 async def lookup_weather(self, location: str, unit: str) -> str:
@@ -58,18 +60,8 @@ async def lookup_weather(self, location: str, unit: str) -> str:
     if location:
         try:
             return await wttr.getweather(location = location, unit = unit)
-        except: return "Error retrieving function."
-    else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
-
-@openaifunc
-async def what_day_is(self) -> str:
-    """
-    Check the current date if the user asks
-
-    Returns:
-        str: the actual time
-    """
-    return str(datetime.now().strftime("%A, %B %d, %Y"))
+        except Exception: return ERRFUNC
+    else: return FUNCNOARG
 
 async def process_function_argument(response):
     arguments_list = []
@@ -104,20 +96,7 @@ async def handle_response_item(self, old_response, fn, kwargs):
                 self.answer += eval(self.iter)
                 yield "not_finished", self.answer
     if arguments:
-        function_response = await globals()[function_name](self, **arguments)
-        new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
-        from bot.src.utils.misc import update_dialog_messages
-        from bot.src.utils.preprocess import count_tokens, make_messages
-        await update_dialog_messages(self.chat, new_dialog_message)
-        data, completion_tokens, chat_mode = await count_tokens.putos_tokens(self.chat, kwargs["_message"])
-
-        self.diccionario["max_tokens"] = completion_tokens
-
-        messages = await make_messages.handle(self, kwargs["_message"], data, chat_mode)
-
-        self.diccionario["messages"] = messages
-        self.diccionario.pop("functions")
-        self.diccionario.pop("function_call")
+        self = await procesar_nuevos_datos(self, function_name, arguments, kwargs)
         response = await fn(**self.diccionario)
         if self.diccionario.get("stream") == False:
             yield None, eval(self.iter)
@@ -128,6 +107,23 @@ async def handle_response_item(self, old_response, fn, kwargs):
                     break
                 self.answer += eval(self.iter)
                 yield "not_finished", self.answer
+
+async def procesar_nuevos_datos(self, function_name, arguments, kwargs):
+    function_response = await globals()[function_name](self, **arguments)
+    new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
+    from bot.src.utils.misc import update_dialog_messages
+    from bot.src.utils.preprocess import count_tokens, make_messages
+    await update_dialog_messages(self.chat, new_dialog_message)
+    data, completion_tokens, chat_mode = await count_tokens.putos_tokens(self.chat, kwargs["_message"])
+
+    self.diccionario["max_tokens"] = completion_tokens
+
+    messages = await make_messages.handle(self, kwargs["_message"], data, chat_mode)
+
+    self.diccionario["messages"] = messages
+    self.diccionario.pop("functions")
+    self.diccionario.pop("function_call")
+    return self
 
 async def _openai(self, **kwargs):
     try:
