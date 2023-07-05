@@ -39,26 +39,20 @@ class ChatGPT:
         from bot.src.utils.preprocess.make_messages import handle as mms
         from bot.src.utils.preprocess.make_prompt import handle as mpm
         try:
-            messages, prompt = (await mms(self, _message, dialog_messages, chat_mode), None) if self.model not in proxies.config.model["text_completions"] else (None, await mpm(self, _message, dialog_messages, chat_mode))
+            from bot.src.utils.preprocess import count_tokens
+            data, completion_tokens, _ = await count_tokens.putos_tokens(self.chat, _message)
+            print(completion_tokens)
+            self.diccionario["max_tokens"] = completion_tokens
+
+            messages, prompt = (await mms(self, _message, data, chat_mode), None) if self.model not in proxies.config.model["text_completions"] else (None, await mpm(self, _message, data, chat_mode))
             kwargs = {
                 "prompt": prompt,
-                "messages": messages
+                "messages": messages,
+                "_message": _message
             }
-
             #if proxies.config.api["info"][self.api].get("headers"):
                 #kwargs["headers"] = parse_values_to_json(proxies.config.api["info"][self.api]["headers"])
                 #print(f'{kwargs}')
-
-            from bot.src.utils.misc import ver_modelo_get_tokens, tokenizer
-
-            max_tokens = await ver_modelo_get_tokens(None, model=self.model)
-            tokens_actual = await proxies.db.get_dialog_attribute(self.chat, f'{constant_db_tokens}')
-
-            #pre_tokens = f'{proxies.config.chat_mode["info"][chat_mode]["prompt_start"]}\n\n{_message}'
-            #mensaje_tokens = await tokenizer.pre_message(input_data=pre_tokens)
-            max_tokens = (max_tokens - tokens_actual - 1000)
-            print(max_tokens)
-            self.diccionario["max_tokens"] = max_tokens
 
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer

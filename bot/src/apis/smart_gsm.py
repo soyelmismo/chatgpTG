@@ -23,4 +23,4 @@ async def get_device(self, query: str = ""):
 
             data = await extract_from_url(f"{base}/{permalink}")
             return data
-        except Exception: return "Dile al usuario que falló la búsqueda" 
+        except Exception as e: raise ConnectionError(e)

@@ -1,31 +1,26 @@
-import tiktoken
+from transformers import BertTokenizer
 import bot.src.utils.preprocess.remove_words as remove_words
 from .remove_words import config
 from typing import List, Dict, Any, Tuple
 
-encoding = tiktoken.get_encoding("cl100k_base")
-
+tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased', proxies=config.apisproxy)
 async def handle(input_data: str | List[Dict[str, Any]], max_tokens: int) -> str | List[Dict] | Tuple[int, bool]:
-    max_tokens = int(max_tokens)
-    print("Tokens entrada:",max_tokens)
+    max_tokens = int(max_tokens - 500)
     try:
         if isinstance(input_data, str):
-            tokens = encoding.encode(input_data)
+            tokens = tokenizer.encode(input_data)
             advertencia=None
             if len(tokens) > max_tokens:
                 input_data = await remove_words.handle(texto=input_data)
-                tokens = encoding.encode(input_data)
+                tokens = tokenizer.encode(input_data)
                 if len(tokens) > max_tokens:
                     buffer_tokens = 500
                     start_index = len(tokens) - (max_tokens - buffer_tokens)
                     tokens = tokens[start_index:]
                     advertencia = True
-            out_tokens = int(len(tokens))
-            print("Tokens salida string:",out_tokens)
-            return str(encoding.decode(tokens)), out_tokens, bool(advertencia)
+            return str(tokenizer.decode(tokens)), int(len(tokens)), bool(advertencia)
         elif isinstance(input_data, list):
             output_data, total_tokens, advertencia = await process_input_data(input_data, max_tokens)
-            print("Tokens salida lista:",total_tokens)
             return list(output_data), int(total_tokens), bool(advertencia)
     except Exception as e:
         raise ValueError("tokenizer", {e})
@@ -41,7 +36,7 @@ async def process_input_data(input_data, max_tokens):
             if len(output_data) == 0:
                 break
             removed_message = output_data.pop(0)  # Elimina el mensaje más antiguo
-            removed_tokens = sum(len(encoding.encode(removed_message[key])) for key in ["user", "bot", "func_cont", "url", "documento", "search"] if removed_message.get(key))
+            removed_tokens = sum(len(tokenizer.encode(removed_message[key])) for key in ["user", "bot", "func_cont", "url", "documento", "search"] if removed_message.get(key))
             total_tokens -= removed_tokens
             advertencia = True
 
@@ -61,16 +56,16 @@ async def process_message(message, max_tokens):
     for key, value in message.items():
         if key in keys:
             content = str(value)
-            tokens = encoding.encode(content)
+            tokens = tokenizer.encode(content)
             content_tokens = len(tokens)
             if total_tokens + content_tokens > max_tokens:
                 new_content = await remove_words.handle(texto=content)
-                new_tokens = encoding.encode(new_content)
+                new_tokens = tokenizer.encode(new_content)
                 content_tokens = len(new_tokens)
             else:
                 new_content = content
             new_message[key] = str(new_content)
-            total_tokens += (content_tokens + 3)
+            total_tokens += content_tokens
         else:
             new_message[key] = value
 
@@ -78,4 +73,4 @@ async def process_message(message, max_tokens):
 
 
 async def pre_message(input_data: str) -> int:
-    return len(encoding.encode(input_data))
+    return len(tokenizer.encode(input_data))

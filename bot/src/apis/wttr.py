@@ -27,5 +27,4 @@ async def getweather(location: str, unit: str = "C"):
                     info += f"\n{hourly.time:%I:%M %p}: {hourly.temperature}°{unit}, {hourly.description}"
         return info
 
-    except Exception as e:
-        return "Error"
+    except Exception as e: raise ConnectionError(e)

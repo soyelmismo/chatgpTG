@@ -21,7 +21,9 @@ async def search_on_internet(self, query: str, search_type: str, timelimit: str 
         str: the search / news results to inform the user
     """
     if query:
-        return await duckduckgo.search(self, query = query, gptcall = True, timelimit = timelimit, type = search_type)
+        try:
+            return await duckduckgo.search(self, query = query, gptcall = True, timelimit = timelimit, type = search_type)
+        except: return "Error retrieving function."
     else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
 
 @openaifunc
@@ -36,7 +38,9 @@ async def search_smartphone_info(self, model: str) -> str:
         str: all the device specifications to be tell to the user
     """
     if model:
-        return await smart_gsm.get_device(self, query = model)
+        try:
+            return await smart_gsm.get_device(self, query = model)
+        except: return "Error retrieving function."
     else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
 
 @openaifunc
@@ -52,7 +56,9 @@ async def lookup_weather(self, location: str, unit: str) -> str:
         str: all the weather info to be tell to the user
     """
     if location:
-        return await wttr.getweather(location = location, unit = unit)
+        try:
+            return await wttr.getweather(location = location, unit = unit)
+        except: return "Error retrieving function."
     else: return "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
 
 @openaifunc
@@ -95,23 +101,22 @@ async def handle_response_item(self, old_response, fn, kwargs):
                     function_name = response_item.choices[0].delta.function_call.get("name")
                 arguments = await process_function_argument(old_response)
             else:
-                if response_item.choices[0].delta.get("finish_reason") == "stop":
-                    yield "finished", self.answer
-                    break
                 self.answer += eval(self.iter)
                 yield "not_finished", self.answer
     if arguments:
         function_response = await globals()[function_name](self, **arguments)
         new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
         from bot.src.utils.misc import update_dialog_messages
-        _, _, tokencount = await update_dialog_messages(self.chat, new_dialog_message)
-        kwargs["messages"].append({
-            "role": "function",
-            "name": f'{function_name}',
-            "content": f'{function_response}',
-        })
-        self.diccionario["max_tokens"] = tokencount
-        self.diccionario["messages"] = kwargs["messages"]
+        from bot.src.utils.preprocess import count_tokens, make_messages
+        await update_dialog_messages(self.chat, new_dialog_message)
+        data, completion_tokens, chat_mode = await count_tokens.putos_tokens(self.chat, kwargs["_message"])
+
+        print(completion_tokens)
+        self.diccionario["max_tokens"] = completion_tokens
+
+        messages = await make_messages.handle(self, kwargs["_message"], data, chat_mode)
+
+        self.diccionario["messages"] = messages
         self.diccionario.pop("functions")
         self.diccionario.pop("function_call")
         response = await fn(**self.diccionario)

@@ -27,7 +27,9 @@ async def handle(chat, lang, update, urls):
     for url in urls:
         await update.effective_chat.send_action(ChatAction.TYPING)
         try:
-            textomensaje = f'{config.lang[lang]["mensajes"]["url_anotado_ask"]}'
+            textomensaje = None
+            if not config.url_ask_before_send:
+                textomensaje = f'{config.lang[lang]["mensajes"]["url_anotado_ask"]}'
             doc = await extract_from_url(url)
             doc, _, advertencia = await clean_text(doc, chat)
             if advertencia==True:

@@ -24,6 +24,7 @@ if json_database != True:
 
     mongodb_uri = f"{MONGODB_PROTO}://{env.get('MONGODB_USERNAME', ['root'])[0]}:{env.get('MONGODB_PASSWORD', ['MMWjHEHT8zd3FMR5KPd7eu6MKV2ndpUd'])[0]}@{mongus}/?retryWrites=true&w=majority"
 
+url_ask_before_send = bool(env.get('URL_DIRECT_RESPONSE', ['True'])[0].lower() == 'true')
 usar_streaming = bool(env.get('STREAM_ANSWERS', ['True'])[0].lower() == 'true')
 usar_funciones = bool(env.get('FEATURE_FUNCTION_CALLS', ['True'])[0].lower() == 'true')
 timeout_ask = bool(env.get('TIMEOUT_ASK', ['True'])[0].lower() == 'true')

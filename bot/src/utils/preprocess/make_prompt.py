@@ -19,7 +19,7 @@ def append_resources_texts(self, documento_texts, url_texts, search_texts, promp
         resources += f'{config.lang[self.lang]["metagen"]["busquedaweb"]}: {search_texts}\n\n'
     if len(resources) > 4:
         prompt += resources
-        prompt += f'^{config.lang[self.lang]["metagen"]["mensaje"]}: {prompt}][{config.lang[self.lang]["metagen"]["contexto"]}^\n\n'
+        #prompt += f'^{config.lang[self.lang]["metagen"]["mensaje"]}: {prompt}][{config.lang[self.lang]["metagen"]["contexto"]}^\n\n'
     return prompt
 
 def get_prompt_lines(dialog_messages, chat_mode, lang):

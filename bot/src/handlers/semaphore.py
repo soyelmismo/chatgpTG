@@ -20,10 +20,6 @@ async def acquiresemaphore(chat):
     lock = asyncio.Lock() if lock is None else lock
     chat_locks[chat.id] = lock
     await lock.acquire()
-async def releasemaphore(chat, update=None):
-    if isinstance(chat, str):
-        id = update.effective_message.chat.id
-    else:
-        id = chat.id
-    lock = chat_locks.get(id)
+async def releasemaphore(chat):
+    lock = chat_locks.get(chat.id)
     lock.release() if lock and lock.locked() else None

@@ -60,7 +60,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
     try:
         await parametros(chat, lang, update)
         raw_msg, _message = await process_message(update, context, chat, _message)
-        if await process_urls(raw_msg, chat, lang, update): return
+        await process_urls(raw_msg, chat, lang, update)
         dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
         chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
                     await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
@@ -103,23 +103,23 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     answer = None
     placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
     try:
-        _message, answer = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message)
-        print("AQui!!")
-        keyboard = await get_keyboard(keyboard)
         try:
+            _message, answer = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message)
+            print("AQui!!")
+            keyboard = await get_keyboard(keyboard)
             await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
-        except Exception:
-            await context.bot.edit_message_text(telegram.helpers.escape_markdown(answer, version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        except Exception as e:
+            if "Can't parse entities" in str(e):
+                await context.bot.edit_message_text(telegram.helpers.escape_markdown(answer, version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+            else:
+                print(f'<message_gen> {errorpredlang}: {e}')
         # Liberar semáforo
         await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == True and chat_mode == "imagen":
             asyncio.create_task(img.wrapper(update, context, _message=answer))
     # Manejar excepciones
     except Exception as e:
-        if "Can't parse entities" in str(e): None
-        else:
-            await mensaje_error_reintento(update, context, lang, placeholder_message, answer)
-            raise BufferError(f'<message_handle_fn> {errorpredlang}: {e}')
+            raise BufferError(f'<message_handle_gen> {errorpredlang}: {e}')
     finally:
         _message, answer = await check_empty_messages(_message, answer)
         # Actualizar caché de interacciones y historial de diálogos del chat
@@ -160,6 +160,7 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 prev_answer = answer
             print("Salió")
         except Exception as e:
+            await mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer)
             raise RuntimeError(f'<message_stream> {errorpredlang}: {e}')
         return _message, answer
     except Exception as e:
@@ -188,22 +189,26 @@ async def process_urls(raw_msg, chat, lang, update):
             urls = await url.wrapper(raw_msg)
             if urls:
                 textomensaje = await url.handle(chat, lang, update, urls)
-                asyncio.create_task(update.effective_chat.send_message(textomensaje, reply_to_message_id=update.effective_message.message_id))
+                if textomensaje:
+                    await update.effective_chat.send_message(textomensaje, reply_to_message_id=update.effective_message.message_id)
                 await tasks.releasemaphore(chat=chat)
-                return True
+                #return True
     except AttributeError:
         pass
-    return False
+    #return False
 
 # Funciones auxiliares
 
-async def mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer=None):
-    keyboard = []
-    keyboard.append([])
-    keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
-    await context.bot.edit_message_text(f'{answer}\n\n{config.lang[lang]["errores"]["error_inesperado"]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
-    await tasks.releasemaphore(chat=chat, update=update)
-
+async def mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer=""):
+    try:
+        keyboard = []
+        keyboard.append([])
+        keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
+        await context.bot.edit_message_text(f'{answer}\n\n{config.lang[lang]["errores"]["error_inesperado"]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
+        await tasks.releasemaphore(chat)
+    except Exception as e:
+        raise RuntimeError(f'<mensaje_error_reintento> {errorpredlang}: {e}')
+        
 
 async def get_update_params(chat):
     if chat.type != "private":
