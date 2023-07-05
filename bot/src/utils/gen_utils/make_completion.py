@@ -1,7 +1,7 @@
 from bot.src.utils import config
 import asyncio
 import aiohttp
-from .openai_completion import _openai
+from .openai.openai_completion import _openai
 
 async def _make_api_call(self, **kwargs):
     self.answer = ""

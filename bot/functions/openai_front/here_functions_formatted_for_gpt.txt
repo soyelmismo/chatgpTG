@@ -1,0 +1,26 @@
+### ChatGPTG, https://gg.resisto.rodeo/yo/chatgpTG / https://github.com/soyelmismo/chatgpTG
+
+
+from bot.src.utils.constants import ERRFUNC, FUNCNOARG # Default error messages
+from bot.src.utils.gen_utils.openai.openai_functions_extraction import openaifunc # Do not touch this
+
+
+from bot.functions.backends import my_module # Import your custom function here
+
+@openaifunc
+async def descriptive_function(self, important_arg: str, arguments that gpt will send, arg999: int) -> str:
+    """
+    My general description for the function .
+
+    Args:
+        arg1 (str): receives something useful like a city or a text.
+
+    Returns:
+        str: the thing that will be returned to gpt
+    """
+
+    if important_arg: #to verify if the most important argument is present
+        try:
+            return await my_module.init_function(self, important_arg)
+        except Exception: return ERRFUNC
+    else: return FUNCNOARG

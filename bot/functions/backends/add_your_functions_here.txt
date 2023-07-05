@@ -1,0 +1,5 @@
+### ChatGPTG, https://gg.resisto.rodeo/yo/chatgpTG / https://github.com/soyelmismo/chatgpTG
+
+This is intended to be the main backend for your custom openai functions
+
+to keep everything clean and without much dirty content

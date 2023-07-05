@@ -1,67 +1,12 @@
 import openai
 import json
 from datetime import datetime
-from .openai_functions_extraction import get_openai_funcs
 from bot.src.utils.config import api, proxy_raw, usar_funciones
-from bot.src.apis import duckduckgo, smart_gsm, wttr
-from .openai_functions_extraction import openaifunc
 
-ERRFUNC = "Error retrieving function."
-FUNCNOARG = "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."
-@openaifunc
-async def search_on_internet(self, query: str, search_type: str, timelimit: str = None) -> str:
-    """
-    Search information and news on internet
-    Reveives a search query to search information on the web returning it to talk freely to the user about the results giving pleasant answers.
-
-    Args:
-        query (str): the text that will be searched on the internet
-        search_type (str): use "text" or "news" depending of what the user has requested
-        timelimit (str): use "d" if latest news from today, for other time limits: "w", "m", "y". Defaults to None. they are d(day), w(week), m(month), y(year).
-    
-    Returns:
-        str: the search / news results to inform the user
-    """
-    if query:
-        try:
-            return await duckduckgo.search(self, query = query, gptcall = True, timelimit = timelimit, type = search_type)
-        except Exception: return ERRFUNC
-    else: return FUNCNOARG
-
-@openaifunc
-async def search_smartphone_info(self, model: str) -> str:
-    """
-    Receives the device name and makes a search in the smart_gsm website returning all the device info.
-
-    Args:
-        model (str): only the device model, without extra text.
-
-    Returns:
-        str: all the device specifications to be tell to the user
-    """
-    if model:
-        try:
-            return await smart_gsm.get_device(self, query = model)
-        except Exception: return ERRFUNC
-    else: return FUNCNOARG
-
-@openaifunc
-async def lookup_weather(self, location: str, unit: str) -> str:
-    """
-    Search actual weather info.
-
-    Args:
-        location (str): the city. mandatory.
-        unit: "C" or "F". mandatory, and depends of the city
-
-    Returns:
-        str: all the weather info to be tell to the user
-    """
-    if location:
-        try:
-            return await wttr.getweather(location = location, unit = unit)
-        except Exception: return ERRFUNC
-    else: return FUNCNOARG
+if usar_funciones:
+    from .openai_functions_extraction import get_openai_funcs
+    imported_functions = get_openai_funcs(return_function_objects = True)
+    functions_data = get_openai_funcs()
 
 async def process_function_argument(response):
     arguments_list = []
@@ -130,7 +75,7 @@ async def process_arguments_and_generate_response(self, function_name, fn, argum
             yield "not_finished", self.answer
 
 async def procesar_nuevos_datos(self, function_name, arguments, kwargs):
-    function_response = await globals()[function_name](self, **arguments)
+    function_response = await imported_functions[function_name](self, **arguments)
     new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
     from bot.src.utils.misc import update_dialog_messages
     from bot.src.utils.preprocess import count_tokens, make_messages
@@ -176,7 +121,7 @@ async def last_config(self, kwargs):
     if kwargs["messages"] != None:
         self.diccionario.update({"messages": kwargs["messages"], "model": self.model})
         if usar_funciones:
-            self.diccionario["functions"] = await get_openai_funcs()
+            self.diccionario["functions"] = functions_data
             self.diccionario["function_call"] = "auto"
         fn = openai.ChatCompletion.acreate
     else:

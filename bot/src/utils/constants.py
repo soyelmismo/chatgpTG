@@ -14,3 +14,6 @@ from imaginepy.constants import Style, Ratio, Model
 imaginepy_styles = [style.name for style in Style]
 imaginepy_ratios = [ratio.name for ratio in Ratio]
 imaginepy_models = [model.name for model in Model]
+
+ERRFUNC = "Error retrieving function."
+FUNCNOARG = "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."

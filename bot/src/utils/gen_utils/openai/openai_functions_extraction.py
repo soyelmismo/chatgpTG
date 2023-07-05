@@ -1,9 +1,44 @@
+import os
+import importlib
+import glob
+
 import docstring_parser
 import inspect
 import functools
 from typing import Callable
 
 openai_functions = []
+
+def import_functions_from_directory(directory, module_prefix):
+    function_map = {}
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".py") and not file.startswith("__"):
+                module_name = os.path.splitext(file)[0]
+                module_path = os.path.join(root, file).replace("\\", "/")
+                relative_module_path = os.path.relpath(module_path, directory).replace(".py", "")
+                import_path = f"{module_prefix}.{relative_module_path.replace('/', '.')}"
+                module = importlib.import_module(import_path)
+
+                for function_name, function_obj in inspect.getmembers(module, inspect.isfunction):
+                    function_map[function_name] = function_obj
+
+    return function_map
+
+def _get_metadata(function_map):
+    metadata = []
+    for function_name, function_obj in function_map.items():
+        if hasattr(function_obj, "_openai_metadata"):
+            metadata.append(function_obj._openai_metadata)
+    return metadata
+
+def get_openai_funcs(return_function_objects = None):
+    function_map = import_functions_from_directory("bot/functions/openai_front", "bot.functions.openai_front")
+
+    if return_function_objects:
+        return function_map
+    else:
+        return _get_metadata(function_map)
 
 def extract_function_info(func: Callable) -> dict:
     parsed_docstring = docstring_parser.parse(func.__doc__)
@@ -62,9 +97,6 @@ def openaifunc(func: Callable) -> Callable:
         return func(*args, **kwargs)
 
     spec = extract_function_info(func)
-    openai_functions.append(spec)
+    wrapper._openai_metadata = spec
 
     return wrapper
-
-async def get_openai_funcs():
-    return openai_functions
