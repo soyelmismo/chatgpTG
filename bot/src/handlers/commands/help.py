@@ -1,6 +1,6 @@
 from bot.src.start import Update, CallbackContext
 
-helpmessage = """You are a chatbot, your name is {botname}.
+HELPMESSAGE = """You are a chatbot, your name is {botname}.
 First, you will introduce the chatbot, you will welcome the user and talk about:
 Commands:
 /new: Start a new dialogue. it will delete the previous bot "memory"
@@ -31,7 +31,11 @@ async def handle(update: Update, context: CallbackContext):
     chat, lang = await oc(update)
     mododechat_actual, api_actual, modelo_actual, image_api_actual, _, _, _ = await parametros(chat, lang, update)
     from bot.src.handlers import message
-    await message.handle(chat, lang, update, context, _message=helpmessage.format(botname=f'{context.bot.username}', selected_chat_mode=f'{config.chat_mode["info"][mododechat_actual]["name"][lang]}', selected_api=f'{config.api["info"][api_actual]["name"]}', selected_image_api=f'{config.api["info"][image_api_actual]["name"]}', selected_model=f'{config.model["info"][modelo_actual]["name"]}', available_lang=f'{config.available_lang}', language=f'{config.lang[lang]["info"]["name"]}'))
+    mensaje_ayuda=HELPMESSAGE.format(botname=f'{context.bot.username}', selected_chat_mode=f'{config.chat_mode["info"][mododechat_actual]["name"][lang]}',
+                                selected_api=f'{config.api["info"][api_actual]["name"]}', selected_image_api=f'{config.api["info"][image_api_actual]["name"]}',
+                                selected_model=f'{config.model["info"][modelo_actual]["name"]}',
+                                language=f'{config.lang[lang]["info"]["name"]}')
+    await message.handle(chat, lang, update, context, _message=mensaje_ayuda)
 
 async def group(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import config, ParseMode, obtener_contextos as oc

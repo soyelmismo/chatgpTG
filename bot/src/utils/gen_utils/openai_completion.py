@@ -95,6 +95,9 @@ async def handle_response_item(self, old_response, fn, kwargs):
                     function_name = response_item.choices[0].delta.function_call.get("name")
                 arguments = await process_function_argument(old_response)
             else:
+                if response_item.choices[0].delta.get("finish_reason") == "stop":
+                    yield "finished", self.answer
+                    break
                 self.answer += eval(self.iter)
                 yield "not_finished", self.answer
     if arguments:
@@ -116,6 +119,9 @@ async def handle_response_item(self, old_response, fn, kwargs):
             yield None, eval(self.iter)
         else:
             async for response_item in response:
+                if response_item.choices[0].delta.get("finish_reason") == "stop":
+                    yield "finished", self.answer
+                    break
                 self.answer += eval(self.iter)
                 yield "not_finished", self.answer
 

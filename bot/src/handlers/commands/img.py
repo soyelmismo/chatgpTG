@@ -16,7 +16,9 @@ async def remove_document_group(message_id, borrar=None, update=None, lang=None)
     if f'{message_id}' in document_groups:
         del document_groups[f'{message_id}']
         if lang:
-            await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_borradas_listo"]}', reply_to_message_id=message_id)
+            msg = await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_borradas_listo"]}')
+            await asyncio.sleep(3)
+            await msg.delete()
 
 async def create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype=None, caption=None):
     try:
@@ -29,23 +31,25 @@ async def create_document_group(update, context, lang, image_group, document_gro
         keyboard[0].append({"text": "💾", "callback_data": f"imgdownload|{mensaje_group_id}|recibir"})
         text = config.lang[lang]["mensajes"]["preguntar_descargar_fotos"].format(expirationtime=config.generatedimagexpiration)
         try:
-            await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, reply_to_message_id=mensaje_group_id, caption=caption)
+            await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, reply_to_message_id=mensaje_group_id, caption=caption, lang=lang)
         except telegram.error.BadRequest as e:
             if rmnf in str(e):
-                await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, caption=caption)
+                await send_media_group_with_retry(update, text, context, update.effective_message.chat.id, image_group, keyboard, caption=caption, lang=lang)
             else:
                 raise ValueError(f"telegram BadRequest > {e}")
     except Exception as e:
         raise LookupError(f'create_document_group > {e}')
 
-async def send_media_group_with_retry(update: Update, text, context: CallbackContext, chat_id, media_group, keyboard, reply_to_message_id=None, caption=None):
+async def send_media_group_with_retry(update: Update, text, context: CallbackContext, chat_id, media_group, keyboard, reply_to_message_id=None, caption=None, lang=None):
     try:
         media_msg = await context.bot.send_media_group(chat_id=chat_id, media=media_group, caption=caption, parse_mode=ParseMode.HTML, reply_to_message_id=reply_to_message_id)
+        if not media_msg:
+            await expiracion(update, lang)
         if text:
             await update.effective_chat.send_message(text, parse_mode=ParseMode.HTML, reply_to_message_id=media_msg[0].message_id, reply_markup={"inline_keyboard": keyboard})
     except telegram.error.BadRequest as e:
         if rmnf in str(e):
-            media_msg = await context.bot.send_media_group(chat_id=update.effective_message.chat.id, reply_to_message_id=media_msg[0].message_id, media=media_group, caption=caption, parse_mode=ParseMode.MARKDOWN_V2)
+            media_msg = await context.bot.send_media_group(chat_id=update.effective_message.chat.id, media=media_group, caption=caption, parse_mode=ParseMode.MARKDOWN_V2)
             if text:
                 await update.effective_chat.send_message(text, parse_mode=ParseMode.MARKDOWN, reply_markup={"inline_keyboard": keyboard})
         else:
@@ -171,23 +175,32 @@ async def callback(update: Update, context: CallbackContext):
     if action == "recibir":
         await callback_recibir(update, context, msgid, lang)
     elif action == "borrar":
-        await remove_document_group(message_id=msgid, borrar=True, update=update, lang=lang)
+        asyncio.create_task(remove_document_group(message_id=msgid, borrar=True, update=update, lang=lang))
     await query.message.delete()
+
+async def expiracion(update, lang, msgid=None):
+    replid = None
+    if update.effective_message.message_id:
+        replid = update.effective_message.message_id
+    elif msgid:
+        replid = msgid
+
+    await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=replid)
 
 async def callback_recibir(update, context, msgid, lang):
     documentos = document_groups.get(f'{msgid}')
     if not documentos:
-        await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=update.effective_message.message_id)
+        await expiracion(update, lang, msgid)
     else:
         try:
             if not pendientes.get(msgid):
                 pendientes[msgid] = True
-                await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None, reply_to_message_id=msgid)
+                await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None, reply_to_message_id=msgid, lang=lang)
                 await remove_document_group(message_id=msgid, borrar=True)
                 pendientes.pop(msgid)
         except telegram.error.BadRequest as e:
             if rmnf in str(e):
-                await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None)
+                await send_media_group_with_retry(update, None, context, update.effective_message.chat.id, documentos, keyboard=None, lang=lang)
             else:
                 raise ValueError(f"telegram BadRequest > {e}")
 

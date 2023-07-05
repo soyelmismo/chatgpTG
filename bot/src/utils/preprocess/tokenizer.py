@@ -70,3 +70,7 @@ async def process_message(message, max_tokens):
             new_message[key] = value
 
     return new_message, total_tokens
+
+
+async def pre_message(input_data: str) -> int:
+    return len(tokenizer.encode(input_data))

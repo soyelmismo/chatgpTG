@@ -44,19 +44,27 @@ class ChatGPT:
                 "prompt": prompt,
                 "messages": messages
             }
-            
+
             #if proxies.config.api["info"][self.api].get("headers"):
                 #kwargs["headers"] = parse_values_to_json(proxies.config.api["info"][self.api]["headers"])
                 #print(f'{kwargs}')
-                
-            from bot.src.utils.misc import ver_modelo_get_tokens
-            max_tokens = await ver_modelo_get_tokens(self.chat)
+
+            from bot.src.utils.misc import ver_modelo_get_tokens, tokenizer
+
+            max_tokens = await ver_modelo_get_tokens(None, model=self.model)
             tokens_actual = await proxies.db.get_dialog_attribute(self.chat, f'{constant_db_tokens}')
-            max_tokens = ((max_tokens - tokens_actual) - 800)
+
+            #pre_tokens = f'{proxies.config.chat_mode["info"][chat_mode]["prompt_start"]}\n\n{_message}'
+            #mensaje_tokens = await tokenizer.pre_message(input_data=pre_tokens)
+            max_tokens = (max_tokens - tokens_actual - 1000)
+            print(max_tokens)
             self.diccionario["max_tokens"] = max_tokens
+
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
+
             self.answer = await self._postprocess_answer()
+            
         except Exception as e: raise BufferError(f'_prepare_request: {e}')
 
     async def _handle_invalid_request_error(self, error, dialog_messages):

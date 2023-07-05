@@ -91,18 +91,25 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
     except Exception as e:
         await handle_errors(f'message_handle > {e}', lang, chat)
 
-async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid):
+async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode, current_model, msgid=None):
     # Verificar si el mensaje está vacío
     if await verificar_mensaje_y_enviar_error_si_vacio(_message, update, lang): return
     # Configurar modo de análisis de mensajes
     parse_mode = await get_parse_mode(chat_mode)
-
+    # Configurar teclado
+    keyboard = await get_keyboard()
+    
     reply_val = await get_reply_id(update, chat, _message, msgid)
-
+    answer = None
+    placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
     try:
-        placeholder_message, _message, answer, keyboard = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val)
+        _message, answer = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message)
+        print("AQui!!")
         keyboard = await get_keyboard(keyboard)
-        await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        try:
+            await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+        except Exception:
+            await context.bot.edit_message_text(telegram.helpers.escape_markdown(answer, version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         # Liberar semáforo
         await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == True and chat_mode == "imagen":
@@ -111,7 +118,7 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     except Exception as e:
         if "Can't parse entities" in str(e): None
         else:
-            await mensaje_error_reintento(context, lang, placeholder_message, answer)
+            await mensaje_error_reintento(update, context, lang, placeholder_message, answer)
             raise BufferError(f'<message_handle_fn> {errorpredlang}: {e}')
     finally:
         _message, answer = await check_empty_messages(_message, answer)
@@ -123,22 +130,20 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
         asyncio.create_task(enviar_advertencia_si_necesario(advertencia, update, lang, reply_val))
         await tasks.releasemaphore(chat=chat)
 
-async def stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, reply_val):
+async def stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message):
     try:
         # Configurar parámetros de actualización
         upd, timer = await get_update_params(chat)
         # Generar respuesta
         prev_answer = ""
         answer = ""
-        # Configurar teclado
-        keyboard = await get_keyboard()
-        await update.effective_chat.send_action(ChatAction.TYPING)
         try:
+            await update.effective_chat.send_action(ChatAction.TYPING)
             insta = ChatGPT(chat, lang, model=current_model)
             gen = insta.send_message(_message, dialog_messages, chat_mode)
             if config.usar_streaming == False:
                 await gen.asend(None)
-            placeholder_message = await update.effective_chat.send_message("🤔...",  reply_markup={"inline_keyboard": keyboard}, reply_to_message_id=reply_val)
+            print("Entró")
             async for status, gen_answer in gen:
                 answer = gen_answer[:4096]  # telegram message limit
                 if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
@@ -148,13 +153,15 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 except telegram.error.BadRequest as e:
                     if str(e).startswith(msg_no_mod): continue
                     elif "Message text is empty" in str(e): raise RuntimeError("NoMSG")
-                    else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                    else:
+                        print(e)
+                        await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
                 await sleep(timer)  # Esperar un poco para evitar el flooding
                 prev_answer = answer
+            print("Salió")
         except Exception as e:
-            await mensaje_error_reintento(context, lang, placeholder_message, answer)
             raise RuntimeError(f'<message_stream> {errorpredlang}: {e}')
-        return placeholder_message, _message, answer, keyboard
+        return _message, answer
     except Exception as e:
         raise RuntimeError(f'stream_message > {e}')
 
@@ -190,12 +197,13 @@ async def process_urls(raw_msg, chat, lang, update):
 
 # Funciones auxiliares
 
-async def mensaje_error_reintento(context, chat, lang, placeholder_message, answer=None):
+async def mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer=None):
     keyboard = []
     keyboard.append([])
     keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
-    await tasks.releasemaphore(chat=chat)
     await context.bot.edit_message_text(f'{answer}\n\n{config.lang[lang]["errores"]["error_inesperado"]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
+    await tasks.releasemaphore(chat=chat, update=update)
+
 
 async def get_update_params(chat):
     if chat.type != "private":

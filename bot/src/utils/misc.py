@@ -32,9 +32,10 @@ async def update_dialog_messages(chat, new_dialog_message=None):
     await db.set_dialog_attribute(chat, f'{constant_db_tokens}', int(tokencount))
     return advertencia, dialog_messages, int(tokencount)
 
-async def ver_modelo_get_tokens(chat):
-    model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')
-    model_cache[chat.id] = (model, datetime.now())
+async def ver_modelo_get_tokens(chat=None, model=None):
+    if not model:
+        model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')
+        model_cache[chat.id] = (model, datetime.now())
     from bot.src.utils.config import model as modelist
     max_tokens = int(modelist["info"][model]["max_tokens"])
     return max_tokens
