@@ -111,7 +111,6 @@ async def handle_response_item(self, old_response, fn, kwargs):
         await update_dialog_messages(self.chat, new_dialog_message)
         data, completion_tokens, chat_mode = await count_tokens.putos_tokens(self.chat, kwargs["_message"])
 
-        print(completion_tokens)
         self.diccionario["max_tokens"] = completion_tokens
 
         messages = await make_messages.handle(self, kwargs["_message"], data, chat_mode)

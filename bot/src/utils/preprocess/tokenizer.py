@@ -7,7 +7,6 @@ encoding = tiktoken.get_encoding("cl100k_base")
 
 async def handle(input_data: str | List[Dict[str, Any]], max_tokens: int) -> str | List[Dict] | Tuple[int, bool]:
     max_tokens = int(max_tokens)
-    print("Tokens entrada:",max_tokens)
     try:
         if isinstance(input_data, str):
             tokens = encoding.encode(input_data)
@@ -21,11 +20,9 @@ async def handle(input_data: str | List[Dict[str, Any]], max_tokens: int) -> str
                     tokens = tokens[start_index:]
                     advertencia = True
             out_tokens = int(len(tokens))
-            print("Tokens salida string:",out_tokens)
             return str(encoding.decode(tokens)), out_tokens, bool(advertencia)
         elif isinstance(input_data, list):
             output_data, total_tokens, advertencia = await process_input_data(input_data, max_tokens)
-            print("Tokens salida lista:",total_tokens)
             return list(output_data), int(total_tokens), bool(advertencia)
     except Exception as e:
         raise ValueError("tokenizer", {e})

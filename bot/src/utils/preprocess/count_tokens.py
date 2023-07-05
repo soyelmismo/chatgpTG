@@ -20,9 +20,7 @@ async def putos_tokens(chat, _message):
         language = await db.get_chat_attribute(chat, constant_db_lang)
 
     max_tokens = await ver_modelo_get_tokens(None, model=current_model)
-    
-    print(f"max_tokens: {max_tokens}")
-    
+        
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     data, dialogos_tokens = await reconteo_tokens(chat, dialog_messages, max_tokens)
     
@@ -32,9 +30,7 @@ async def putos_tokens(chat, _message):
     injectprompt = """{especificarlang}\n\n{elprompt}\n\n{especificarlang}\n\n{_message}"""
     pre_tokens = injectprompt.format(especificarlang=especificacionlang, elprompt=prompter, _message=_message)
     _, mensaje_tokens = await reconteo_tokens(chat, pre_tokens, max_tokens)
-    print(f"mensaje_tokens: {mensaje_tokens}")
 
-    print(f"dialogos_tokens: {dialogos_tokens}")
     await db.set_dialog_attribute(chat, f'{constant_db_tokens}', dialogos_tokens + mensaje_tokens)
     completion_tokens = int(max_tokens - dialogos_tokens - mensaje_tokens - (dialogos_tokens * 0.15))
     while completion_tokens < 0:
@@ -42,9 +38,6 @@ async def putos_tokens(chat, _message):
             data.pop(0)
         data, dialogos_tokens = await reconteo_tokens(chat, data, max_tokens)
         completion_tokens = int(max_tokens - dialogos_tokens - mensaje_tokens - (dialogos_tokens * 0.15))
-        print(f"Tokens actuales maximos = {completion_tokens}")
-    print(f"dialogos_tokens: {dialogos_tokens}")
-    print(f"out_tokens: {completion_tokens}")
     return data, completion_tokens, chat_mode
 
 async def reconteo_tokens(chat, input_data, max_tokens):

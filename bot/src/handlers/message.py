@@ -105,14 +105,13 @@ async def gen(update, context, _message, chat, lang, dialog_messages, chat_mode,
     try:
         try:
             _message, answer = await stream_message(update, context, chat, lang, current_model, _message, dialog_messages, chat_mode, parse_mode, keyboard, placeholder_message)
-            print("AQui!!")
             keyboard = await get_keyboard(keyboard)
             await context.bot.edit_message_text(answer, chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
         except Exception as e:
             if "Can't parse entities" in str(e):
                 await context.bot.edit_message_text(telegram.helpers.escape_markdown(answer, version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             else:
-                print(f'<message_gen> {errorpredlang}: {e}')
+                logger.error(f'<message_gen> {errorpredlang}: {e}')
         # Liberar semáforo
         await tasks.releasemaphore(chat=chat)
         if config.switch_imgs == True and chat_mode == "imagen":
@@ -143,7 +142,6 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
             gen = insta.send_message(_message, dialog_messages, chat_mode)
             if config.usar_streaming == False:
                 await gen.asend(None)
-            print("Entró")
             async for status, gen_answer in gen:
                 answer = gen_answer[:4096]  # telegram message limit
                 if abs(len(answer) - len(prev_answer)) < upd and status != "finished": continue
@@ -153,12 +151,9 @@ async def stream_message(update, context, chat, lang, current_model, _message, d
                 except telegram.error.BadRequest as e:
                     if str(e).startswith(msg_no_mod): continue
                     elif "Message text is empty" in str(e): raise RuntimeError("NoMSG")
-                    else:
-                        print(e)
-                        await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
+                    else: await context.bot.edit_message_text(telegram.helpers.escape_markdown(f'{answer}...⏳', version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
                 await sleep(timer)  # Esperar un poco para evitar el flooding
                 prev_answer = answer
-            print("Salió")
         except Exception as e:
             await mensaje_error_reintento(update, context, chat, lang, placeholder_message, answer)
             raise RuntimeError(f'<message_stream> {errorpredlang}: {e}')
