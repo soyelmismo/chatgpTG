@@ -14,7 +14,6 @@ def import_functions_from_directory(directory, module_prefix):
     for root, _, files in os.walk(directory):
         for file in files:
             if file.endswith(".py") and not file.startswith("__"):
-                module_name = os.path.splitext(file)[0]
                 module_path = os.path.join(root, file).replace("\\", "/")
                 relative_module_path = os.path.relpath(module_path, directory).replace(".py", "")
                 import_path = f"{module_prefix}.{relative_module_path.replace('/', '.')}"
