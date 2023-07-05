@@ -70,7 +70,7 @@ async def process_function_argument(response):
             arguments_value = response_item.choices[0].delta.function_call.get("arguments", "")
             if arguments_value is not None: arguments_list.append(arguments_value)
             if response_item.choices[0].delta.get("finish_reason") == "function_call": break
-        except: continue
+        except Exception: continue
     # Now that we have the list of argument fragments, join them into a single string
     if not arguments_list: return None
     # Now that we have the complete JSON string, we can parse it
@@ -78,35 +78,56 @@ async def process_function_argument(response):
     return arguments
 
 async def handle_response_item(self, old_response, fn, kwargs):
-    function_name = ""
-    arguments = None
+
+    function_name, arguments = None, None
+
     if self.diccionario.get("stream") == False:
-        if hasattr(old_response.choices[0], "message") and "function_call" in old_response.choices[0].message:
-            function_name = old_response.choices[0].message.function_call.get("name")
-            arguments = json.loads(old_response.choices[0].message.function_call.get("arguments"))
-        else:
-            yield None, eval(self.iter)
+        status, result, function_name, arguments = process_non_stream_response(self, old_response)
+        if result != None:
+            yield status, result
     else:
-        async for response_item in old_response:
-            if hasattr(response_item.choices[0], "delta") and "function_call" in response_item.choices[0].delta:
-                if not function_name:
-                    function_name = response_item.choices[0].delta.function_call.get("name")
-                arguments = await process_function_argument(old_response)
-            else:
-                self.answer += eval(self.iter)
-                yield "not_finished", self.answer
+        async for status, result, function_name, arguments in process_stream_response(self, old_response):
+            if function_name and arguments:
+                break
+            yield status, result
+
     if arguments:
-        self = await procesar_nuevos_datos(self, function_name, arguments, kwargs)
-        response = await fn(**self.diccionario)
-        if self.diccionario.get("stream") == False:
-            yield None, eval(self.iter)
+        async for status, result in process_arguments_and_generate_response(self, function_name, fn, arguments, kwargs):
+            yield status, result
+
+def process_non_stream_response(self, response):
+    if hasattr(response.choices[0], "message") and "function_call" in response.choices[0].message:
+        function_name = response.choices[0].message.function_call.get("name")
+        arguments = json.loads(response.choices[0].message.function_call.get("arguments"))
+        return None, None, function_name, arguments
+    else:
+        return None, eval(self.iter), None, None
+
+async def process_stream_response(self, old_response):
+    function_name, arguments = None, None
+    async for response_item in old_response:
+        if hasattr(response_item.choices[0], "delta") and "function_call" in response_item.choices[0].delta:
+            function_name = response_item.choices[0].delta.function_call.get("name")
+            arguments = await process_function_argument(old_response)
         else:
-            async for response_item in response:
-                if response_item.choices[0].delta.get("finish_reason") == "stop":
-                    yield "finished", self.answer
-                    break
-                self.answer += eval(self.iter)
-                yield "not_finished", self.answer
+            self.answer += eval(self.iter)
+            yield "not_finished", self.answer, None, None
+    if arguments != None:
+        yield None, None, function_name, arguments
+
+async def process_arguments_and_generate_response(self, function_name, fn, arguments, kwargs):
+    self = await procesar_nuevos_datos(self, function_name, arguments, kwargs)
+    response = await fn(**self.diccionario)
+
+    if self.diccionario.get("stream") == False:
+        yield None, eval(self.iter)
+    else:
+        async for response_item in response:
+            if response_item.choices[0].delta.get("finish_reason") == "stop":
+                yield "finished", self.answer
+                break
+            self.answer += eval(self.iter)
+            yield "not_finished", self.answer
 
 async def procesar_nuevos_datos(self, function_name, arguments, kwargs):
     function_response = await globals()[function_name](self, **arguments)
