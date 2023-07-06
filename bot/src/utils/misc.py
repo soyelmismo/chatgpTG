@@ -38,8 +38,7 @@ async def ver_modelo_get_tokens(chat=None, model=None, api=None):
         model_cache[chat.id] = (model, datetime.now())
 
     from bot.src.utils.config import model as modelist, api as apilist
-    if api:
-        if apilist["info"][api].get("api_max_tokens"):
+    if api and apilist["info"][api].get("api_max_tokens"):
             max_tokens = apilist["info"][api]["api_max_tokens"]
             return max_tokens
     max_tokens = int(modelist["info"][model]["max_tokens"])
