@@ -1,4 +1,8 @@
 ## Cambios anteriores:
+- Migración de YAML a JSON. <a href="https://github.com/soyelmismo/YMLtoJSON">Ajusten sus archivos de configuracion.</a>
+- Base de datos completamente local! Evitémonos de ejecutar un sistema gigantezco para administrar una base de datos de 1MB o menos :P (se activa con WITHOUT_MONGODB=True).
+- Llamadas a funciones agregado! Pueden desactivarlo con la variable FEATURE_FUNCTION_CALLS=True/False
+- Proxificacion de APIs exceptuando al bot, usen la variable API_TUNNEL=http://ip:puerto
 - sistema de tiempo de espera y reintento.
 - simplificación y mejora de las indicaciones.
 - optimización de los mensajes cuando se alcanza el límite de tokens.
