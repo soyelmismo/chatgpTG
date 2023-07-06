@@ -52,10 +52,11 @@ def append_chat_mode(self, chat_mode, messages):
 def continue_or_append_latest_message(_message, messages):
     if _message == continue_key:
         _message = ""
-        last_assistant_message_index = next((index for index, message in reversed(list(enumerate(messages))) if message["role"] == "assistant"), -1)
-        if last_assistant_message_index != -1:
-            content = messages[last_assistant_message_index]["content"]
-            if content.endswith("."): messages[last_assistant_message_index]["content"] = content[:-2]
+        messages.append({"role": "user", "content": "continue from previous point"})
+        #last_assistant_message_index = next((index for index, message in reversed(list(enumerate(messages))) if message["role"] == "assistant"), -1)
+        #if last_assistant_message_index != -1:
+            #content = messages[last_assistant_message_index]["content"]
+            #if content.endswith("."): messages[last_assistant_message_index]["content"] = content[:-2]
     else:
         messages.append({"role": "user", "content": _message})
     return messages
@@ -75,10 +76,10 @@ def append_functions(messages, dialog_messages):
 async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
     try:
         messages = []
+        messages = append_chat_mode(self, chat_mode, messages)
         messages = append_resources_messages(self, messages, dialog_messages)
         messages = append_functions(messages, dialog_messages)
         messages = append_user_bot_messages(messages, dialog_messages)
-        messages = append_chat_mode(self, chat_mode, messages)
         messages = continue_or_append_latest_message(_message, messages)
         messages = [message for message in messages if message["content"]]
         return messages

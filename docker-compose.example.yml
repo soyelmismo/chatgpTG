@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-# check https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/variables.md for more
+# check https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/variables for more
       - MONGODB_HOST=mongo
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=GDT9MbJUTFHpyJyeS2JxzgkpYTjnrU8v

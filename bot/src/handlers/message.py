@@ -200,9 +200,9 @@ async def mensaje_error_reintento(context, chat, lang, placeholder_message, answ
 
 async def get_update_params(chat):
     if chat.type != "private":
-        return 175, 0.1
+        return 350, 0.4
     else:
-        return 125, 0.05
+        return 250, 0.2
 
 async def verificar_mensaje_y_enviar_error_si_vacio(_message, update, lang):
     if not _message:

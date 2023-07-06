@@ -27,10 +27,16 @@ def get_prompt_lines(dialog_messages, chat_mode, lang):
     for dialog_message in dialog_messages:
         user_text = dialog_message.get("user", "").strip()
         if user_text:
-            prompt_lines.append(f'{config.lang[lang]["metagen"]["usuario"]}: {user_text}\n\n')
+            if chat_mode != "nada":
+                prompt_lines.append(f'{config.lang[lang]["metagen"]["usuario"]}: {user_text}\n\n')
+            else:
+                prompt_lines.append(f' {user_text}')
         bot_text = dialog_message.get("bot", "").strip()
         if bot_text:
-            prompt_lines.append(f'{config.chat_mode["info"][chat_mode]["name"][lang]}: {bot_text}\n\n')
+            if chat_mode != "nada":
+                prompt_lines.append(f'{config.chat_mode["info"][chat_mode]["name"][lang]}: {bot_text}\n\n')
+            else:
+                prompt_lines.append(f' {bot_text}')
     return "".join(prompt_lines)
 
 def get_injectprompt(language, prompter):
@@ -53,11 +59,15 @@ def append_chat_mode(self, chat_mode):
 def continue_or_append_latest_message(self, _message, prompt, chat_mode):
     if _message == continue_key:
         _message = ""
-        if prompt.endswith(".") or prompt.endswith("?"):
-            prompt = prompt[:-3]
+        #if prompt.endswith(".") or prompt.endswith("?"):
+        #prompt = prompt[:-1]
+        prompt = f'{prompt} '
     else:
-        prompt += f'\n\n{config.lang[self.lang]["metagen"]["usuario"]}: {_message}'
-        prompt += f'\n\n{config.chat_mode["info"][chat_mode]["name"][self.lang]}:'
+        if chat_mode != "nada":
+            prompt += f'\n\n{config.lang[self.lang]["metagen"]["usuario"]}: {_message}'
+            prompt += f'\n\n{config.chat_mode["info"][chat_mode]["name"][self.lang]}:'
+        else:
+            prompt += f' {_message}'
     return prompt
 
 async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
