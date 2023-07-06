@@ -1,52 +1,12 @@
-- Bot: https://t.me/chismegptbpt
-## Comandos:
-- /new - Iniciar nuevo diálogo.
-- /img - Generar imagenes.
-- /retry - Regenera la última respuesta del bot.
-- /chat_mode - Seleccionar el modo de conversación.
-- /model - Mostrar modelos IA.
-- /api - Mostrar APIs.
-- /lang - Ver idiomas disponibles.
-- /status - Ver la configuracion actual: Modelo, Modo de chat y API.
-- /reset - Reestablece la configuración a valores predeterminados.
-- /search - Busqueda en internet
-- /help – Mostrar este mensaje de nuevo.
 
-## Características:
-- Llamada a funciones! (plugins conectados directamente a GPT, modelos del mes de Junio>).
-- Base de datos JSON local.
-- Muy modular y personalizable.
-- Haz que GPT acceda a Internet usando /search!
-- Envía un archivo de texto, PDF o URL y el bot los podrá analizar!
-- Añade proxies reversos de OpenAI y sus respectivos modelos cuanto quieras!
-- Multi lenguaje.
-- Lee el texto de imágenes.
-- Transcribe audios.
-
-
-## Nueva actualización:
-- Documentación de variables, en inglés
-- Function calls "totalmente" modular... solo agreguen sus scripts en bot/functions y formateenlos bien... (Recuerden que pueden usar los volumenes bind de docker para montar carpetas y no tener que reiniciar el bot cada 3 segundos... a no ser que deban añadir dependencias para sus scripts personalizados en requirements.txt)
-
-# Importante:
-- Las API personalizadas deben seguir la misma estructura de OpenAI, es decir, el "https://dominio.dom/v1/..."
-
-## Setup
-1. Obtén tu clave de [OpenAI API](https://openai.com/api/)
-
-2. Obtén tu token de bot de Telegram de [@BotFather](https://t.me/BotFather)
-
-3. Edita `config/api.example.json` para configurar tu API-KEY o añadir apis personalizadas
-
-4. Añade tu token de telegram, base de datos Mongo, modifica otras variables en 'docker-compose.example.yml' y renombra `docker-compose.example.yml` a `docker-compose.yml`
-
-5. 🔥 Accede al directorio desde la terminal y **ejecuta**:
-    ```bash
-    docker-compose up --build
-    ```
-# Historial de estrellas
-
-<a href="https://gg.resisto.rodeo/yo/chatgpTG"><img width="500" alt="Star History Chart" src="https://api.star-history.com/svg?repos=soyelmismo/chatgpTG&type=Date"></a> 
-
-## References
-1. Origin: <a href="https://github.com/karfly/chatgpt_telegram_bot" alt="Karfly">Karfly/chatgpt_telegram_bot</a>
+[![es](https://img.shields.io/badge/L%C3%A9eme-es-blue)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/es.md)
+[![en](https://img.shields.io/badge/ReadMe-en-red)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/en.md)
+[![ar](https://img.shields.io/badge/اقرأ-عربي-green)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/ar.md)
+[![zh](https://img.shields.io/badge/阅读-中文-yellow)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/zh.md)
+[![jp](https://img.shields.io/badge/読む-日本語-orange)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/jp.md)
+[![de](https://img.shields.io/badge/Lesen-de-brightgreen)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/de.md)
+[![fr](https://img.shields.io/badge/Lire-fr-lightgrey)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/fr.md)
+[![it](https://img.shields.io/badge/Leggi-it-blueviolet)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/it.md)
+[![ru](https://img.shields.io/badge/Читать-русский-yellowgreen)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/ru.md)
+[![pt](https://img.shields.io/badge/Leia-pt-critical)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/pt.md)
+[![nl](https://img.shields.io/badge/Lees-nl-informational)](https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/readme/nl.md)
