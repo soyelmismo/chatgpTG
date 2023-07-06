@@ -1,10 +1,26 @@
-import httpx
+import aiohttp
 
-def GetAnswer(self, messages: str, model: str = "gpt-3.5-turbo"):
-    captcha_code = "hadsa"
-    if model == "gpt-4":
+async def create(self):
+    if self.model == "gpt-4":
         chat_id = "quran---tafseer-saadi-pdf-wbgknt7zn"
-    elif model == "gpt-3.5-turbo":
+    elif self.model == "gpt-3.5-turbo":
         chat_id = "chatbase--1--pdf-p680fxvnm"
-    response = httpx.post("https://www.chatbase.co/api/fe/chat", json={"chatId": chat_id, "captchaCode": captcha_code, "messages": messages}, proxies=self.proxies)
-    return response.text
+
+    data = {
+        "messages": self.diccionario["messages"],
+        "captchaCode": "hadsa",
+        "chatId": chat_id,
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post("https://www.chatbase.co/api/fe/chat", json=data, proxy=self.proxies) as response:
+            try:
+                async for line in response.content:
+                    line_text = line.decode("utf-8").strip()
+                    if "API rate limit exceeded" in line_text:
+                        line_text = f'{self.config.lang[self.lang]["errores"]["utils_chatbase_limit"]}'
+                        yield "finished", line_text
+                        break
+                    yield "not_finished", line_text
+            except Exception as e:
+                print(f'{__name__}: {e}')

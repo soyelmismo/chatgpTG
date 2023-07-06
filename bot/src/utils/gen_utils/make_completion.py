@@ -6,9 +6,12 @@ from .openai.openai_completion import _openai
 async def _make_api_call(self, **kwargs):
     self.answer = ""
     api_functions = {
-        "chatbase": _chatbase,
+        "chatbase": _generic_create,
         "you": _you,
-        "evagpt4": _evagpt4
+        "evagpt4": _generic_create,
+        "chatllama": _generic_create,
+        "chatgptai": _generic_create,
+        "aichat": _generic_create
     }
     request_timeout = config.request_timeout
     if config.usar_streaming == False:
@@ -31,9 +34,8 @@ async def _make_api_call(self, **kwargs):
         except Exception as e:
             if attempt < config.max_retries: await asyncio.sleep(1.75)
             else: # Si hemos alcanzado el máximo número de reintentos, lanzamos la excepción
-                error = f'{config.lang[self.lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}'
-                yield "error", f'{error}'
-                raise ConnectionError(f"_make_api_call. {error}: {e}")
+                #yield "error", f'{config.lang[self.lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}'
+                raise ConnectionError(f'_make_api_call. {config.lang[config.pred_lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}: {e}')
 
 async def _you(self, **kwargs):
     try:
@@ -43,53 +45,41 @@ async def _you(self, **kwargs):
             detailed=False,
             include_links=False
         )
-        if self.diccionario.get("stream") == False:
-            for chunk in r.text.encode('utf-16', 'surrogatepass').decode('utf-16'):
-                self.answer += chunk
+        for chunk in r.text.encode('utf-16', 'surrogatepass').decode('utf-16'):
+            self.answer += chunk
             if "Unable to fetch the response, Please try again." in self.answer:
                 raise RuntimeError(self.answer)
-            yield None, self.answer
-        else:
-            for chunk in r.text.encode('utf-16', 'surrogatepass').decode('utf-16'):
-                self.answer += chunk
-                if "Unable to fetch the response, Please try again." in self.answer:
-                    raise RuntimeError(self.answer)
-                yield "not_finished", self.answer
+            yield "not_finished", self.answer
     except Exception as e:
         e = f'_get_you_answer: {e}'
         raise ConnectionError(e)
-        
-async def _chatbase(self, **kwargs):
+
+async def _generic_create(self, **kwargs):
     try:
-        from bot.src.apis.opengpt import chatbase
-        r = chatbase.GetAnswer(self, messages=kwargs['messages'], model=self.model)
-        if self.diccionario.get("stream") == False:
-            for chunk in r:
-                self.answer += chunk
-            if "API rate limit exceeded" in self.answer:
-                raise RuntimeError(config.lang[self.lang]["errores"]["utils_chatbase_limit"])
-            yield None, self.answer
-        else:
-            for chunk in r:
-                self.answer += chunk
-                if "API rate limit exceeded" in self.answer:
-                    raise RuntimeError(config.lang[self.lang]["errores"]["utils_chatbase_limit"])
-                yield "not_finished", self.answer
+
+        if self.api == "evagpt4":
+            self.diccionario["messages"] = kwargs["messages"]
+            from bot.src.apis.opengpt.evagpt4 import create
+        elif self.api == "chatbase":
+            # This have some rate limit too for a while.
+            self.config = config
+            self.diccionario["messages"] = kwargs["messages"]
+            from bot.src.apis.opengpt.chatbase import create
+        elif self.api == "chatgptai":
+            self.diccionario["messages"] = kwargs["messages"]
+            from bot.src.apis.opengpt.chatbase import create
+        elif self.api == "chatllama":
+            self.diccionario["prompt"] = kwargs["prompt"]
+            from bot.src.apis.opengpt.chatllama import create
+        elif self.api == "aichat":
+            # This only have 10 requests... idk if per day lol...
+            self.config = config
+            self.diccionario["message"] = kwargs["prompt"]
+            from bot.src.apis.gpt4free.aichat import create
+
+        async for _, content in create(self):
+            self.answer += content
+            yield "not_finished", self.answer
+
     except Exception as e:
-        e = f'_get_chatbase_answer: {e}'
-        raise ConnectionError(e)
-async def _evagpt4(self, **kwargs):
-    try:
-        from bot.src.apis.opengpt import evagpt4
-        r = evagpt4.Model(model=self.model, proxy=self.proxies).ChatCompletion(messages=kwargs['messages'])
-        if self.diccionario.get("stream") == False:
-            for chunk in r:
-                self.answer += chunk
-            yield None, self.answer
-        else:
-            for chunk in r:
-                self.answer += chunk
-                yield "not_finished", self.answer
-    except Exception as e:
-        e = f'_get_evagpt4_answer: {e}'
-        raise ConnectionError(e)
+        raise ConnectionError(f"_generic_create {self.api}: {e}")

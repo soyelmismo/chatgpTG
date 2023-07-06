@@ -12,9 +12,27 @@
         "text-davinci-003",
         "text-curie-001",
         "text-babbage-001",
-        "text-ada-001"
+        "text-ada-001",
+        "llama-13b"
     ],
     "info": {
+        "llama-13b": {
+            "name": "LLAMA",
+            "description": {
+                "es": "es un gran modelo lingüi­stico entrenado por Meta.",
+                "ar": "إنه نموذج لغوي كبير تم تدريبه بواسطة Meta.",
+                "en": "It is a large language model trained by Meta.",
+                "jp": "Metaによって訓練された大規模言語モデルです。",
+                "zh": "它是由Meta训练的大型语言模型。",
+                "de": "Es handelt sich um ein großes Sprachmodell, das von Meta trainiert wurde.",
+                "fr": "C'est un grand modèle de langage entraîné par Meta.",
+                "ru": "Это крупная языковая модель, обученная компанией Meta.",
+                "pt": "É um grande modelo de linguagem treinado pela Meta.",
+                "it": "È un grande modello di linguaggio addestrato da Meta.",
+                "nl": "Het is een groot taalmodel getraind door Meta."
+            },
+            "max_tokens": 2048
+        },
         "gpt-3.5-turbo": {
             "name": "ChatGPT",
             "description": {

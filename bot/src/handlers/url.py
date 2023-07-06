@@ -33,7 +33,7 @@ async def handle(chat, lang, update, urls):
             doc = await extract_from_url(url)
             doc, _, advertencia = await clean_text(doc, chat)
             if advertencia==True:
-                textomensaje = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{textomensaje}'
+                textomensaje = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{textomensaje if textomensaje else ""}'
             new_dialog_message = {"url": f"{url} -> content: {doc}", "date": datetime.now()}
             await update_dialog_messages(chat, new_dialog_message)
         except ValueError as e:

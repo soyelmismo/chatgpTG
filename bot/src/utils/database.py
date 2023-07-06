@@ -94,7 +94,7 @@ class Database:
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],
-                    constant_db_model: config.api["info"][initial_api]["available_model"][0],
+                    constant_db_model: config.api["info"][config.api["available_api"][0]]["available_model"][0],
                     constant_db_api: config.api["available_api"][0],
                     constant_db_image_api: config.api["available_image_api"][0],
                     constant_db_imaginepy_styles: imaginepy_styles[0],
@@ -206,7 +206,7 @@ class Database:
         else:
             dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
             dialog_dict = await self.dialogs.find_one({"_id": dialog_id})
-            
+
         if key not in dialog_dict:
             return None
         return dialog_dict[key]

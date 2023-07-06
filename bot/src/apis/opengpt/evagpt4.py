@@ -1,45 +1,32 @@
-import requests
+import aiohttp
 import json
 
-class Model:
-    def __init__(self, model, proxy: dict = None):
-        self.url = "https://ava-alpha-api.codelink.io/api/chat"
-        self.headers = {
-            "content-type": "application/json"
-        }
-        self.payload = {
-            "model": model,
-            "temperature": 0.6,
-            "stream": True
-        }
-        self.proxy = proxy
-        self.accumulated_content = ""
+async def create(self):
 
-    def _process_line(self, line):
-        line_text = line.decode("utf-8").strip()
-        if line_text.startswith("data:"):
-            data = line_text[len("data:"):]
+    async with aiohttp.ClientSession() as session:
+        async with session.post("https://ava-alpha-api.codelink.io/api/chat",
+                                headers={"content-type": "application/json"},
+                                data=json.dumps(self.diccionario), proxy=self.proxies) as response:
             try:
-                data_json = json.loads(data)
-                if "choices" in data_json:
-                    choices = data_json["choices"]
-                    for choice in choices:
-                        if "finish_reason" in choice and choice["finish_reason"] == "stop":
-                            break
-                        if "delta" in choice and "content" in choice["delta"]:
-                            content = choice["delta"]["content"]
-                            self.accumulated_content += content
-            except json.JSONDecodeError as e:
-                return
+                async for line in response.content:
+                    try:
+                        line_text = line.decode("utf-8").strip()
 
-    def ChatCompletion(self, messages):
-        self.payload["messages"] = messages
+                        data_json = json.loads(line_text[len("data:"):])
 
-        with requests.post(self.url, headers=self.headers, data=json.dumps(self.payload), stream=True, proxies=self.proxy) as response:
-            for line in response.iter_lines():
-                self._process_line(line)
+                        choices = data_json.get("choices", [])
 
-        accumulated_content = self.accumulated_content
-        self.accumulated_content = ""
+                        if not choices:
+                            continue
 
-        return accumulated_content
+                        for choice in choices:
+                            if choice.get("finish_reason") == "stop":
+                                break
+
+                            if "delta" in choice and "content" in choice.get("delta"):
+                                content = choice.get("delta", {}).get("content", "")
+                                yield "not_finished", content
+                    except (json.JSONDecodeError, IndexError, KeyError):
+                        continue
+            except Exception as e:
+                raise ConnectionError(f'{__name__}: {e}')

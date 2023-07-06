@@ -1,6 +1,6 @@
 from bot.src.utils import config
-from bot.src.utils.proxies import db, chat_mode_cache, model_cache, lang_cache
-from bot.src.utils.constants import constant_db_tokens, constant_db_chat_mode, constant_db_model, constant_db_lang
+from bot.src.utils.proxies import db, chat_mode_cache, model_cache, lang_cache, api_cache
+from bot.src.utils.constants import constant_db_tokens, constant_db_chat_mode, constant_db_model, constant_db_lang, constant_db_api
 from bot.src.utils.misc import ver_modelo_get_tokens, tokenizer
 
 async def putos_tokens(chat, _message):
@@ -14,13 +14,18 @@ async def putos_tokens(chat, _message):
     else:
         current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
 
+    if chat.id in api_cache:
+            current_api = api_cache[chat.id][0]
+    else:
+        current_api = await db.get_chat_attribute(chat, f'{constant_db_api}')
+
     if chat.id in lang_cache:
         language = lang_cache[chat.id][0]
     else:
         language = await db.get_chat_attribute(chat, constant_db_lang)
 
-    max_tokens = await ver_modelo_get_tokens(None, model=current_model)
-        
+    max_tokens = await ver_modelo_get_tokens(None, model=current_model, api=current_api)
+
     dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
     data, dialogos_tokens = await reconteo_tokens(chat, dialog_messages, max_tokens)
     
