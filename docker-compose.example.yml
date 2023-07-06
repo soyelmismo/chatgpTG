@@ -1,5 +1,5 @@
 version: "3"
-#i deploy like this
+
 services:
   mongo:
     container_name: mongo
@@ -20,39 +20,12 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - AUTO_LANG=es
-      - WITHOUT_MONGODB=False
+# check docs/variables.md for more
       - MONGODB_HOST=mongo
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=GDT9MbJUTFHpyJyeS2JxzgkpYTjnrU8v
 
       - TELEGRAM_TOKEN=6101.....
-      - USER_WHITELIST=
-      - CHAT_WHITELIST=
-
-      - DIALOG_TIMEOUT=7200
-      - TIMEOUT_ASK=True
-      - OUTPUT_IMAGES=4
-      - FEATURE_IMAGE_READ=True
-      - FEATURE_IMAGE_GENERATION=True
-      - GENERATED_IMAGE_EXPIRATION_MINUTES=5
-
-      - FEATURE_TRANSCRIPTION=True
-      - FEATURE_BROWSING=True
-      - FEATURE_DOCUMENT_READ=True
-      - FEATURE_URL_READ=True
-      - FEATURE_FUNCTION_CALLS=True
-      - MAX_ITEMS_PER_PAGE=10
-      - MAX_COLUMNS_PER_PAGE=2
-      #- API_TUNNEL=http://my:proxy
-      - AUDIO_MAX_MB=20
-      - DOC_MAX_MB=10
-      - URL_MAX_MB=5
-      - PDF_PAGE_LIMIT=25
-
-      - STREAM_ANSWERS=True
-      - REQUEST_TIMEOUT=7
-      - REQUEST_MAX_RETRIES=3
 
 #opcional    volumes:
 #      - /ruta-fuera-del-docker/mi-configuracion:/config

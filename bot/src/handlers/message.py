@@ -180,6 +180,7 @@ async def process_urls(raw_msg, chat, lang, update):
                 textomensaje = await url.handle(chat, lang, update, urls)
                 if textomensaje:
                     await update.effective_chat.send_message(textomensaje, reply_to_message_id=update.effective_message.message_id)
+                    return
                 await tasks.releasemaphore(chat=chat)
     except AttributeError:
         pass
