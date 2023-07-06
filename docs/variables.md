@@ -2,7 +2,7 @@
 
 ### Telegram Token
 
-To use the Telegram bot, you need to provide a Telegram token. This token can be obtained by creating a bot via https://t.me/botfather. The token needs to be stored in the `TELEGRAM_TOKEN` environment variable.
+To use the Telegram bot, you need to provide a Telegram token. This token can be obtained by creating a bot via `https://t.me/botfather`. The token needs to be stored in the `TELEGRAM_TOKEN` environment variable.
 
 ### Menu Configuration
 
@@ -93,4 +93,4 @@ The bot supports automatic language detection for context and menus. The default
 
 ### Proxy Support
 
-The bot supports using a proxy only for API requests. To use a proxy, provide the proxy URL in the `API_TUNNEL` environment variable (ex. http://127.0.0.1:3128). If no proxy is needed, leave this variable empty.
+The bot supports using a proxy only for API requests. To use a proxy, provide the proxy URL in the `API_TUNNEL` environment variable (ex. `http://127.0.0.1:3128`). If no proxy is needed, leave this variable empty.
