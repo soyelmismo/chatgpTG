@@ -22,8 +22,9 @@ async def set(update: Update, context: CallbackContext):
 
 async def cambiar_idioma(update, chat, lang):
     from bot.src.utils.proxies import (obtener_contextos as oc,lang_cache,db,config,datetime)
+    from bot.src.utils.constants import constant_db_lang
     if lang_cache.get(chat.id) is None or lang_cache.get(chat.id)[0] != lang:
-        await db.set_chat_attribute(chat, "current_lang", lang)
+        await db.set_chat_attribute(chat, f'{constant_db_lang}', lang)
         lang_cache[chat.id] = (lang, datetime.now())
         if update:
             await update.effective_chat.send_message(f'{config.lang[lang]["info"]["bienvenida"]}')

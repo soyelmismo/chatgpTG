@@ -67,8 +67,7 @@ class Database:
     
         if raise_exception:
             raise ValueError(f"Chat {str(chat.id)} no existe")
-        else:
-            return False
+        return False
             
 
     async def add_chat(self, chat, lang: str):
@@ -142,11 +141,9 @@ class Database:
             chat_dict = self.data["chats"][str(chat.id)]
         else:
             chat_dict = await self.chats.find_one({"_id": str(chat.id)})
-
-        if key not in chat_dict:
-            return None
-        return chat_dict[key]
-
+            
+        return chat_dict.get(key, None)
+        
     async def reset_chat_attribute(self, chat):
         await self.chat_exists(chat, raise_exception=True)
         initial_chat_mode = config.chat_mode["available_chat_mode"][0]
@@ -156,8 +153,7 @@ class Database:
         initial_imaginepy_style = imaginepy_styles[0]
         initial_imaginepy_ratio = imaginepy_ratios[0]
         initial_imaginepy_model = imaginepy_models[0]
-        if self.use_json:
-            
+        if self.use_json: 
             self.data["chats"][str(chat.id)][constant_db_chat_mode] = initial_chat_mode
             self.data["chats"][str(chat.id)][constant_db_model] = initial_model
             self.data["chats"][str(chat.id)][constant_db_api] = initial_api
@@ -185,60 +181,49 @@ class Database:
             await self.chats.update_one({"_id": str(chat.id)}, {"$set": {key: value}})
 
     async def set_dialog_attribute(self, chat, key: str, value: Any):
+        dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
         if self.use_json:
-            dialog_id = self.data["chats"].get(str(chat.id), {}).get("current_dialog_id")
             if dialog_id and dialog_id in self.data["dialogs"]:
                 self.data["dialogs"][dialog_id][key] = value
                 self.save_data_to_json("dialogs")
         else:
-            dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
-
             await self.dialogs.update_one(
                 {"_id": dialog_id},
                 {"$set": {key: value}}
             )
 
     async def get_dialog_attribute(self, chat, key: str):
+        dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
         if self.use_json:
-            dialog_id = self.data["chats"].get(str(chat.id), {}).get("current_dialog_id")
             if dialog_id and dialog_id in self.data["dialogs"]:
                 dialog_dict = self.data["dialogs"][dialog_id]
         else:
-            dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
             dialog_dict = await self.dialogs.find_one({"_id": dialog_id})
 
-        if key not in dialog_dict:
-            return None
-        return dialog_dict[key]
+        return dialog_dict.get(key, None)
 
     async def get_dialog_messages(self, chat, dialog_id: Optional[str] = None):
         await self.chat_exists(chat, raise_exception=True)
+        if dialog_id is None:
+            dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
         if self.use_json:
-            if dialog_id is None:
-                dialog_id = self.data["chats"].get(str(chat.id), {}).get("current_dialog_id")
             if dialog_id and dialog_id in self.data["dialogs"]:
                 return self.data["dialogs"][dialog_id]["messages"]
             return []
         else:
-            if dialog_id is None:
-                dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
-
             dialog_dict = await self.dialogs.find_one({"_id": dialog_id, "chat_id": str(chat.id)})
             return dialog_dict["messages"]
 
     async def set_dialog_messages(self, chat, dialog_messages: list, dialog_id: Optional[str] = None):
         await self.chat_exists(chat, raise_exception=True)
+        if dialog_id is None:
+            dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
         if self.use_json:
-            if dialog_id is None:
-                dialog_id = self.data["chats"].get(str(chat.id), {}).get("current_dialog_id")
-            if dialog_id and dialog_id in self.data["dialogs"]:
-                self.data["dialogs"][dialog_id]["messages"] = dialog_messages
-                self.save_data_to_json("dialogs")
+            if dialog_id:
+                if dialog_id in self.data["dialogs"]:
+                    self.data["dialogs"][dialog_id]["messages"] = dialog_messages
+                    self.save_data_to_json("dialogs")
         else:
-
-            if dialog_id is None:
-                dialog_id = await self.get_chat_attribute(chat, "current_dialog_id")
-
             await self.dialogs.update_one(
                 {"_id": dialog_id, "chat_id": str(chat.id)},
                 {"$set": {"messages": dialog_messages}}

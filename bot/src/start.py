@@ -117,9 +117,10 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
     if config.switch_imgs == True:
         add_this.append(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))
         add_this.append(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
-        add_this.append(CommandHandler("istyle", istyle.imagine, filters=(user_filter | chat_filter)))
-        add_this.append(CommandHandler("iratio", iratio.imagine, filters=(user_filter | chat_filter)))
-        add_this.append(CommandHandler("imodel", imodel.imagine, filters=(user_filter | chat_filter)))
+        if "imaginepy" in config.api["available_image_api"]:
+            add_this.append(CommandHandler("istyle", istyle.imagine, filters=(user_filter | chat_filter)))
+            add_this.append(CommandHandler("iratio", iratio.imagine, filters=(user_filter | chat_filter)))
+            add_this.append(CommandHandler("imodel", imodel.imagine, filters=(user_filter | chat_filter)))
     if config.switch_search == True:
         add_this.append(CommandHandler("search", search.wrapper, filters=(user_filter | chat_filter)))
     

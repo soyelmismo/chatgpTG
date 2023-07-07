@@ -9,4 +9,3 @@ async def create(self):
                     yield "not_finished", json.loads(line).get("completion")
             except Exception as e:
                 raise ConnectionError(f"{__name__}: {e}")
-                return

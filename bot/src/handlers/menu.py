@@ -17,7 +17,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
-    except Exception as e: logger.error(f'{__name__}: {errorpredlang}: <get_menu> {e}')
+    except Exception as e: logger.error(f'{__name__}: {errorpredlang}: <get_menu> <{menu_type}, {option_name}, {current_key}> {e}')
 
 async def get_menu_type_dict(menu_type):
     if menu_type == "image_api":
@@ -93,6 +93,7 @@ async def get_current_key_text(menu_type, menu_type_dict, option_name, current_k
 async def get_props_text(update, context):
     from .commands import status
     return await status.handle(update, context, paraprops=True)
+    
 async def get_text(update, context, chat, lang, menu_type, menu_type_dict, option_name=None, current_key=None):
     try:
         if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios", "imaginepy_models"]: texto = await get_imaginepy_text(chat, lang)

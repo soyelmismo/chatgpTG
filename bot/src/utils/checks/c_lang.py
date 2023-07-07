@@ -1,8 +1,9 @@
 from bot.src.start import Update
 from bot.src.utils.constants import constant_db_lang
 async def check(update, chat=None):
-    from bot.src.utils.checks import c_chat
-    chat = await c_chat.check(update) if not chat else chat
+    if not chat:
+        from bot.src.utils.checks import c_chat
+        chat = await c_chat.check(update)
     from bot.src.utils.proxies import lang_cache, datetime, db, config
     if lang_cache.get(chat.id) is not None:
         lang = lang_cache[chat.id][0]

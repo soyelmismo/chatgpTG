@@ -42,9 +42,9 @@ async def obtener_contextos(update, chat=None, lang=None):
     lang = await c_lang.check(update, chat) if not lang else lang
     if not await db.chat_exists(chat):
         await db.add_chat(chat, lang)
+        await db.new_dialog(chat)
         from bot.src.handlers.commands.lang import cambiar_idioma
         await cambiar_idioma(update, chat, lang)
-        await db.new_dialog(chat)
     if chat.id not in chat_locks: chat_locks[chat.id] = asyncio.Semaphore(1)
     return chat, lang
 
