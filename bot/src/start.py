@@ -1,4 +1,3 @@
-from telegram.error import BadRequest
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -17,7 +16,7 @@ api, img, lang, status, reset, search, props, istyle, iratio, imodel)
 from .handlers.callbacks import imagine
 from .tasks import cache
 from .utils import config
-from .utils.proxies import bb, logger, errorpredlang, asyncio
+from .utils.proxies import bb, asyncio
 
 async def post_init(application: Application):
     bb(cache.task())

@@ -12,13 +12,16 @@ services:
     ports:
       - 27017
 
-  chatgpt-telegram:
-    container_name: chatgpt
+  chatgptg:
+    container_name: chatgptg
+    stdin_open: true
+    tty: true
     command: python3 -m bot
     restart: always
     build:
       context: .
       dockerfile: Dockerfile
+    entrypoint: []
     environment:
 # check https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/variables for more
       - MONGODB_HOST=mongo
@@ -26,6 +29,7 @@ services:
       - MONGODB_PASSWORD=GDT9MbJUTFHpyJyeS2JxzgkpYTjnrU8v
 
       - TELEGRAM_TOKEN=6101.....
-
-#opcional    volumes:
-#      - /ruta-fuera-del-docker/mi-configuracion:/config
+#    volumes:
+#      - /route/my_config_dir:/config:ro
+#      - /route/my_code_dir:/bot:ro
+#      - /route/my_database_dir:/database:rw

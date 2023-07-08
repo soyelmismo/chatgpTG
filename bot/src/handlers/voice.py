@@ -31,7 +31,7 @@ async def handle(chat, lang, update, context):
 
                 # convert to mp3
                 mp3_file_path = tmp_dir / "voice.mp3"
-                call(f"ffmpeg -i {doc_path} {mp3_file_path} > /dev/null 2>&1", shell=True)
+                call(f"sox {doc_path} -C 64 -r 16000 -q {mp3_file_path} > /dev/null 2>&1", shell=True)
 
                 # Transcribir
                 with open(mp3_file_path, "rb") as f:

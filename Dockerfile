@@ -1,6 +1,6 @@
-FROM bitnami/minideb:latest
+FROM python:3-alpine
 
-#por alguna razon si se elimina esta variable, no se imprimen algunos mensajes de error o informacion relevante...
+# Por alguna razón, si se elimina esta variable, no se imprimen algunos mensajes de error o información relevante...
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /
@@ -14,39 +14,29 @@ COPY config/model.example.json config/model.json
 COPY /locales/ /locales
 COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
-#all in a shot
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends \
+# Instalar dependencias
+RUN apk update && \
+    apk add --no-cache --virtual .build-deps \
+        alpine-sdk \
         python3-dev \
-        python3-pip \
-        ffmpeg \
+        py3-pip && \
+    apk add --no-cache \
+        sox \
         tesseract-ocr \
-        python3-opencv \
-        tesseract-ocr-spa \
-        tesseract-ocr-ara \
-        tesseract-ocr-eng \
-        tesseract-ocr-jpn \
-        tesseract-ocr-jpn-vert \
-        tesseract-ocr-chi-sim \
-        tesseract-ocr-chi-sim-vert \
-        tesseract-ocr-chi-tra \
-        tesseract-ocr-chi-tra-vert \
-        tesseract-ocr-deu \
-        tesseract-ocr-fra \
-        tesseract-ocr-rus \
-        tesseract-ocr-por \
-        tesseract-ocr-ita \
-        tesseract-ocr-nld && \
-    
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        tesseract-ocr-data-spa \
+        tesseract-ocr-data-ara \
+        tesseract-ocr-data-eng \
+        tesseract-ocr-data-jpn \
+        tesseract-ocr-data-chi_sim \
+        tesseract-ocr-data-chi_tra \
+        tesseract-ocr-data-deu \
+        tesseract-ocr-data-fra \
+        tesseract-ocr-data-rus \
+        tesseract-ocr-data-por \
+        tesseract-ocr-data-ita \
+        tesseract-ocr-data-nld && \
+    pip3 install --no-cache-dir -r requirements.txt && \
+    apk del .build-deps && \
+    rm -rf /var/cache/apk/*
 
-RUN apt-get -y install --no-install-recommends build-essential && \
-    pip3 install --no-cache-dir --prefer-binary --break-system-packages -r requirements.txt && \
-    apt remove --purge -y build-essential && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-CMD ["python3", "-m", "bot"]
+CMD ["python", "-m", "bot"]

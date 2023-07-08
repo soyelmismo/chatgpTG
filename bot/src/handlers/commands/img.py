@@ -128,7 +128,7 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
             document_group.append(document)
         else:
             for i, image_url in enumerate(image_urls):
-                caption = f'- "<strong>{prompt}</strong>"'
+                caption = f'🎨 <strong>{config.api["info"][current_api]["name"]}</strong>\n\n✏️ "<strong><code>{prompt}</code></strong>"'
                 image = InputMediaPhoto(image_url)
                 image_group.append(image)
                 document = InputMediaDocument(image_url, filename=f"imagen_{i}.png")
