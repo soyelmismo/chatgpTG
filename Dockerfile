@@ -14,8 +14,6 @@ COPY config/model.example.json config/model.json
 COPY /locales/ /locales
 COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
-RUN apt-get update
-
 #all in a shot
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
@@ -40,8 +38,9 @@ RUN apt-get update && \
         tesseract-ocr-por \
         tesseract-ocr-ita \
         tesseract-ocr-nld && \
-    pip3 install --no-cache-dir --break-system-packages -r requirements.txt && \
-    apt remove --autoremove -y build-essential && \
+    pip3 install --no-cache-dir --prefer-binary -r requirements.txt && \
+    apt remove --purge -y build-essential && \
+    apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
