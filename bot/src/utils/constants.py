@@ -10,10 +10,13 @@ constant_db_lang = "current_lang"
 constant_db_tokens = "current_max_tokens"
 continue_key = "Renounce€Countless€Unrivaled2€Banter"
 
-from imaginepy.constants import Style, Ratio, Model
-imaginepy_styles = [style.name for style in Style]
-imaginepy_ratios = [ratio.name for ratio in Ratio]
-imaginepy_models = [model.name for model in Model]
+#from bot.src.apis.imaginepy import Style, Ratio, Model
+#imaginepy_styles = [style.name for style in Style]
+#imaginepy_ratios = [ratio.name for ratio in Ratio]
+#imaginepy_models = [model.name for model in Model]
+imaginepy_styles = None
+imaginepy_ratios = None
+imaginepy_models = None
 
 ERRFUNC = "Error retrieving function."
 FUNCNOARG = "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."

@@ -10,7 +10,7 @@ duckduckgo_search
 python-dotenv
 nltk
 langdetect
-imaginepy
+#imaginepy
 docstring_parser
 python_weather
 tiktoken

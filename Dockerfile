@@ -17,7 +17,6 @@ COPY config/openai_completion_options.example.json config/openai_completion_opti
 #all in a shot
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
-        build-essential \
         python3-dev \
         python3-pip \
         ffmpeg \
@@ -38,6 +37,12 @@ RUN apt-get update && \
         tesseract-ocr-por \
         tesseract-ocr-ita \
         tesseract-ocr-nld && \
+    
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get -y install --no-install-recommends build-essential && \
     pip3 install --no-cache-dir --prefer-binary --break-system-packages -r requirements.txt && \
     apt remove --purge -y build-essential && \
     apt-get autoremove -y && \

@@ -1,8 +1,8 @@
-from .imaginepy import AsyncImagine, Style, Ratio, Model
+#from .imaginepy import AsyncImagine, Style, Ratio, Model
 import uuid
 import io
 import secrets
-
+AsyncImagine, Style, Ratio, Model = None, None, None, None
 async def main(self, prompt, style, ratio, model, seed=None, negative=None, endpoint=None):
     imagine = AsyncImagine(api=endpoint, proxies=self.proxies)
     try:
@@ -16,7 +16,7 @@ async def main(self, prompt, style, ratio, model, seed=None, negative=None, endp
             ratio=Ratio.__members__[ratio],
             negative=negative,
             seed=seed,
-            cfg=15.9,
+            cfg=15,
             high_result = 1,
             priority = 1,
             steps = 50
