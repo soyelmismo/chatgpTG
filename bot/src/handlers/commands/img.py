@@ -185,8 +185,8 @@ async def expiracion(update, lang, msgid=None):
         replid = update.effective_message.message_id
     elif msgid:
         replid = msgid
-
-    await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=replid)
+    if replid:
+        await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=replid)
 
 async def callback_recibir(update, context, msgid, lang):
     documentos = document_groups.get(f'{msgid}')
