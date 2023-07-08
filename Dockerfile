@@ -38,7 +38,7 @@ RUN apt-get update && \
         tesseract-ocr-por \
         tesseract-ocr-ita \
         tesseract-ocr-nld && \
-    pip3 install --no-cache-dir --prefer-binary -r requirements.txt && \
+    pip3 install --no-cache-dir --prefer-binary --break-system-packages -r requirements.txt && \
     apt remove --purge -y build-essential && \
     apt-get autoremove -y && \
     apt-get clean && \
