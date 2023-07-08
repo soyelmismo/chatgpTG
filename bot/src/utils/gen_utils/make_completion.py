@@ -5,14 +5,6 @@ from .openai.openai_completion import _openai
 
 async def _make_api_call(self, **kwargs):
     self.answer = ""
-    api_functions = {
-        "chatbase": _generic_create,
-        "you": _you,
-        "evagpt4": _generic_create,
-        "chatllama": _generic_create,
-        "chatgptai": _generic_create,
-        "aichat": _generic_create
-    }
     request_timeout = config.request_timeout
     if config.usar_streaming == False:
         request_timeout = request_timeout * 5
@@ -83,3 +75,12 @@ async def _generic_create(self, **kwargs):
 
     except Exception as e:
         raise ConnectionError(f"_generic_create {self.api}: {e}")
+
+api_functions = {
+    "chatbase": _generic_create,
+    "you": _you,
+    "evagpt4": _generic_create,
+    "chatllama": _generic_create,
+    "chatgptai": _generic_create,
+    "aichat": _generic_create
+}

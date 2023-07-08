@@ -15,7 +15,7 @@ from bot.src.utils.misc import update_dialog_messages
 from bot.src.utils.constants import constant_db_model, constant_db_chat_mode, continue_key
 
 from bot.src.handlers import semaphore as tasks
-from datetime import datetime
+from udatetime import now, from_string
 from . import url, timeout
 from .commands import new
 from .commands import img, cancel, retry
@@ -63,17 +63,17 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
         await process_urls(raw_msg, chat, lang, update)
         chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
                     await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
-        chat_mode_cache[chat.id] = (chat_mode, datetime.now())
+        chat_mode_cache[chat.id] = (chat_mode, now())
         if chat.id in interaction_cache:
             last_interaction = interaction_cache[chat.id][1]
         else:
             last_interaction = await db.get_chat_attribute(chat, "last_interaction")
             
         if isinstance(last_interaction, str):
-            last_interaction = datetime.fromisoformat(last_interaction)
+            last_interaction = from_string(last_interaction)
 
         dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
-        if (datetime.now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
+        if (now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
             if config.timeout_ask:
                 await timeout.ask(chat, lang, update, _message)
                 return
@@ -84,7 +84,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             current_model = model_cache[chat.id][0]
         else:
             current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
-            model_cache[chat.id] = (current_model, datetime.now())
+            model_cache[chat.id] = (current_model, now())
         await tasks.releasemaphore(chat=chat)
         task = bb(gen(update, context, _message, chat, lang, chat_mode, current_model, msgid))
         await tasks.handle(chat, task)
@@ -122,9 +122,9 @@ async def gen(update, context, _message, chat, lang, chat_mode, current_model, m
     finally:
         _message, answer = await check_empty_messages(_message, answer)
         # Actualizar caché de interacciones y historial de diálogos del chat
-        interaction_cache[chat.id] = ("visto", datetime.now())
-        asyncio.create_task(db.set_chat_attribute(chat, "last_interaction", datetime.now()))
-        new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
+        interaction_cache[chat.id] = ("visto", now())
+        asyncio.create_task(db.set_chat_attribute(chat, "last_interaction", now()))
+        new_dialog_message = {"user": _message, "bot": answer, "date": now()}
         advertencia, _, _ = await update_dialog_messages(chat, new_dialog_message)
         asyncio.create_task(enviar_advertencia_si_necesario(advertencia, update, lang, reply_val))
         await tasks.releasemaphore(chat=chat)
@@ -137,7 +137,7 @@ async def stream_message(update, context, chat, lang, current_model, _message, c
         prev_answer = ""
         answer = ""
         await update.effective_chat.send_action(ChatAction.TYPING)
-        insta = ChatGPT(chat, lang, model=current_model)
+        insta = await ChatGPT.create(chat, lang, model=current_model)
         gen = insta.send_message(_message, chat_mode)
         if config.usar_streaming == False:
             await gen.asend(None)

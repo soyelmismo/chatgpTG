@@ -1,8 +1,7 @@
 import os
 import importlib
-import glob
 
-import docstring_parser
+from docstring_parser import parse
 import inspect
 import functools
 from typing import Callable
@@ -39,20 +38,20 @@ def get_openai_funcs(return_function_objects = None):
     else:
         return _get_metadata(function_map)
 
-def extract_function_info(func: Callable) -> dict:
-    parsed_docstring = docstring_parser.parse(func.__doc__)
-    params = inspect.signature(func).parameters
+type_mapping = {
+    "int": "integer",
+    "float": "number",
+    "str": "string",
+    "bool": "boolean",
+    "list": "array",
+    "tuple": "array",
+    "dict": "object",
+    "None": "null",
+}
 
-    type_mapping = {
-        "int": "integer",
-        "float": "number",
-        "str": "string",
-        "bool": "boolean",
-        "list": "array",
-        "tuple": "array",
-        "dict": "object",
-        "None": "null",
-    }
+def extract_function_info(func: Callable) -> dict:
+    parsed_docstring = parse(func.__doc__)
+    params = inspect.signature(func).parameters
 
     properties = {}
     required_params = []

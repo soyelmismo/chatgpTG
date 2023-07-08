@@ -1,6 +1,6 @@
 import openai
-import json
-from datetime import datetime
+from ujson import loads
+from udatetime import now
 from bot.src.utils.config import api, proxy_raw, usar_funciones
 
 if usar_funciones:
@@ -19,7 +19,7 @@ async def process_function_argument(response):
     # Now that we have the list of argument fragments, join them into a single string
     if not arguments_list: return None
     # Now that we have the complete JSON string, we can parse it
-    arguments = json.loads("".join(arguments_list))
+    arguments = loads("".join(arguments_list))
     return arguments
 
 async def handle_response_item(self, old_response, fn, kwargs):
@@ -43,7 +43,7 @@ async def handle_response_item(self, old_response, fn, kwargs):
 def process_non_stream_response(self, response):
     if hasattr(response.choices[0], "message") and "function_call" in response.choices[0].message:
         function_name = response.choices[0].message.function_call.get("name")
-        arguments = json.loads(response.choices[0].message.function_call.get("arguments"))
+        arguments = loads(response.choices[0].message.function_call.get("arguments"))
         return None, None, function_name, arguments
     else:
         return None, eval(self.iter), None, None
@@ -76,7 +76,7 @@ async def process_arguments_and_generate_response(self, function_name, fn, argum
 
 async def procesar_nuevos_datos(self, function_name, arguments, kwargs):
     function_response = await imported_functions[function_name](self, **arguments)
-    new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
+    new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": now()}
     from bot.src.utils.misc import update_dialog_messages
     from bot.src.utils.preprocess import count_tokens, make_messages
     await update_dialog_messages(self.chat, new_dialog_message)

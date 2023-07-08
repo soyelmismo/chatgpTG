@@ -1,20 +1,16 @@
-import json
-import re
+from ujson import loads
+from re import search, findall
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
-
 from fake_useragent import UserAgent
-from pydantic import BaseModel
-from requests import RequestException
-from retrying import retry
 from tls_client import Session
 from tls_client.response import Response
 
-
-class YouResponse(BaseModel):
-    text: Optional[str] = None
-    links: List[str] = []
-    extra: Dict[str, Any] = {}
+class YouResponse:
+    def __init__(self, text: Optional[str] = None, links: List[str] = [], extra: Dict[str, Any] = {}):
+        self.text = text
+        self.links = links
+        self.extra = extra
 
 
 class Completion:
@@ -32,7 +28,6 @@ class Completion:
         chat: list = None,
         include_links: bool = False,
         detailed: bool = False,
-        debug: bool = False,
         proxy: Optional[str] = None,
     ) -> YouResponse:
         if chat is None:
@@ -62,30 +57,25 @@ class Completion:
         except Exception:
             return Completion.__get_failure_response()
 
-        if debug:
-            print('\n\n------------------\n\n')
-            print(response.text)
-            print('\n\n------------------\n\n')
-
-        you_chat_serp_results = re.search(
+        you_chat_serp_results = search(
             r'(?<=event: youChatSerpResults\ndata:)(.*\n)*?(?=event: )', response.text
         ).group()
-        third_party_search_results = re.search(
+        third_party_search_results = search(
             r'(?<=event: thirdPartySearchResults\ndata:)(.*\n)*?(?=event: )', response.text
         ).group()
         # slots                   = findall(r"slots\ndata: (.*)\n\nevent", response.text)[0]
 
-        text = ''.join(re.findall(r'{\"youChatToken\": \"(.*?)\"}', response.text))
+        text = ''.join(findall(r'{\"youChatToken\": \"(.*?)\"}', response.text))
 
         extra = {
-            'youChatSerpResults': json.loads(you_chat_serp_results),
+            'youChatSerpResults': loads(you_chat_serp_results),
             # 'slots'                   : loads(slots)
         }
 
         response = YouResponse(text=text.encode('utf-8').decode('unicode_escape'))
         
         if include_links:
-            response.links = json.loads(third_party_search_results)['search']['third_party_search_results']
+            response.links = loads(third_party_search_results)['search']['third_party_search_results']
 
         if detailed:
             response.extra = extra
@@ -114,14 +104,9 @@ class Completion:
     def __get_failure_response() -> YouResponse:
         return YouResponse(text='Unable to fetch the response, Please try again.')
 
-    @staticmethod
-    @retry(
-        wait_fixed=2000,
-        stop_max_attempt_number=2,
-        retry_on_exception=lambda e: isinstance(e, RequestException),
-    )
+
     def __make_request(client: Session, params: dict) -> Response:
         response = client.get(f'https://you.com/api/streamingSearch', params=params)
         if 'youChatToken' not in response.text:
-            raise RequestException('Unable to get the response from server')
+            raise ConnectionError('Unable to get the response from server')
         return response

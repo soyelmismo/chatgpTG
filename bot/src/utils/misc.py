@@ -1,5 +1,5 @@
 from .proxies import db, model_cache
-from datetime import datetime
+from udatetime import now
 from .constants import constant_db_model, constant_db_tokens
 from bot.src.utils.preprocess import tokenizer
 
@@ -35,7 +35,7 @@ async def update_dialog_messages(chat, new_dialog_message=None):
 async def ver_modelo_get_tokens(chat=None, model=None, api=None):
     if not model:
         model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')
-        model_cache[chat.id] = (model, datetime.now())
+        model_cache[chat.id] = (model, now())
 
     from bot.src.utils.config import model as modelist, api as apilist
     if api and apilist["info"][api].get("api_max_tokens"):

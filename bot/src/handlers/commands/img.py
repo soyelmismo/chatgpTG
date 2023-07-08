@@ -1,9 +1,10 @@
+from udatetime import now
 from bot.src.start import Update, CallbackContext
 from telegram import InputMediaDocument, InputMediaPhoto
 from bot.src.utils.gen_utils.phase import ChatGPT
 import asyncio
 from bot.src.utils import config
-from bot.src.utils.proxies import debe_continuar, obtener_contextos as oc, bb, logger, db, interaction_cache, config, datetime, telegram, ParseMode, ChatAction, parametros, menusnotready, errorpredlang
+from bot.src.utils.proxies import debe_continuar, obtener_contextos as oc, bb, db, interaction_cache, config, telegram, ParseMode, ChatAction, parametros, menusnotready, errorpredlang
 from bot.src.handlers import semaphore as tasks
 from bot.src.handlers.error import mini_handle as handle_errors
 #algunos mensajes de error
@@ -69,11 +70,11 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
         avoid = None
         prompt = ' '.join(context.args)
         if first_arg.startswith('seed:'):
-            import hashlib
+            from hashlib import sha256
             seed = first_arg[5:]
             prompt = ' '.join(context.args[1:])
             if not seed.isdigit():
-                seed = int(hashlib.sha256(seed.encode()).hexdigest(), 16)
+                seed = int(sha256(seed.encode()).hexdigest(), 16)
             else:
                 seed = int(seed)
             seed = abs(seed)
@@ -95,7 +96,7 @@ async def get_image_urls(chattype, chat, lang, update, prompt, seed=None, negati
         ratio = None
         model = None
         _, _, _, current_api, style, ratio, model = await parametros(chat, lang, update)
-        insta = ChatGPT(chat)
+        insta = await ChatGPT.create(chat)
         for attempt in range(1, (config.max_retries) + 1):
             try:
                 await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
@@ -134,8 +135,8 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
                 document_group.append(document)
         mensaje_group_id = update.effective_message.message_id
         await create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype, caption)
-        interaction_cache[chat.id] = ("visto", datetime.now())
-        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+        interaction_cache[chat.id] = ("visto", now())
+        await db.set_chat_attribute(chat, "last_interaction", now())
     except Exception as e:
         if "referenced before assignment" in str(e):
             await chattype.reply_text(f'{config.lang[lang]["errores"]["genimagen_badrequest"]}', parse_mode=ParseMode.HTML)
@@ -227,6 +228,6 @@ async def options_set(update: Update, context: CallbackContext):
     if seleccion == "imaginepy":
         menu_type="imaginepy"
     if seleccion in config.api["available_image_api"] and (image_api_cache.get(chat.id) is None or image_api_cache.get(chat.id)[0] != seleccion):
-        image_api_cache[chat.id] = (seleccion, datetime.now())
+        image_api_cache[chat.id] = (seleccion, now())
         await db.set_chat_attribute(chat, f'{constant_db_image_api}', seleccion)
     await rr(query, update, context, page_index, menu_type=menu_type, chat=chat)

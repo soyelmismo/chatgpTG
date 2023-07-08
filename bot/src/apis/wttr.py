@@ -1,15 +1,15 @@
-import python_weather
+from python_weather import METRIC, IMPERIAL, Client
 
 async def getweather(location: str, unit: str = "C"):
     if unit == "C":
-        newwnit = python_weather.METRIC
+        newwnit = METRIC
     else:
-        newwnit = python_weather.IMPERIAL
+        newwnit = IMPERIAL
     info = ""
 
     # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
     try:
-        async with python_weather.Client(unit=newwnit) as client:
+        async with Client(unit=newwnit) as client:
             # fetch a weather forecast from a city
             weather = await client.get(location=location)
 

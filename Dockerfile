@@ -8,7 +8,8 @@ RUN apt-get update
 #all in a shot
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
-        python3 \
+        build-essential \
+        python3-dev \
         python3-pip \
         ffmpeg \
         tesseract-ocr \
@@ -43,5 +44,5 @@ COPY /locales/ /locales
 COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
-
+RUN apt remove --autoremove build-essential
 CMD ["python3", "-m", "bot"]

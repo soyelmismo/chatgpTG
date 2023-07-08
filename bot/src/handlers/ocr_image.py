@@ -1,5 +1,5 @@
 from bot.src.start import Update, CallbackContext
-from datetime import datetime
+from udatetime import now
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from . import semaphore as tasks
@@ -21,8 +21,8 @@ async def handle(chat, lang, update, context):
             await image_file.download_to_drive(img_path)
             imagen = Image.open(str(img_path))
             doc = image_to_string(imagen, timeout=50, lang='spa+ara+eng+jpn+chi+deu+fra+rus+por+ita+nld', config='--psm 3')
-            interaction_cache[chat.id] = ("visto", datetime.now())
-            await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+            interaction_cache[chat.id] = ("visto", now())
+            await db.set_chat_attribute(chat, "last_interaction", now())
             if len(doc) <= 1:
                 text = f'{config.lang[lang]["errores"]["error"]}: {config.lang[lang]["errores"]["ocr_no_extract"]}'
             else:
@@ -30,7 +30,7 @@ async def handle(chat, lang, update, context):
                 doc, _, advertencia = await clean_text(doc, chat)
                 if advertencia==True:
                     text = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{text}'
-                new_dialog_message = {"user": f'{config.lang[lang]["metagen"]["transcripcion_imagen"]}: "{doc}"', "date": datetime.now()}
+                new_dialog_message = {"user": f'{config.lang[lang]["metagen"]["transcripcion_imagen"]}: "{doc}"', "date": now()}
                 await update_dialog_messages(chat, new_dialog_message)
     except RuntimeError:
         text = f'{config.lang[lang]["errores"]["error"]}: {config.lang[lang]["errores"]["tiempoagotado"]}'

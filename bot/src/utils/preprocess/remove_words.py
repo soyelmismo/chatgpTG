@@ -1,14 +1,14 @@
 from bot.src.utils.proxies import logger, config
 
-import langdetect
-import nltk
+from langdetect import detect_langs
+from nltk import download, set_proxy
 if config.proxy_raw is not None:
     print(f"Proxy: {config.proxy_raw}")
-    nltk.set_proxy(config.proxy_raw)
+    set_proxy(config.proxy_raw)
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
+download('stopwords', quiet=True)
+download('punkt', quiet=True)
 
 languages_map={"ar": "arabic","bg": "bulgarian","ca": "catalan","cz": "czech","da": "danish","nl": "dutch","en": "english","fi": "finnish","fr": "french","de": "german","hi": "hindi","hu": "hungarian","id": "indonesian","it": "italian","nb": "norwegian","pl": "polish","pt": "portuguese","ro": "romanian","ru": "russian","sk": "slovak","es": "spanish","sv": "swedish","tr": "turkish","uk": "ukrainian","vi": "vietnamese"}
 
@@ -47,7 +47,7 @@ async def procesar_texto(value, idioma):
 async def procesar_texto_normal(texto, idioma=None, lock=None):
     textofiltrr=None
     if texto:
-        if not idioma: idioma = langdetect.detect_langs(texto)[0].lang
+        if not idioma: idioma = detect_langs(texto)[0].lang
         textofiltrr = await filtrar_palabras_irrelevantes(texto, idioma)
     if textofiltrr:
         if lock: return "".join(textofiltrr)

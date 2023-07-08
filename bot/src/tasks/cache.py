@@ -1,8 +1,8 @@
-from datetime import datetime
+from udatetime import now
 
 async def delete_expired_items(cache):
     for key, value in list(cache.items()):
-        if datetime.now() > value[1]: 
+        if now() > value[1]: 
             del cache[key]
 async def handle_cache(cache):
     if cache is not None and isinstance(cache, dict):

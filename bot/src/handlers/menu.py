@@ -1,70 +1,86 @@
 from bot.src.start import Update, CallbackContext
-from datetime import datetime
+from udatetime import now
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from bot.src.utils import proxies
-from bot.src.utils.proxies import menu_cache, config, db, obtener_contextos as oc, logger, parametros, interaction_cache, msg_no_mod, ParseMode, telegram, errorpredlang
+from bot.src.utils.proxies import menu_cache, config, db, obtener_contextos as oc, parametros, interaction_cache, msg_no_mod, ParseMode, telegram, errorpredlang
 from bot.src.utils import constants
 
 async def get(menu_type, update: Update, context: CallbackContext, chat, page_index):
     try:
         _, lang = await oc(update)
         menu_type_dict = await get_menu_type_dict(menu_type)
-        current_key = await get_current_key(menu_type, chat)
-        option_name = await get_option_name(menu_type, menu_type_dict, lang, current_key)
+
+        if menu_type in ["props", "imaginepy"]:
+            current_key = None
+        else:
+            current_key = await get_current_key(menu_type, chat)
+
+        if not current_key:
+            option_name = None
+        else:
+            option_name = await get_option_name(menu_type, menu_type_dict, lang, current_key)
         text = await get_text(update, context, chat, lang, menu_type, menu_type_dict, option_name, current_key)
-        item_keys = await get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update)
+        item_keys = await get_menu_item_keys(menu_type, chat, lang, update)
         item_keys.remove("imagen") if config.switch_imgs != True and "imagen" in item_keys else None
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
-    except Exception as e: logger.error(f'{__name__}: {errorpredlang}: <get_menu> <{menu_type}, {option_name}, {current_key}> {e}')
+    except Exception as e: print(f'{__name__}: {errorpredlang}: <get_menu> <{menu_type}, {option_name}, {current_key}> {e}')
 
-async def get_menu_type_dict(menu_type):
-    if menu_type == "image_api":
-        return getattr(config, "api")
-    elif menu_type in ["props", "imaginepy"]:
-        return getattr(config, "props")
-    elif menu_type == "imaginepy_styles":
-        return constants.imaginepy_styles
-    elif menu_type == "imaginepy_ratios":
-        return constants.imaginepy_ratios
-    elif menu_type == "imaginepy_models":
-        return constants.imaginepy_models
-    else:
-        return getattr(config, menu_type)
-
+type_dict = {
+    "props": config.props,
+    "imaginepy": config.props,
+    "imaginepy_styles": constants.imaginepy_styles,
+    "imaginepy_ratios": constants.imaginepy_ratios,
+    "imaginepy_models": constants.imaginepy_models,
+}
+async def get_menu_type_dict(menu_type: str):
+    try:
+        if menu_type == "image_api":
+            return config.api
+        return type_dict.get(menu_type, getattr(config, menu_type))
+    except Exception as e:
+        raise ValueError(f'<get_menu_type_dict> {e}')
 
 async def get_current_key(menu_type, chat):
-    if menu_type in ["props", "imaginepy"]: return None
-    else:
+    try:
         constant_name = "constant_db_" + menu_type
         constant_value = constants.__dict__[constant_name]
         cache_variable = getattr(proxies, f"{menu_type}_cache")
         if chat.id in cache_variable: current_key = cache_variable[chat.id][0]
         else: current_key = await db.get_chat_attribute(chat, constant_value)
-        cache_variable[chat.id] = (current_key, datetime.now())
-    return current_key
+        cache_variable[chat.id] = (current_key, now())
+        return current_key
+    except Exception as e:
+        raise ValueError(f'<get_current_key> {e}')
+
 
 async def get_name_from_info_dict(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"]
+
 async def get_name_from_info_dict_with_lang(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"][kwargs["lang"]]
+
 async def get_name_from_imaginepy_styles(**kwargs): return constants.imaginepy_styles[constants.imaginepy_styles.index(kwargs["current_key"])]
+
 async def get_name_from_imaginepy_ratios(**kwargs): return constants.imaginepy_ratios[constants.imaginepy_ratios.index(kwargs["current_key"])]
+
 async def get_name_from_imaginepy_models(**kwargs): return constants.imaginepy_models[constants.imaginepy_models.index(kwargs["current_key"])]
+
 async def get_name_from_lang(**kwargs): return kwargs["menu_type_dict"][kwargs["lang"]]["info"]["name"]
-async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
-    if not current_key: return None
-    menu_type_to_function = {
-        "props": None,
-        "imaginepy": None,
-        "api": get_name_from_info_dict,
-        "model": get_name_from_info_dict,
-        "imaginepy_styles": get_name_from_imaginepy_styles,
-        "imaginepy_ratios": get_name_from_imaginepy_ratios,
-        "imaginepy_models": get_name_from_imaginepy_models,
-        "chat_mode": get_name_from_info_dict_with_lang,
-        "lang": get_name_from_lang,
-        "image_api": get_name_from_info_dict,
-    }
+
+menu_type_to_function = {
+    "props": None,
+    "imaginepy": None,
+    "api": get_name_from_info_dict,
+    "model": get_name_from_info_dict,
+    "imaginepy_styles": get_name_from_imaginepy_styles,
+    "imaginepy_ratios": get_name_from_imaginepy_ratios,
+    "imaginepy_models": get_name_from_imaginepy_models,
+    "chat_mode": get_name_from_info_dict_with_lang,
+    "lang": get_name_from_lang,
+    "image_api": get_name_from_info_dict,
+}
+
+async def get_option_name(menu_type, menu_type_dict, lang, current_key):
     try:
         kwargs = {
             "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
@@ -76,16 +92,20 @@ async def get_option_name(menu_type, menu_type_dict, lang, current_key=None):
     except Exception as e: raise KeyError(f"get_option_name: {e}")
 
 async def get_imaginepy_text(chat, lang):
-    nombremenu = config.api["info"]["imaginepy"]["name"]
-    descripcionmenu = config.api["info"]["imaginepy"]["description"][lang]
-    estilo = config.lang[lang]["metagen"]["imaginepy_styles"]
-    ratio = config.lang[lang]["metagen"]["imaginepy_ratios"]
-    model = config.lang[lang]["metagen"]["modelo"]
-    styleactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_styles)
-    ratioactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_ratios)
-    modelactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_models)
-    textoprimero = """{nombre}\n{descripcion}\n\n{actual}:\n{estilo}: {styleactual}\n{model}: {modelactual}\n{ratio}: {ratioactual}"""
-    return f"{textoprimero.format(nombre=nombremenu, descripcion=descripcionmenu, actual=config.lang[lang]['info']['actual'], estilo=estilo, styleactual=styleactual,ratio=ratio, ratioactual=ratioactual, model=model, modelactual=modelactual)}"
+    try:
+        nombremenu = config.api["info"]["imaginepy"]["name"]
+        descripcionmenu = config.api["info"]["imaginepy"]["description"][lang]
+        estilo = config.lang[lang]["metagen"]["imaginepy_styles"]
+        ratio = config.lang[lang]["metagen"]["imaginepy_ratios"]
+        model = config.lang[lang]["metagen"]["modelo"]
+        styleactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_styles)
+        ratioactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_ratios)
+        modelactual = await db.get_chat_attribute(chat, constants.constant_db_imaginepy_models)
+        textoprimero = """{nombre}\n{descripcion}\n\n{actual}:\n{estilo}: {styleactual}\n{model}: {modelactual}\n{ratio}: {ratioactual}"""
+        return f"{textoprimero.format(nombre=nombremenu, descripcion=descripcionmenu, actual=config.lang[lang]['info']['actual'], estilo=estilo, styleactual=styleactual,ratio=ratio, ratioactual=ratioactual, model=model, modelactual=modelactual)}"
+    except Exception as e:
+        raise ValueError(f'<get_imaginepy_text> {e}')
+
 async def get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang):
     description = (menu_type_dict[lang]['info']['description'] if menu_type == "lang" else
                     menu_type_dict['info'][current_key]['description'][lang])
@@ -96,41 +116,35 @@ async def get_props_text(update, context):
     
 async def get_text(update, context, chat, lang, menu_type, menu_type_dict, option_name=None, current_key=None):
     try:
-        if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios", "imaginepy_models"]: texto = await get_imaginepy_text(chat, lang)
-        elif current_key: texto = await get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang)
-        elif menu_type == "props": texto = await get_props_text(update, context)
+        if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios", "imaginepy_models"]:
+            texto = await get_imaginepy_text(chat, lang)
+        elif current_key:
+            texto = await get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang)
+        elif menu_type == "props":
+            texto = await get_props_text(update, context)
         return f"{texto}\n\n<b>{config.lang[lang]['info']['seleccion']}</b>"
     except Exception as e: 
         raise KeyError(f"get_text: {e}")
 
-async def get_menu_item_keys(menu_type, menu_type_dict, chat, lang, update):
-    async def get_keys_from_available(): return menu_type_dict[f"available_{menu_type}"]
-    async def get_keys_from_lang(): return config.available_lang
-    async def get_keys_from_api_info(): return config.api["available_image_api"]
-    async def get_keys_from_model():
-        _, api_actual, _, _, _, _, _ = await parametros(chat, lang, update)
-        return config.api["info"][api_actual]["available_model"]
-    async def get_keys_from_imaginepy(): return menu_type_dict["imaginepy"]["available_options"]
-    async def get_keys_from_imaginepy_styles(): return constants.imaginepy_styles
-    async def get_keys_from_imaginepy_ratios(): return constants.imaginepy_ratios
-    async def get_keys_from_imaginepy_models(): return constants.imaginepy_models
-    menu_type_to_function = {
-        "api": get_keys_from_available,
-        "chat_mode": get_keys_from_available,
-        "lang": get_keys_from_lang,
-        "props": get_keys_from_available,
-        "image_api": get_keys_from_api_info,
-        "model": get_keys_from_model,
-        "imaginepy": get_keys_from_imaginepy,
-        "imaginepy_styles": get_keys_from_imaginepy_styles,
-        "imaginepy_ratios": get_keys_from_imaginepy_ratios,
-        "imaginepy_models": get_keys_from_imaginepy_models,
-    }
+menu_items = {
+    "api": config.api["available_api"],
+    "chat_mode": config.chat_mode["available_chat_mode"],
+    "lang": config.available_lang,
+    "props": config.props["available_props"],
+    "image_api": config.api["available_image_api"],
+    "imaginepy": config.props["imaginepy"]["available_options"],
+    "imaginepy_styles": constants.imaginepy_styles,
+    "imaginepy_ratios": constants.imaginepy_ratios,
+    "imaginepy_models": constants.imaginepy_models,
+}
+async def get_menu_item_keys(menu_type, chat, lang, update):
     try:
-        func = menu_type_to_function.get(menu_type)
-        return await func()
+        if menu_type == "model":
+            _, api_actual, _, _, _, _, _ = await parametros(chat, lang, update)
+            return config.api["info"][api_actual]["available_model"]
+        return menu_items.get(menu_type)
     except Exception as e:
-        raise KeyError(f"get_menu_item_keys: {e}")
+        raise KeyError(f"<get_menu_item_keys> {e}")
 
 def convert_dict_to_immutable(d):
     if isinstance(d, dict): return frozenset((k, convert_dict_to_immutable(v)) for k, v in d.items())
@@ -165,14 +179,17 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
 
 async def gen_keyboard_data(page_keys, func, menu_type, page_index, **kwargs):
     keyboard_data = []
-    for index, current_key in enumerate(page_keys):
-        kwargs["current_key"] = current_key
+    try:
+        for index, current_key in enumerate(page_keys):
+            kwargs["current_key"] = current_key
 
-        name = await func(**kwargs) 
+            name = await func(**kwargs) 
 
-        callback_data = f"set_{menu_type}|{current_key}|{page_index}|{menu_type}"
-        keyboard_data.append((index, name, callback_data))
-    return keyboard_data
+            callback_data = f"set_{menu_type}|{current_key}|{page_index}|{menu_type}"
+            keyboard_data.append((index, name, callback_data))
+        return keyboard_data
+    except Exception as e:
+        raise ValueError(f'<gen_keyboard_data> {e}')
 
 def create_buttons(row_data):
     for index, name, callback_data in row_data:
@@ -197,20 +214,21 @@ async def get_name_from_metagen(**kwargs):
         return config.lang[kwargs["lang"]]["metagen"]["modelo"]
     return config.lang[kwargs["lang"]]["metagen"][kwargs["current_key"]]
 
+menu_type_to_function = {
+    "api": get_name_from_info_dict,
+    "model": get_name_from_info_dict,
+    "image_api": get_name_from_info_dict,
+    "chat_mode": get_name_from_info_dict_with_lang,
+    "props": get_name_from_info_dict_with_lang,
+    "lang": get_name_of_lang,
+    "imaginepy": get_name_from_metagen,
+    "imaginepy_styles": get_name_from_imaginepy_styles,
+    "imaginepy_ratios": get_name_from_imaginepy_ratios,
+    "imaginepy_models": get_name_from_imaginepy_models
+}
 #async def get_item_name(menu_type, menu_type_dict, current_key, lang):
 async def get_item_name(menu_type):
-    menu_type_to_function = {
-        "api": get_name_from_info_dict,
-        "model": get_name_from_info_dict,
-        "image_api": get_name_from_info_dict,
-        "chat_mode": get_name_from_info_dict_with_lang,
-        "props": get_name_from_info_dict_with_lang,
-        "lang": get_name_of_lang,
-        "imaginepy": get_name_from_metagen,
-        "imaginepy_styles": get_name_from_imaginepy_styles,
-        "imaginepy_ratios": get_name_from_imaginepy_ratios,
-        "imaginepy_models": get_name_from_imaginepy_models
-    }
+
     try:
         return menu_type_to_function.get(menu_type)
     except Exception as e: raise KeyError(f"get_item_name: {e}")
@@ -248,8 +266,8 @@ async def refresh(query, update, context, page_index, menu_type, chat=None):
                 (menu_type, update, context, page_index))
         text, reply_markup = await get(*argus)
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-        interaction_cache[chat.id] = ("visto", datetime.now())
-        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+        interaction_cache[chat.id] = ("visto", now())
+        await db.set_chat_attribute(chat, "last_interaction", now())
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod): None
         else: raise ValueError(f'refresh: {e}')

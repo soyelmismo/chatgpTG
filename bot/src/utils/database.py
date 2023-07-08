@@ -1,8 +1,8 @@
-import json
+from ujson import load, dump
 from typing import Optional, Any
 from uuid import uuid4
 from . import config
-from datetime import datetime
+from udatetime import now, now_to_string, to_string
 from pymongo.errors import DuplicateKeyError
 from motor.motor_asyncio import AsyncIOMotorClient
 from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
@@ -10,6 +10,10 @@ from .constants import (constant_db_model, constant_db_chat_mode, constant_db_ap
                         imaginepy_ratios, imaginepy_styles, imaginepy_models, constant_db_imaginepy_styles,
                         constant_db_imaginepy_ratios, constant_db_imaginepy_models)
 from pathlib import Path
+
+def is_datetime(obj):
+    required_attrs = ["year", "month", "day", "hour", "minute", "second", "microsecond"]
+    return all(hasattr(obj, attr) for attr in required_attrs)
 
 class Database:
     def __init__(self):
@@ -37,7 +41,7 @@ class Database:
         for key, file_path in self.data_files.items():
             if file_path.exists():
                 with file_path.open(encoding="utf-8") as file:
-                    self.data[key] = json.load(file)
+                    self.data[key] = load(file)
             else:
                 self.data[key] = {}
                 self.save_data_to_json(key)  # Guardar datos en el archivo JSON vacío
@@ -45,18 +49,19 @@ class Database:
     def save_data_to_json(self, key: str):
         data = self.convert_datetime(self.data[key])
         with self.data_files[key].open("w", encoding="utf-8") as file:
-            json.dump(data, file, indent=2, ensure_ascii=False)
-            
+            dump(data, file, indent=2, ensure_ascii=False)
+    
     def convert_datetime(self, data):
         if isinstance(data, dict):
             return {key: self.convert_datetime(value) for key, value in data.items()}
         elif isinstance(data, list):
             return [self.convert_datetime(item) for item in data]
-        elif isinstance(data, datetime):
-            return data.isoformat()
+        elif is_datetime(data):
+            return to_string(data)
         else:
             return data
-      
+
+    
     async def chat_exists(self, chat, raise_exception: bool = False):
         if self.use_json:
             if self.data["chats"].get(str(chat.id)):
@@ -74,7 +79,7 @@ class Database:
         if not await self.chat_exists(chat):
             if self.use_json:
                 self.data["chats"][str(chat.id)] = {
-                    "last_interaction": datetime.now().isoformat(),
+                    "last_interaction": now_to_string(),
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],
@@ -89,7 +94,7 @@ class Database:
             else:
                 chat_dict = {
                     "_id": str(chat.id),
-                    "last_interaction": datetime.now(),
+                    "last_interaction": now(),
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],

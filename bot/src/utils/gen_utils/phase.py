@@ -1,6 +1,5 @@
 from bot.src.utils import proxies
-import openai
-import asyncio
+from asyncio import create_task
 from . import make_transcription, make_image
 from bot.src.utils.constants import constant_db_api
 from bot.src.utils.gen_utils.make_completion import _make_api_call
@@ -13,13 +12,18 @@ class ChatGPT:
         self.answer = None
         self.proxies = proxies.config.apisproxy
         assert self.model in proxies.config.model["available_model"], f'{proxies.config.lang[self.lang]["errores"]["utils_modelo_desconocido"]}: {self.model}'
-        self.api=(proxies.api_cache[self.chat.id][0] if self.chat.id in proxies.api_cache else asyncio.run(proxies.db.get_chat_attribute(self.chat, f'{constant_db_api}')))
         self.diccionario = {}
         self.diccionario.clear()
         self.diccionario.update(proxies.config.completion_options)
         self.diccionario["stream"] = proxies.config.usar_streaming
         from bot.src.utils.gen_utils import middleware
-        asyncio.create_task(middleware.resetip(self))
+        create_task(middleware.resetip(self))
+
+    @classmethod
+    async def create(cls, chat, lang="es", model="gpt-3.5-turbo"):
+        self = ChatGPT(chat, lang, model)
+        self.api = proxies.api_cache[self.chat.id][0] if self.chat.id in proxies.api_cache else await proxies.db.get_chat_attribute(self.chat, f'{constant_db_api}')
+        return self
 
     async def send_message(self, _message, chat_mode="assistant"):
         while self.answer is None:

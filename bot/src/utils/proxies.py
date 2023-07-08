@@ -6,7 +6,6 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.constants import ParseMode, ChatAction
 import re
-from datetime import datetime
 db = database.Database()
 logger = logging
 bb = asyncio.create_task

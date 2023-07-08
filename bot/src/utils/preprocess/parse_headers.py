@@ -1,9 +1,9 @@
-import json
+from ujson import loads, JSONDecodeError
 
 def try_parse_json(value):
     try:
-        return json.loads(value)
-    except (json.JSONDecodeError, TypeError):
+        return loads(value)
+    except (JSONDecodeError, TypeError):
         return value
 
 def parse_values_to_json(headers_dict):

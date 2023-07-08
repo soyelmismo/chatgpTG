@@ -1,3 +1,4 @@
+from udatetime import now
 from bot.src.start import Update, CallbackContext
 
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
@@ -21,10 +22,10 @@ async def set(update: Update, context: CallbackContext):
     await rr(query, update, context, page_index, menu_type=menu_type, chat=chat)
 
 async def cambiar_idioma(update, chat, lang):
-    from bot.src.utils.proxies import (obtener_contextos as oc,lang_cache,db,config,datetime)
+    from bot.src.utils.proxies import (lang_cache,db,config)
     from bot.src.utils.constants import constant_db_lang
     if lang_cache.get(chat.id) is None or lang_cache.get(chat.id)[0] != lang:
         await db.set_chat_attribute(chat, f'{constant_db_lang}', lang)
-        lang_cache[chat.id] = (lang, datetime.now())
+        lang_cache[chat.id] = (lang, now())
         if update:
             await update.effective_chat.send_message(f'{config.lang[lang]["info"]["bienvenida"]}')

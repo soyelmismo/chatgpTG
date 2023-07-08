@@ -1,12 +1,12 @@
-import aiohttp
+from aiohttp import ClientSession
 
+headers = {
+    "Accept": "*/*",
+    "User-Agent": "GPTG" 
+}
 async def get_ip(proxy=None):
     url = "https://mip.resisto.rodeo"  # Reemplaza con tu dominio o dirección IP
-    headers = {
-        "Accept": "*/*",
-        "User-Agent": "GPTG" 
-    }
-    async with aiohttp.ClientSession() as session:
+    async with ClientSession() as session:
         async with session.get(url, headers=headers, proxy=proxy) as response:
             ip = await response.text()
             ip = ip.strip()  # Elimina espacios en blanco alrededor de la IP
@@ -38,7 +38,7 @@ async def resetip(self):
 async def process_request(self, api, proxy=None):
     url = str(api["info"][self.api].get("resetip"))
 
-    async with aiohttp.ClientSession() as session:
+    async with ClientSession() as session:
         try:
             async with session.post(url, headers={"Authorization": "Bearer " + str(api["info"].get(self.api, {}).get("key", ""))}, proxy=proxy) as response:
                 call = await response.text()

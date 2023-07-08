@@ -4,7 +4,7 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
-from datetime import datetime
+from udatetime import now
 from . import semaphore as tasks
 from bot.src.utils.misc import update_dialog_messages
 from .commands import new, retry
@@ -17,7 +17,7 @@ async def ask(chat, lang, update: Update, _message):
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    new_dialog_message = {"user": _message, "date": datetime.now()}
+    new_dialog_message = {"user": _message, "date": now()}
     await update_dialog_messages(chat, new_dialog_message)
 
     await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["timeout_ask"]}', reply_markup=reply_markup)

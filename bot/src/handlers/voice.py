@@ -1,15 +1,18 @@
+from subprocess import call
+from udatetime import now
 from bot.src.start import Update, CallbackContext
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from bot.src.utils.gen_utils.phase import ChatGPT
 async def handle(chat, lang, update, context):
     from . import semaphore as tasks
-    from bot.src.utils.proxies import (logger,db,interaction_cache,config,datetime,ChatAction,errorpredlang)
+    from bot.src.utils.proxies import (logger,db,interaction_cache,config,ChatAction,errorpredlang)
     # Procesar sea voz o audio
     if update.message.voice: audio = update.message.voice
     elif update.message.audio: audio = update.message.audio
     else: return
     file_size_mb = audio.file_size / (1024 * 1024)
+    transcribed_text = None
     if file_size_mb <= config.audio_max_size:
         try:
             await update.effective_chat.send_action(ChatAction.TYPING)
@@ -28,30 +31,29 @@ async def handle(chat, lang, update, context):
 
                 # convert to mp3
                 mp3_file_path = tmp_dir / "voice.mp3"
-                from pydub import AudioSegment
-                AudioSegment.from_file(doc_path).export(mp3_file_path, format="mp3")
+                call(f"ffmpeg -i {doc_path} {mp3_file_path} > /dev/null 2>&1", shell=True)
 
                 # Transcribir
                 with open(mp3_file_path, "rb") as f:
                     await tasks.releasemaphore(chat=chat)
-                    insta=ChatGPT(chat)
+                    insta = await ChatGPT.create(chat)
                     transcribed_text = await insta.transcribe(f)
 
             # Enviar respuesta            
             text = f"🎤 {transcribed_text}"
-            interaction_cache[chat.id] = ("visto", datetime.now())
-            await db.set_chat_attribute(chat, "last_interaction", datetime.now())
+            interaction_cache[chat.id] = ("visto", now())
+            await db.set_chat_attribute(chat, "last_interaction", now())
         except Exception as e:
             logger.error(f'{__name__}: <transcribe_message_handle> {errorpredlang}: {e}')
             await tasks.releasemaphore(chat=chat)
-            return
     else:
         text = f'{config.lang[lang]["errores"]["audio_size_limit"].format(audio_max_size=config.audio_max_size)}'
     from bot.src.utils.misc import send_large_message
     await send_large_message(text, update)
     await tasks.releasemaphore(chat=chat)
-    from . import message
-    await message.handle(chat, lang, update, context, _message=transcribed_text)
+    if transcribed_text:
+        from . import message
+        await message.handle(chat, lang, update, context, _message=transcribed_text)
 async def wrapper(update: Update, context: CallbackContext):
     from bot.src.utils.proxies import (debe_continuar,obtener_contextos as oc, bb)
     chat, lang = await oc(update)
