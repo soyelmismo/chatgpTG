@@ -3,6 +3,17 @@ FROM bitnami/minideb:latest
 #por alguna razon si se elimina esta variable, no se imprimen algunos mensajes de error o informacion relevante...
 ENV PYTHONUNBUFFERED=1
 
+WORKDIR /
+
+COPY bot/ /bot
+COPY static/ /static
+COPY requirements.txt /requirements.txt
+COPY config/api.example.json config/api.json
+COPY config/chat_mode.example.json config/chat_mode.json
+COPY config/model.example.json config/model.json
+COPY /locales/ /locales
+COPY config/openai_completion_options.example.json config/openai_completion_options.json
+
 RUN apt-get update
 
 #all in a shot
@@ -33,16 +44,5 @@ RUN apt-get update && \
     apt remove --autoremove -y build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-WORKDIR /
-
-COPY bot/ /bot
-COPY static/ /static
-COPY requirements.txt /requirements.txt
-COPY config/api.example.json config/api.json
-COPY config/chat_mode.example.json config/chat_mode.json
-COPY config/model.example.json config/model.json
-COPY /locales/ /locales
-COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
 CMD ["python3", "-m", "bot"]
