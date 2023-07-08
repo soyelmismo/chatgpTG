@@ -21,7 +21,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    entrypoint: []
     environment:
 # check https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/variables for more
       - MONGODB_HOST=mongo
