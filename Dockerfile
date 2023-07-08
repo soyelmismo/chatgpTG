@@ -29,6 +29,8 @@ RUN apt-get update && \
         tesseract-ocr-por \
         tesseract-ocr-ita \
         tesseract-ocr-nld && \
+    pip3 install --no-cache-dir --break-system-packages -r requirements.txt && \
+    apt remove --autoremove -y build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -43,6 +45,4 @@ COPY config/model.example.json config/model.json
 COPY /locales/ /locales
 COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
-RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
-RUN apt remove --autoremove -y build-essential
 CMD ["python3", "-m", "bot"]
