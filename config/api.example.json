@@ -2,9 +2,7 @@
     "available_api": [
         "openai",
         "evagpt4",
-        "churchless",
-        "aichat",
-        "chatllama"
+        "churchless"
     ],
     "available_image_api": [
         "openai"
@@ -13,49 +11,6 @@
         "openai"
     ],
     "info": {
-        "aichat": {
-            "name": "chat-gpt.org",
-            "description": {
-                "es": "https://chat-gpt.org/chat",
-                "en": "https://chat-gpt.org/chat",
-                "ar": "https://chat-gpt.org/chat",
-                "zh": "https://chat-gpt.org/chat",
-                "jp": "https://chat-gpt.org/chat",
-                "de": "https://chat-gpt.org/chat",
-                "fr": "https://chat-gpt.org/chat",
-                "it": "https://chat-gpt.org/chat",
-                "ru": "https://chat-gpt.org/chat",
-                "pt": "https://chat-gpt.org/chat",
-                "nl": "https://chat-gpt.org/chat"
-            },
-            "url": "base",
-            "key": "key",
-            "api_max_tokens": 1024,
-            "available_model": [
-                "gpt-3.5-turbo"
-            ]
-        },
-        "chatllama": {
-            "name": "ChatLLaMA",
-            "description": {
-                "es": "un chatbot del modelo de lenguage LLaMA.",
-                "en": "a chatbot based on the LLaMA language model.",
-                "ar": "روبوت دردشة مبني على نموذج LLaMA.",
-                "zh": "基于LLaMA语言模型的聊天机器人。",
-                "jp": "LLaMA言語モデルに基づくチャットボット。",
-                "de": "Ein Chatbot basierend auf dem LLaMA-Sprachmodell.",
-                "fr": "Un chatbot basé sur le modèle de langage LLaMA.",
-                "it": "Un chatbot basato sul modello di linguaggio LLaMA.",
-                "ru": "Чатбот на основе языковой модели LLaMA.",
-                "pt": "Um chatbot baseado no modelo de linguagem LLaMA.",
-                "nl": "Een chatbot gebaseerd op het LLaMA-taalmodel."
-            },
-            "url": "base",
-            "key": "key",
-            "available_model": [
-                "llama-13b"
-            ]
-        },
         "openai": {
             "name": "OpenAI",
             "description": {

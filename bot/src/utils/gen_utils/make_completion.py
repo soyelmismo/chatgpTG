@@ -34,14 +34,6 @@ async def _generic_create(self, **kwargs):
         if self.api == "evagpt4":
             self.diccionario["messages"] = kwargs["messages"]
             from bot.src.apis.opengpt.evagpt4 import create
-        elif self.api == "chatllama":
-            self.diccionario["prompt"] = kwargs["prompt"]
-            from bot.src.apis.opengpt.chatllama import create
-        elif self.api == "aichat":
-            # This only have 10 requests... idk if per day lol...
-            self.config = config
-            self.diccionario["message"] = kwargs["prompt"]
-            from bot.src.apis.gpt4free.aichat import create
 
         async for _, content in create(self):
             self.answer += content
@@ -52,6 +44,4 @@ async def _generic_create(self, **kwargs):
 
 api_functions = {
     "evagpt4": _generic_create,
-    "chatllama": _generic_create,
-    "aichat": _generic_create
 }
