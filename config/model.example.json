@@ -4,15 +4,15 @@
         "gpt-3.5-turbo-16k",
         "gpt-4",
         "text-davinci-003",
-        "text-curie-001",
-        "text-babbage-001",
-        "text-ada-001"
+        "curie",
+        "babbage",
+        "ada"
     ],
     "text_completions": [
         "text-davinci-003",
-        "text-curie-001",
-        "text-babbage-001",
-        "text-ada-001"
+        "curie",
+        "babbage",
+        "ada"
     ],
     "info": {
         "gpt-3.5-turbo": {
@@ -83,7 +83,7 @@
             },
             "max_tokens": 2048
         },
-        "text-curie-001": {
+        "curie": {
             "name": "Curie",
             "description": {
                 "es": "Muy capaz, más rápido y más barato que Davinci.",
@@ -100,7 +100,7 @@
             },
             "max_tokens": 2049
         },
-        "text-babbage-001": {
+        "babbage": {
             "name": "Babbage",
             "description": {
                 "es": "Capaz de realizar tareas sencillas, muy rápido y de menor coste.",
@@ -117,7 +117,7 @@
             },
             "max_tokens": 2049
         },
-        "text-ada-001": {
+        "ada": {
             "name": "Ada",
             "description": {
                 "es": "Capaz de realizar tareas muy sencillas, suele ser el modelo más rápido de la serie GPT-3 y el de menor coste.",
