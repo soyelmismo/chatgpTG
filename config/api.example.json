@@ -7,8 +7,7 @@
         "chatllama"
     ],
     "available_image_api": [
-        "openai",
-        "imaginepy"
+        "openai"
     ],
     "available_transcript": [
         "openai"

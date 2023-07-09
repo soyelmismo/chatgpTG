@@ -5,8 +5,7 @@
         "text-davinci-003",
         "text-curie-001",
         "text-babbage-001",
-        "text-ada-001",
-        "bing"
+        "text-ada-001"
     ],
     "text_completions": [
         "text-davinci-003",
@@ -202,23 +201,6 @@
                 "nl": "In staat om zeer eenvoudige taken uit te voeren, is Ada meestal het snelste model in de GPT-3-serie en het minst duur."
             },
             "max_tokens": 2049
-        },
-        "bing": {
-            "name": "Bing",
-            "description": {
-                "es": "el chatbot oficial de bing.com",
-                "ar": "الدردشة الرسمية لموقع bing.com",
-                "en": "The official chatbot of bing.com.",
-                "jp": "bing.comの公式チャットボット。",
-                "zh": "bing.com的官方聊天机器人。",
-                "de": "Der offizielle Chatbot von bing.com.",
-                "fr": "Le chatbot officiel de bing.com.",
-                "ru": "Официальный чат-бот bing.com.",
-                "pt": "O chatbot oficial do bing.com.",
-                "it": "Il chatbot ufficiale di bing.com.",
-                "nl": "De officiële chatbot van bing.com."
-            },
-            "max_tokens": 4096
         }
     }
 }
