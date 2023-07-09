@@ -14,12 +14,15 @@ from .handlers.commands import (
 start, help, retry, new, cancel, chat_mode, model,
 api, img, lang, status, reset, search, props, istyle, iratio, imodel)
 from .handlers.callbacks import imagine
-from .tasks import cache
+from .tasks import apis_chat, apis_image, cache
 from .utils import config
 from .utils.proxies import bb, asyncio
 
 async def post_init(application: Application):
     bb(cache.task())
+    if config.disable_apis_checkers != True:
+        bb(apis_chat.task())
+        bb(apis_image.task())
     commandos = [
         ("/new", "🌟"),
         ("/props", "⚙️"),
@@ -101,6 +104,7 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
     CallbackQueryHandler(api.set, pattern="^set_api"),
     CallbackQueryHandler(img.options_callback, pattern=mcbc),
     CallbackQueryHandler(img.options_set, pattern="^set_image_api"),
+    CallbackQueryHandler(img.options_set, pattern="^set_image_api_styles"),
     CallbackQueryHandler(imagine.set, pattern="^set_imaginepy"),
     ]
     
@@ -115,8 +119,9 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
         add_this.append(MessageHandler(filters.Document.Category('text/') & (user_filter | chat_filter), document.wrapper))
     if config.switch_imgs == True:
         add_this.append(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))
+        add_this.append(CommandHandler("istyle", istyle.image_style, filters=(user_filter | chat_filter)))
         add_this.append(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
-        if "imaginepy" in config.api["available_image_api"]:
+        if "imaginepy" in apis_image.img_vivas:
             add_this.append(CommandHandler("istyle", istyle.imagine, filters=(user_filter | chat_filter)))
             add_this.append(CommandHandler("iratio", iratio.imagine, filters=(user_filter | chat_filter)))
             add_this.append(CommandHandler("imodel", imodel.imagine, filters=(user_filter | chat_filter)))

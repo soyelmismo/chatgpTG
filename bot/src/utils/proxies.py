@@ -17,12 +17,14 @@ chat_tasks = {}
 
 #cache testing
 cache_index = ["lang_cache", "chat_mode_cache", "api_cache", "model_cache",
-               "menu_cache", "interaction_cache", "image_api_cache", "imaginepy_ratios_cache",
-               "imaginepy_styles_cache", "imaginepy_models_cache"]
+               "menu_cache", "interaction_cache", "image_api_cache", "image_api_styles_cache",
+               "image_styles_cache"]
 lang_cache = {}
 chat_mode_cache = {}
 api_cache = {}
 image_api_cache = {}
+image_api_styles_cache = {}
+image_styles_cache = {}
 imaginepy_ratios_cache = {}
 imaginepy_styles_cache = {}
 imaginepy_models_cache = {}
@@ -54,8 +56,8 @@ async def debe_continuar(chat, lang, update, context, bypassmention=None):
     return True
 async def parametros(chat, lang, update):
     from bot.src.utils.checks import c_parameters
-    checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios, checked_imaginepy_models = await c_parameters.check(chat, lang, update)
-    return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_imaginepy_styles, checked_imaginepy_ratios, checked_imaginepy_models
+    checked_chat_mode, checked_api, checked_model, checked_image_api, checked_image_styles, checked_imaginepy_ratios, checked_imaginepy_models = await c_parameters.check(chat, lang, update)
+    return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_image_styles, checked_imaginepy_ratios, checked_imaginepy_models
 
 errorpredlang = config.lang[config.pred_lang]["errores"]["error"]
 menusnotready = config.lang[config.pred_lang]["errores"]["menu_modes_not_ready_yet"]

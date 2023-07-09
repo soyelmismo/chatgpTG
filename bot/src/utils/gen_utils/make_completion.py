@@ -29,37 +29,11 @@ async def _make_api_call(self, **kwargs):
                 #yield "error", f'{config.lang[self.lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}'
                 raise ConnectionError(f'_make_api_call. {config.lang[config.pred_lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}: {e}')
 
-async def _you(self, **kwargs):
-    try:
-        from bot.src.apis.gpt4free.foraneo import you
-        r = you.Completion.create(
-            prompt=kwargs["messages"],
-            detailed=False,
-            include_links=False
-        )
-        for chunk in r.text.encode('utf-16', 'surrogatepass').decode('utf-16'):
-            self.answer += chunk
-            if "Unable to fetch the response, Please try again." in self.answer:
-                raise RuntimeError(self.answer)
-            yield "not_finished", self.answer
-    except Exception as e:
-        e = f'_get_you_answer: {e}'
-        raise ConnectionError(e)
-
 async def _generic_create(self, **kwargs):
     try:
-
         if self.api == "evagpt4":
             self.diccionario["messages"] = kwargs["messages"]
             from bot.src.apis.opengpt.evagpt4 import create
-        elif self.api == "chatbase":
-            # This have some rate limit too for a while.
-            self.config = config
-            self.diccionario["messages"] = kwargs["messages"]
-            from bot.src.apis.opengpt.chatbase import create
-        elif self.api == "chatgptai":
-            self.diccionario["messages"] = kwargs["messages"]
-            from bot.src.apis.opengpt.chatbase import create
         elif self.api == "chatllama":
             self.diccionario["prompt"] = kwargs["prompt"]
             from bot.src.apis.opengpt.chatllama import create
@@ -77,10 +51,7 @@ async def _generic_create(self, **kwargs):
         raise ConnectionError(f"_generic_create {self.api}: {e}")
 
 api_functions = {
-    "chatbase": _generic_create,
-    "you": _you,
     "evagpt4": _generic_create,
     "chatllama": _generic_create,
-    "chatgptai": _generic_create,
     "aichat": _generic_create
 }

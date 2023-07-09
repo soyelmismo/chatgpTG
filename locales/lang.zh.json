@@ -79,6 +79,7 @@
     "reset_chat_mode": "您的聊天模式不可用，因此已更改为 '{new}'",
     "reset_api": "您选择的API不可用，因此已更改为 '{new}'",
     "reset_model": "您当前的模型与API不兼容，因此模型已自动更改为'{new}'。",
+    "reset_image_styles": "您当前的图像样式不可用。因此，它已自动更改为{new}。",
     "reset_imaginepy_styles": "您当前的Imagine.py样式不可用。因此，它已自动更改为{new}。",
     "reset_imaginepy_ratios": "您当前的Imagine.py比率不可用。因此，它已自动更改为{new}。",
     "reset_imaginepy_models": "您当前的Imagine.py模型不可用。因此，它已自动更改为{new}。",

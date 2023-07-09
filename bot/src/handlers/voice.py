@@ -5,12 +5,12 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 from bot.src.utils.gen_utils.phase import ChatGPT
 async def handle(chat, lang, update, context):
-    from . import semaphore as tasks
-    from bot.src.utils.proxies import (logger,db,interaction_cache,config,ChatAction,errorpredlang)
-    # Procesar sea voz o audio
     if update.message.voice: audio = update.message.voice
     elif update.message.audio: audio = update.message.audio
     else: return
+    from . import semaphore as tasks
+    from bot.src.utils.proxies import (logger,db,interaction_cache,config,ChatAction,errorpredlang)
+    # Procesar sea voz o audio
     file_size_mb = audio.file_size / (1024 * 1024)
     transcribed_text = None
     if file_size_mb <= config.audio_max_size:
@@ -19,11 +19,8 @@ async def handle(chat, lang, update, context):
             with TemporaryDirectory() as tmp_dir:
                 # Descargar y convertir a MP3
                 tmp_dir = Path(tmp_dir)
-                ext = audio.mime_type
-                from mimetypes import guess_extension
-                if ext == 'audio/opus': ext = '.opus'
-                else: ext = guess_extension(ext)
-                doc_path = tmp_dir / Path("tempaudio" + ext)
+
+                doc_path = tmp_dir / Path("tempaudio" + audio.mime_type.split("/")[1])
 
                 # download
                 voice_file = await context.bot.get_file(audio.file_id)

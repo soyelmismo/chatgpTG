@@ -79,6 +79,7 @@
     "reset_chat_mode": "Uw chatmodus was niet beschikbaar, dus is deze gewijzigd naar '{new}'",
     "reset_api": "De door u geselecteerde API is niet beschikbaar, dus is deze gewijzigd naar '{new}'",
     "reset_model": "Uw huidige model is niet compatibel met de API, dus het model is automatisch gewijzigd naar '{new}'.",
+    "reset_image_styles": "Uw huidige afbeeldingsstijl is niet beschikbaar. Daarom is het automatisch veranderd in {new}.",
     "reset_imaginepy_styles": "Je huidige Imagine.py-stijl is niet beschikbaar. Daarom is het automatisch gewijzigd naar {new}.",
     "reset_imaginepy_ratios": "Je huidige Imagine.py-verhouding is niet beschikbaar. Daarom is het automatisch gewijzigd naar {new}.",
     "reset_imaginepy_models": "Uw huidige Imagine.py-model is niet beschikbaar. Het is daarom automatisch gewijzigd in {new}.",

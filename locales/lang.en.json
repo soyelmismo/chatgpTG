@@ -79,6 +79,7 @@
     "reset_chat_mode": "Your chat mode was not available, so it has been changed to '{new}'",
     "reset_api": "The API you selected is not available, so it has been changed to '{new}'",
     "reset_model": "Your current model is not compatible with the API, so the model has been automatically changed to '{new}'.",
+    "reset_image_styles": "Your current image style is not available. Therefore, it has been automatically changed to {new}.",
     "reset_imaginepy_styles": "Your current Imagine.py style is not available. Therefore, it has been automatically changed to {new}.",
     "reset_imaginepy_ratios": "Your current Imagine.py ratio is not available. Therefore, it has been automatically changed to {new}.",
     "reset_imaginepy_models": "Your current Imagine.py model is not available. So it has been automatically changed to {new}.",

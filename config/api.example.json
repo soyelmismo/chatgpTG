@@ -1,11 +1,8 @@
 {
     "available_api": [
         "openai",
-        "you",
-        "chatbase",
         "evagpt4",
         "churchless",
-        "chatgptai",
         "aichat",
         "chatllama"
     ],
@@ -31,28 +28,6 @@
                 "ru": "https://chat-gpt.org/chat",
                 "pt": "https://chat-gpt.org/chat",
                 "nl": "https://chat-gpt.org/chat"
-            },
-            "url": "base",
-            "key": "key",
-            "api_max_tokens": 1024,
-            "available_model": [
-                "gpt-3.5-turbo"
-            ]
-        },
-        "chatgptai": {
-            "name": "chatgptai.help",
-            "description": {
-                "es": "https://chatgptai.help/",
-                "en": "https://chatgptai.help/",
-                "ar": "https://chatgptai.help/",
-                "zh": "https://chatgptai.help/",
-                "jp": "https://chatgptai.help/",
-                "de": "https://chatgptai.help/",
-                "fr": "https://chatgptai.help/",
-                "it": "https://chatgptai.help/",
-                "ru": "https://chatgptai.help/",
-                "pt": "https://chatgptai.help/",
-                "nl": "https://chatgptai.help/"
             },
             "url": "base",
             "key": "key",
@@ -103,49 +78,6 @@
                 "gpt-3.5-turbo",
                 "gpt-4",
                 "text-davinci-003"
-            ]
-        },
-        "you": {
-            "name": "You",
-            "description": {
-                "es": "de el buscador You.com.",
-                "ar": "من محرك البحث You.com. ",
-                "en": "from the search engine You.com.",
-                "jp": "検索エンジンYou.comから。",
-                "zh": "来自搜索引擎You.com。",
-                "de": "von der Suchmaschine You.com.",
-                "fr": "depuis le moteur de recherche You.com.",
-                "ru": "с поисковой системы You.com.",
-                "pt": "do mecanismo de busca You.com.",
-                "it": "dal motore di ricerca You.com.",
-                "nl": "vanaf de zoekmachine You.com."
-            },
-            "url": "youchat",
-            "key": "youkey",
-            "available_model": [
-                "gpt-3.5-turbo"
-            ]
-        },
-        "chatbase": {
-            "name": "ChatBase",
-            "description": {
-                "es": "de el sitio ChatBase.co.",
-                "ar": "من موقع ChatBase.co. ",
-                "en": "from the website ChatBase.co.",
-                "jp": "ウェブサイトChatBase.coから。",
-                "zh": "来自ChatBase.co网站。",
-                "de": "von der Website ChatBase.co.",
-                "fr": "depuis le site ChatBase.co.",
-                "ru": "с веб-сайта ChatBase.co.",
-                "pt": "do site ChatBase.co.",
-                "it": "dal sito web ChatBase.co.",
-                "nl": "vanaf de website ChatBase.co."
-            },
-            "url": "youchat",
-            "key": "",
-            "available_model": [
-                "gpt-3.5-turbo",
-                "gpt-4"
             ]
         },
         "evagpt4": {

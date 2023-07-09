@@ -7,8 +7,7 @@ from pymongo.errors import DuplicateKeyError
 from motor.motor_asyncio import AsyncIOMotorClient
 from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
                         constant_db_lang, constant_db_tokens, constant_db_image_api,
-                        imaginepy_ratios, imaginepy_styles, imaginepy_models, constant_db_imaginepy_styles,
-                        constant_db_imaginepy_ratios, constant_db_imaginepy_models)
+                        image_api_styles, constant_db_image_api_styles)
 from pathlib import Path
 
 def is_datetime(obj):
@@ -76,6 +75,8 @@ class Database:
             
 
     async def add_chat(self, chat, lang: str):
+        from bot.src.tasks.apis_chat import vivas as apis_vivas
+        from bot.src.tasks.apis_image import img_vivas
         if not await self.chat_exists(chat):
             if self.use_json:
                 self.data["chats"][str(chat.id)] = {
@@ -83,12 +84,13 @@ class Database:
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],
-                    constant_db_model: config.model["available_model"][0],
-                    constant_db_api: config.api["available_api"][0],
-                    constant_db_image_api: config.api["available_image_api"][0],
-                    constant_db_imaginepy_styles: imaginepy_styles[0],
-                    constant_db_imaginepy_ratios: imaginepy_ratios[0],
-                    constant_db_imaginepy_models: imaginepy_models[0],
+                    constant_db_model: config.api["info"][apis_vivas[0]]["available_model"][0],
+                    constant_db_api: apis_vivas[0],
+                    constant_db_image_api: img_vivas[0],
+                    constant_db_image_api_styles: image_api_styles[0],
+                    #constant_db_imaginepy_styles: imaginepy_styles[0],
+                    #constant_db_imaginepy_ratios: imaginepy_ratios[0],
+                    #constant_db_imaginepy_models: imaginepy_models[0],
                 }
                 self.save_data_to_json("chats")
             else:
@@ -98,12 +100,13 @@ class Database:
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],
-                    constant_db_model: config.api["info"][config.api["available_api"][0]]["available_model"][0],
-                    constant_db_api: config.api["available_api"][0],
-                    constant_db_image_api: config.api["available_image_api"][0],
-                    constant_db_imaginepy_styles: imaginepy_styles[0],
-                    constant_db_imaginepy_ratios: imaginepy_ratios[0],
-                    constant_db_imaginepy_models: imaginepy_models[0],
+                    constant_db_model: config.api["info"][apis_vivas[0]]["available_model"][0],
+                    constant_db_api: apis_vivas[0],
+                    constant_db_image_api: img_vivas[0],
+                    constant_db_image_api_styles: image_api_styles[0],
+                    #constant_db_imaginepy_styles: imaginepy_styles[0],
+                    #constant_db_imaginepy_ratios: imaginepy_ratios[0],
+                    #constant_db_imaginepy_models: imaginepy_models[0],
                 }
                 try:
                     await self.chats.insert_one(chat_dict)
@@ -150,22 +153,26 @@ class Database:
         return chat_dict.get(key, None)
         
     async def reset_chat_attribute(self, chat):
+        from bot.src.tasks.apis_chat import vivas as apis_vivas
+        from bot.src.tasks.apis_image import img_vivas
         await self.chat_exists(chat, raise_exception=True)
         initial_chat_mode = config.chat_mode["available_chat_mode"][0]
-        initial_api = config.api["available_api"][0]
+        initial_api = apis_vivas[0]
         initial_model = config.api["info"][initial_api]["available_model"][0]
-        initial_image = config.api["available_image_api"][0]
-        initial_imaginepy_style = imaginepy_styles[0]
-        initial_imaginepy_ratio = imaginepy_ratios[0]
-        initial_imaginepy_model = imaginepy_models[0]
+        initial_image = img_vivas[0]
+        initial_image_style = image_api_styles[0]
+        #initial_imaginepy_style = imaginepy_styles[0]
+        #initial_imaginepy_ratio = imaginepy_ratios[0]
+        #initial_imaginepy_model = imaginepy_models[0]
         if self.use_json: 
             self.data["chats"][str(chat.id)][constant_db_chat_mode] = initial_chat_mode
             self.data["chats"][str(chat.id)][constant_db_model] = initial_model
             self.data["chats"][str(chat.id)][constant_db_api] = initial_api
             self.data["chats"][str(chat.id)][constant_db_image_api] = initial_image
-            self.data["chats"][str(chat.id)][constant_db_imaginepy_styles] = initial_imaginepy_style
-            self.data["chats"][str(chat.id)][constant_db_imaginepy_ratios] = initial_imaginepy_ratio
-            self.data["chats"][str(chat.id)][constant_db_imaginepy_models] = initial_imaginepy_model
+            self.data["chats"][str(chat.id)][constant_db_image_api_styles] = initial_image_style
+            #self.data["chats"][str(chat.id)][constant_db_imaginepy_styles] = initial_imaginepy_style
+            #self.data["chats"][str(chat.id)][constant_db_imaginepy_ratios] = initial_imaginepy_ratio
+            #self.data["chats"][str(chat.id)][constant_db_imaginepy_models] = initial_imaginepy_model
             self.save_data_to_json("chats")  # Guardar datos en el archivo JSON
         else:
             # Actualizar los valores en la base de datos
@@ -173,9 +180,10 @@ class Database:
             await self.set_chat_attribute(chat, constant_db_model, initial_model)
             await self.set_chat_attribute(chat, constant_db_api, initial_api)
             await self.set_chat_attribute(chat, constant_db_image_api, initial_image)
-            await self.set_chat_attribute(chat, constant_db_imaginepy_styles, initial_imaginepy_style)
-            await self.set_chat_attribute(chat, constant_db_imaginepy_ratios, initial_imaginepy_ratio)
-            await self.set_chat_attribute(chat, constant_db_imaginepy_models, initial_imaginepy_model)
+            await self.set_chat_attribute(chat, constant_db_image_api_styles, initial_image_style)
+            #await self.set_chat_attribute(chat, constant_db_imaginepy_styles, initial_imaginepy_style)
+            #await self.set_chat_attribute(chat, constant_db_imaginepy_ratios, initial_imaginepy_ratio)
+            #await self.set_chat_attribute(chat, constant_db_imaginepy_models, initial_imaginepy_model)
             
     async def set_chat_attribute(self, chat, key: str, value: Any):
         await self.chat_exists(chat, raise_exception=True)

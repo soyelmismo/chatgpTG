@@ -79,6 +79,7 @@
     "reset_chat_mode": "チャットモードは利用できませんでしたので、'{new}' に変更されました",
     "reset_api": "選択したAPIは利用できませんので、'{new}'に変更されました",
     "reset_model": "現在のモデルはAPIと互換性がないため、モデルが自動的に'{new}'に変更されました。",
+    "reset_image_styles": "現在の画像スタイルは利用できません。したがって、自動的に{new}に変更されました。",
     "reset_imaginepy_styles": "現在のImagine.pyスタイルは利用できません。したがって、自動的に{new}に変更されました。",
     "reset_imaginepy_ratios": "現在のImagine.py比率は利用できません。したがって、自動的に{new}に変更されました。",
     "reset_imaginepy_models": "現在のImagine.pyモデルは利用できません。そのため、自動的に{new}に変更されました。",

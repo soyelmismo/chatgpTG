@@ -1,3 +1,4 @@
+from bot.src.tasks.apis_image import img_vivas
 from udatetime import now
 from bot.src.start import Update, CallbackContext
 from telegram import InputMediaDocument, InputMediaPhoto
@@ -128,7 +129,7 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
             document_group.append(document)
         else:
             for i, image_url in enumerate(image_urls):
-                caption = f'🎨 <strong>{config.api["info"][current_api]["name"]}</strong>\n\n✏️ "<strong><code>{prompt}</code></strong>"'
+                caption = f'✏️ "<strong><code>{prompt}</code></strong>"\n\n🧵 <strong>{config.api["info"][current_api]["name"]}</strong>\n🎨 <strong>{style}</strong>'
                 image = InputMediaPhoto(image_url)
                 image_group.append(image)
                 document = InputMediaDocument(image_url, filename=f"imagen_{i}.png")
@@ -220,14 +221,21 @@ async def options_callback(update: Update, context: CallbackContext):
     await rr(query, update, context, page_index, menu_type="image_api")
 
 async def options_set(update: Update, context: CallbackContext):
-    from bot.src.utils.constants import constant_db_image_api
-    from bot.src.utils.proxies import image_api_cache
+    from bot.src.utils.constants import constant_db_image_api, constant_db_image_api_styles
+    from bot.src.utils.proxies import image_api_cache, image_api_styles_cache
     chat, _ = await oc(update)
-    query, _, seleccion, page_index, _ = await hh(update)
+    query, propsmenu, seleccion, page_index, _ = await hh(update)
     menu_type="image_api"
     if seleccion == "imaginepy":
         menu_type="imaginepy"
-    if seleccion in config.api["available_image_api"] and (image_api_cache.get(chat.id) is None or image_api_cache.get(chat.id)[0] != seleccion):
+    if seleccion != "image_api":
+        menu_type="image_api_styles"
+    if seleccion in img_vivas and (image_api_cache.get(chat.id) is None or image_api_cache.get(chat.id)[0] != seleccion):
         image_api_cache[chat.id] = (seleccion, now())
         await db.set_chat_attribute(chat, f'{constant_db_image_api}', seleccion)
+    elif propsmenu == "set_image_api_styles":
+        menu_type = "image_api_styles"
+        if seleccion != "paginillas":
+            image_api_styles_cache[chat.id] = (seleccion, now())
+            await db.set_chat_attribute(chat, f'{constant_db_image_api_styles}', seleccion)
     await rr(query, update, context, page_index, menu_type=menu_type, chat=chat)

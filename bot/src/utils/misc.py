@@ -1,4 +1,3 @@
-from .proxies import db, model_cache
 from udatetime import now
 from .constants import constant_db_model, constant_db_tokens
 from bot.src.utils.preprocess import tokenizer
@@ -33,6 +32,7 @@ async def update_dialog_messages(chat, new_dialog_message=None):
     return advertencia, dialog_messages, int(tokencount)
 
 async def ver_modelo_get_tokens(chat=None, model=None, api=None):
+    from .proxies import db, model_cache
     if not model:
         model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')
         model_cache[chat.id] = (model, now())
@@ -44,3 +44,25 @@ async def ver_modelo_get_tokens(chat=None, model=None, api=None):
     max_tokens = int(modelist["info"][model]["max_tokens"])
 
     return max_tokens
+
+async def api_check_text_maker(type: str, vivas: list, temp_vivas=[], temp_malas=[]):
+    from bot.src.utils import config
+    if type == "img":
+        init = config.lang[config.pred_lang]["metagen"]["image_api"]
+    else:
+        init = config.lang[config.pred_lang]["metagen"]["api"]
+
+    check = config.lang[config.pred_lang]["apicheck"]["inicio"]
+    totales = f'{config.lang[config.pred_lang]["apicheck"]["connection"]}: {len(temp_vivas)}, {config.lang[config.pred_lang]["apicheck"]["bad"]}: {len(temp_malas)}, {config.lang[config.pred_lang]["apicheck"]["total"]}: {len(vivas)}'
+    tex_vivas = ""
+    tex_malas = ""
+    text = """{init}: {check}\n\n{totales}"""
+    if temp_vivas:
+        las_texto_vivas = "\n{vivas}"
+        tex_vivas = f'{config.lang[config.pred_lang]["apicheck"]["working"]}: {temp_vivas}'
+        text += las_texto_vivas
+    if temp_malas:
+        las_texto_malas = "\n{malas}"
+        tex_malas = f'{config.lang[config.pred_lang]["apicheck"]["dead"]}: {temp_malas}'
+        text += las_texto_malas
+    return text.format(init=init, check=check, totales=totales, vivas=tex_vivas, malas=tex_malas)
