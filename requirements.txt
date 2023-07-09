@@ -1,6 +1,5 @@
 openai
 python-telegram-bot[rate-limiter]
-fake_useragent
 PyPDF2
 pytesseract
 html2text

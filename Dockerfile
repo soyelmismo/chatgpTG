@@ -1,9 +1,11 @@
 FROM python:3-alpine
 
-# Por alguna razón, si se elimina esta variable, no se imprimen algunos mensajes de error o información relevante...
+# Por alguna razón, si se elimina PYTHONUNBUFFERED, no se imprimen algunos mensajes de error o información relevante...
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /
+
+RUN mkdir -p /database
 
 COPY bot/ /bot
 COPY static/ /static
@@ -11,7 +13,7 @@ COPY requirements.txt /requirements.txt
 COPY config/api.example.json config/api.json
 COPY config/chat_mode.example.json config/chat_mode.json
 COPY config/model.example.json config/model.json
-COPY /locales/ /locales
+COPY locales/ /locales
 COPY config/openai_completion_options.example.json config/openai_completion_options.json
 
 # Instalar dependencias
