@@ -45,11 +45,11 @@ async def ver_modelo_get_tokens(chat=None, model=None, api=None):
 
     return max_tokens
 
-async def api_check_text_maker(type: str, vivas: list, temp_vivas=[], temp_malas=[]):
+async def api_check_text_maker(type: str = None, vivas: set = None, temp_vivas: set = None, temp_malas: set = None):
     from bot.src.utils import config
     if type == "img":
         init = config.lang[config.pred_lang]["metagen"]["image_api"]
-    else:
+    elif type == "chat":
         init = config.lang[config.pred_lang]["metagen"]["api"]
 
     check = config.lang[config.pred_lang]["apicheck"]["inicio"]
@@ -58,11 +58,9 @@ async def api_check_text_maker(type: str, vivas: list, temp_vivas=[], temp_malas
     tex_malas = ""
     text = """{init}: {check}\n\n{totales}"""
     if temp_vivas:
-        las_texto_vivas = "\n{vivas}"
         tex_vivas = f'{config.lang[config.pred_lang]["apicheck"]["working"]}: {temp_vivas}'
-        text += las_texto_vivas
+        text += "\n{vivas}"
     if temp_malas:
-        las_texto_malas = "\n{malas}"
         tex_malas = f'{config.lang[config.pred_lang]["apicheck"]["dead"]}: {temp_malas}'
-        text += las_texto_malas
+        text += "\n{malas}"
     return text.format(init=init, check=check, totales=totales, vivas=tex_vivas, malas=tex_malas)

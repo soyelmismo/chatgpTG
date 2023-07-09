@@ -59,6 +59,7 @@ async def task():
     global temp_malas
     test=False
     while True:
+        print("INFO: Checking APIs...")
         try:
             temp_vivas = []
             temp_malas
@@ -73,10 +74,12 @@ async def task():
                 temp_vivas = vivas
             if temp_vivas != vivas:
                 from bot.src.utils.misc import api_check_text_maker
-                outp = await api_check_text_maker("chat", vivas, temp_vivas, temp_malas)
+                outp = await api_check_text_maker(type="chat", vivas=vivas, temp_vivas=temp_vivas, temp_malas=temp_malas)
                 print(outp)
-            vivas = temp_vivas
-            malas = temp_malas
+            else:
+                print("INFO: CHAT_APIS ✅")
+            vivas = list(temp_vivas)
+            malas = list(temp_malas)
         except asyncio.CancelledError:
             break
         await sleep(20 * 60)

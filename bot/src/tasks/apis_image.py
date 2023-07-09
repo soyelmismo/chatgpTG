@@ -44,10 +44,12 @@ async def task():
                 img_temp_vivas = img_vivas
             if img_temp_vivas != img_vivas:
                 from bot.src.utils.misc import api_check_text_maker
-                outp = await api_check_text_maker("chat", img_vivas, img_temp_vivas, img_temp_malas)
+                outp = await api_check_text_maker(type="img", vivas=img_vivas, temp_vivas=img_temp_vivas, temp_malas=img_temp_malas)
                 print(outp)
-            img_vivas = img_temp_vivas
-            img_malas = img_temp_malas
+            else:
+                print("INFO: IMAGE_APIS ✅")
+            img_vivas = list(img_temp_vivas)
+            img_malas = list(img_temp_malas)
         except asyncio.CancelledError:
             break
         await sleep(20 * 60)

@@ -23,6 +23,8 @@ async def post_init(application: Application):
     if config.disable_apis_checkers != True:
         bb(apis_chat.task())
         bb(apis_image.task())
+    else:
+        print("INFO: No API checks.")
     commandos = [
         ("/new", "🌟"),
         ("/props", "⚙️"),
