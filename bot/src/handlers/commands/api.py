@@ -1,9 +1,9 @@
 from udatetime import now
 from bot.src.start import Update, CallbackContext
-from bot.src.utils.constants import constant_db_api
+from bot.src.utils.constants import constant_db_api, logger
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 async def handle(update: Update, context: CallbackContext):
-    from bot.src.utils.proxies import (obtener_contextos as oc,logger,ParseMode,errorpredlang,menusnotready)
+    from bot.src.utils.proxies import (obtener_contextos as oc,ParseMode,errorpredlang,menusnotready)
     try:
         chat, _ = await oc(update)
         text, reply_markup = await gg(menu_type="api", update=update, context=context, chat=chat, page_index=0)

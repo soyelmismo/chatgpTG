@@ -8,6 +8,7 @@ from bot.src.utils import config
 from bot.src.utils.proxies import debe_continuar, obtener_contextos as oc, bb, db, interaction_cache, config, telegram, ParseMode, ChatAction, parametros, menusnotready, errorpredlang
 from bot.src.handlers import semaphore as tasks
 from bot.src.handlers.error import mini_handle as handle_errors
+from bot.src.utils.constants import logger
 #algunos mensajes de error
 rmnf = "Replied message not found"
 
@@ -209,7 +210,7 @@ async def callback_recibir(update, context, msgid, lang):
 
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 async def options_handle(update: Update, context: CallbackContext):
-    from bot.src.utils.proxies import (obtener_contextos as oc,logger,config,ParseMode)
+    from bot.src.utils.proxies import (obtener_contextos as oc,ParseMode)
     try:
         chat, _ = await oc(update)
         text, reply_markup = await gg(menu_type="image_api", update=update, context=context, chat=chat, page_index=0)

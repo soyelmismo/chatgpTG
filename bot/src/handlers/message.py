@@ -1,5 +1,5 @@
-from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, logger, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names, asyncio, errorpredlang)
-
+from bot.src.utils.proxies import (debe_continuar, obtener_contextos as oc, parametros, chat_mode_cache, model_cache, bb, db, interaction_cache, msg_no_mod, sleep, config, ParseMode, ChatAction, telegram, user_names, asyncio, errorpredlang)
+from bot.src.utils.constants import logger
 from nltk import download as ddl
 if config.proxy_raw is not None:
     from nltk import set_proxy

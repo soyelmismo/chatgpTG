@@ -1,5 +1,5 @@
 from bot.src.utils import config
-from logging import error
+from bot.src.utils.constants import logger
 from langdetect import detect_langs
 from nltk import download, set_proxy
 if config.proxy_raw is not None:
@@ -19,7 +19,7 @@ async def deteccion(texto):
             texto, _ = await procesar_texto_normal(texto)
             return texto
     except Exception as e:
-        error(f"{__name__}: Detección no detectó instancia, detectó {e}")
+        logger.error(f"{__name__}: Detección no detectó instancia, detectó {e}")
 
 async def procesar_lista_multilingue(lista):
     resultados = []
@@ -53,7 +53,7 @@ async def procesar_texto_normal(texto, idioma=None, lock=None):
         if lock: return "".join(textofiltrr)
         else: return "".join(textofiltrr), idioma
     else:
-        error(f"{__name__}: No se detectó ningún idioma en el texto.")
+        logger.error(f"{__name__}: No se detectó ningún idioma en el texto.")
 
 
 cached_stopwords = {}

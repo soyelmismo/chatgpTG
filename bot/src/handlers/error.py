@@ -4,7 +4,8 @@ from telegram.ext import CallbackContext
 from json import dumps
 from html import escape
 from traceback import format_exception
-from bot.src.utils.proxies import logger, config, ParseMode, errorpredlang
+from bot.src.utils.proxies import config, ParseMode, errorpredlang
+from bot.src.utils.constants import logger
 async def handle(update: Update, context: CallbackContext) -> None:
     try:
         # Log the error with traceback

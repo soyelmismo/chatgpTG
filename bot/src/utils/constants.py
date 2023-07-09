@@ -1,3 +1,13 @@
+import logging
+logger = logging.getLogger('ChatGPTG')
+logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s | %(levelname)s > %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+
 constant_db_model = "current_model"
 constant_db_chat_mode = "current_chat_mode"
 constant_db_image_api = "current_image_api"

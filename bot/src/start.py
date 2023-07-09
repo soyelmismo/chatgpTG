@@ -1,3 +1,5 @@
+from bot.src.utils.constants import logger
+
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -24,7 +26,7 @@ async def post_init(application: Application):
         bb(apis_chat.task())
         bb(apis_image.task())
     else:
-        print("INFO: No API checks.")
+        logger.info("🚫🔌🌐🔄")
     commandos = [
         ("/new", "🌟"),
         ("/props", "⚙️"),
@@ -36,7 +38,7 @@ async def post_init(application: Application):
     if config.switch_search == True:
         commandos.insert(2, ("/search", "🔎"))
     await application.bot.set_my_commands(commandos)
-    print(f'-----{config.lang[config.pred_lang]["mensajes"]["bot_iniciado"]}-----')
+    logger.info(f'-----{config.lang[config.pred_lang]["mensajes"]["bot_iniciado"]}-----')
 
 def build_application():
     return (

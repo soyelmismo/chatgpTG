@@ -3,7 +3,7 @@ from bot.src.utils import config
 from bot.src.utils.gen_utils.make_completion import _make_api_call
 from bot.src.utils.preprocess.make_messages import handle as mms
 from bot.src.utils.preprocess.make_prompt import handle as mpm
-from logging import error
+from bot.src.utils.constants import logger
 
 vivas = config.api["available_api"]
 malas = []
@@ -40,7 +40,7 @@ async def checar_api(nombre_api):
             return respuesta
         return ["No"]
     except Exception as e:
-        error(f'{config.lang[config.pred_lang]["metagen"]["api"]}: {nombre_api}, {respuesta}, {e}')
+        logger.error(f'{config.lang[config.pred_lang]["metagen"]["api"]}: {nombre_api}, {respuesta}, {e}')
         temp_malas.append(nombre_api)
 
 async def checar_respuesta(nombre_api, respuesta):
@@ -59,7 +59,7 @@ async def task():
     global temp_malas
     test=False
     while True:
-        print("INFO: Checking APIs...")
+        logger.info("🔍🔌🌐🔄")
         try:
             temp_vivas = []
             temp_malas
@@ -75,9 +75,9 @@ async def task():
             if temp_vivas != vivas:
                 from bot.src.utils.misc import api_check_text_maker
                 outp = await api_check_text_maker(type="chat", vivas=vivas, temp_vivas=temp_vivas, temp_malas=temp_malas)
-                print(outp)
+                logger.info(outp)
             else:
-                print("INFO: CHAT_APIS ✅")
+                logger.info("CHAT_APIS ✅")
             vivas = list(temp_vivas)
             malas = list(temp_malas)
         except asyncio.CancelledError:

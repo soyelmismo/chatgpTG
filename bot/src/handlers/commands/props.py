@@ -1,7 +1,8 @@
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 from bot.src.utils.checks.c_callback import check as is_this_shit_callback
-from bot.src.utils.proxies import obtener_contextos as oc, config, logger, errorpredlang, menusnotready, ParseMode
+from bot.src.utils.proxies import obtener_contextos as oc, config, errorpredlang, menusnotready, ParseMode
+from bot.src.utils.constants import logger
 async def handle(update: Update, context: CallbackContext):
     try:
         chat, _ = await oc(update)

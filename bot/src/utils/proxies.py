@@ -1,4 +1,4 @@
-import logging
+from bot.src.utils.constants import logger
 import asyncio
 from bot.src.utils import config, database
 import telegram
@@ -7,7 +7,6 @@ from telegram.ext import CallbackContext
 from telegram.constants import ParseMode, ChatAction
 import re
 db = database.Database()
-logger = logging
 bb = asyncio.create_task
 bcs = asyncio.ensure_future
 loop = asyncio.get_event_loop()

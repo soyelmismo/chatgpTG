@@ -4,12 +4,13 @@ from bot.src.start import Update, CallbackContext
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from bot.src.utils.gen_utils.phase import ChatGPT
+from bot.src.utils.constants import logger
 async def handle(chat, lang, update, context):
     if update.message.voice: audio = update.message.voice
     elif update.message.audio: audio = update.message.audio
     else: return
     from . import semaphore as tasks
-    from bot.src.utils.proxies import (logger,db,interaction_cache,config,ChatAction,errorpredlang)
+    from bot.src.utils.proxies import (db,interaction_cache,config,ChatAction,errorpredlang)
     # Procesar sea voz o audio
     file_size_mb = audio.file_size / (1024 * 1024)
     transcribed_text = None

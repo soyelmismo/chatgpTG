@@ -1,7 +1,7 @@
 from bot.src.utils import proxies
 from asyncio import create_task
 from . import make_transcription, make_image
-from bot.src.utils.constants import constant_db_api
+from bot.src.utils.constants import constant_db_api, logger
 from bot.src.utils.gen_utils.make_completion import _make_api_call
 
 class ChatGPT:
@@ -47,7 +47,7 @@ class ChatGPT:
                 "messages": messages,
                 "_message": _message
             }
-
+            logger.info(f'📨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + 🧠 {proxies.config.model["info"][self.model]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
 
@@ -72,11 +72,13 @@ class ChatGPT:
 
     async def transcribe(self, audio_file):
         try:
+            logger.info(f'🎤 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
             return await make_transcription.write(self, audio_file)
         except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
     async def imagen(self, prompt, current_api, style, ratio, model, seed=None, negative=None):
         try:
+            logger.info(f'🎨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
             images, seed = await make_image.gen(self, prompt, current_api, style, ratio, model, seed, negative)
             return images, seed
         except Exception as e:
@@ -85,6 +87,7 @@ class ChatGPT:
     async def busqueduck(self, query):
         try:
             from bot.src.apis.duckduckgo import search
+            logger.info(f'🔎 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
             formatted_results_backend, formatted_results_string = await search(self, query)
             return formatted_results_backend, formatted_results_string
         except Exception as e: raise RuntimeError(f"phase.busqueduck > {e}")

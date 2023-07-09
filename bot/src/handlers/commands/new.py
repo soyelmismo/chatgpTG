@@ -1,11 +1,12 @@
 from udatetime import now
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers import semaphore as tasks
+from bot.src.utils.constants import logger
 async def handle(update: Update, context: CallbackContext, msgid=None):
     from bot.src.utils.proxies import (
     obtener_contextos as oc, debe_continuar, parametros,
     config, ParseMode,
-    interaction_cache, db, logger, errorpredlang
+    interaction_cache, db, errorpredlang
     )
     try:
         chat, lang = await oc(update)

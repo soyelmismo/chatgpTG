@@ -50,7 +50,6 @@ Los lenguajes están *COMPLETAMENTE* traducidos... O eso creo.
 - <a href="https://github.com/karfly/chatgpt_telegram_bot/pull/188" alt="AutoDel">Borrar historiales antiguos al usar /new.</a>
 - Añadidas variables a docker-compose para limitar el tamaño de los audios, documentos, paginas de PDF y urls.
 - La transcripción de mensajes de voz ahora también funciona para archivos de audio.
-- Apis de GPT4Free (necesita especificar las cookies en docker-compose para usar Bing y ChatGPT)
 - Base en Minideb.
 - Se eliminó el seguimiento de tokens.
 - Preferencias de API por usuario!
