@@ -82,4 +82,4 @@ async def task():
             malas = list(temp_malas)
         except asyncio.CancelledError:
             break
-        await sleep(20 * 60)
+        await sleep(config.apischeck_minutes * 60)

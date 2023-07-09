@@ -23,7 +23,7 @@ async def handle(update: Update, context: CallbackContext, paraprops=None):
         chatmode=config.lang[lang]["metagen"]["chatmode"]
         nombrechatmode=config.chat_mode["info"][mododechat_actual]["name"][lang]
         tokens=config.lang[lang]["metagen"]["tokens"]
-        textoprimer="""{api}: {nombreapi} | {modelo}: {nombremodelo}\n{chatmode}: {nombrechatmode}\n{tokens}: {tokens_actual} / {modeltokens}\n\n{apimagen}: {apimageactual}\n{apimagenestilo}: {imagineactual}"""
+        textoprimer="""🔌 {api}: {nombreapi}\n🧠 {modelo}: {nombremodelo}\n💬 {chatmode}: {nombrechatmode}\n💰 {tokens}: {tokens_actual} / {modeltokens}\n\n🌅 {apimagen}: {apimageactual}\n🎨 {apimagenestilo}: {imagineactual}"""
         if checked_image_api =="imaginepy": textoprimer += "\n{imaginestyle}: {imagineactual}\n{imaginemodel}: {checked_imaginepy_models}"
         text = f'{textoprimer.format(imaginemodel=imaginemodel, checked_imaginepy_models=checked_imaginepy_models, api=api, nombreapi=nombreapi,modelo=modelo,nombremodelo=nombremodelo, tokensmax=tokensmax,modeltokens=modeltokens,chatmode=chatmode, nombrechatmode=nombrechatmode,tokens=tokens, tokens_actual=tokens_actual,apimagen=apimagen, apimageactual=nombreapimagen,apimagenestilo=apimagenestilo,imaginestyle=imaginestyle, imagineactual=checked_imaginepy_styles)}'
     
