@@ -2,7 +2,7 @@ from bot.src.utils.constants import ERRFUNC, FUNCNOARG
 from bot.src.utils.gen_utils.openai.openai_functions_extraction import openaifunc
 from bot.src.apis import duckduckgo
 @openaifunc
-async def search_on_internet_and_recommendations(self, query: str, search_type: str, timelimit: str = None) -> str:
+async def search_on_internet(self, query: str, search_type: str, timelimit: str = None) -> str:
     """
     Search information/recommendations and news on internet
     Reveives a search query to search information and recommendations on the web. talk freely about the results.

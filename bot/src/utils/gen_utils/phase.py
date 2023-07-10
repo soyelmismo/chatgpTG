@@ -41,6 +41,7 @@ class ChatGPT:
             from bot.src.utils.preprocess import count_tokens
             data, completion_tokens, _ = await count_tokens.putos_tokens(self.chat, _message)
             self.diccionario["max_tokens"] = completion_tokens
+            self.chat_mode = chat_mode
             messages, prompt = (await mms(self, _message, data, chat_mode), None) if self.model not in proxies.config.model["text_completions"] else (None, await mpm(self, _message, data, chat_mode))
             kwargs = {
                 "prompt": prompt,

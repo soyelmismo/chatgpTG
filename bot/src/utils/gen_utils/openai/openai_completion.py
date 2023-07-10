@@ -1,7 +1,7 @@
 import openai
 from ujson import loads
 from udatetime import now
-from bot.src.utils.config import api, proxy_raw, usar_funciones
+from bot.src.utils.config import api, proxy_raw, usar_funciones, chat_mode
 
 if usar_funciones:
     from .openai_functions_extraction import get_openai_funcs
@@ -120,7 +120,8 @@ async def last_config(self, kwargs):
 
     if kwargs["messages"] != None:
         self.diccionario.update({"messages": kwargs["messages"], "model": self.model})
-        if usar_funciones:
+        if usar_funciones and chat_mode["info"][self.chat_mode].get("use_functions", "True").lower() != "false":
+            print("usando funciones")
             self.diccionario["functions"] = functions_data
             self.diccionario["function_call"] = "auto"
         fn = openai.ChatCompletion.acreate

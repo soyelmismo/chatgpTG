@@ -39,10 +39,10 @@ def append_user_bot_messages(messages, dialog_messages):
     return messages
 
 def append_chat_mode(self, chat_mode, messages):
-    if chat_mode == "imagen":
-        messages.append({"role": "system", "content": f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'})
+    language = config.lang[self.lang]["info"]["name"]
+    if chat_mode in ["imagen", "translate"]:
+        messages.append({"role": "system", "content": f'{config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)}'})
     elif chat_mode != "nada":
-        language = config.lang[self.lang]["info"]["name"]
         especificacionlang = config.especificacionlang.format(language=language)
         prompter = config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)
         injectprompt = """{especificarlang}\n\n{elprompt}\n\n{especificarlang}\n\n"""
@@ -82,6 +82,7 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
         messages = append_user_bot_messages(messages, dialog_messages)
         messages = continue_or_append_latest_message(_message, messages)
         messages = [message for message in messages if message["content"]]
+        print(messages)
         return messages
     except Exception as e:
         e = f'_generate_prompt_messages: {e}'

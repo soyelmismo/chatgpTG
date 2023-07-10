@@ -45,10 +45,10 @@ def get_injectprompt(language, prompter):
     return injectprompt.format(especificarlang=especificacionlang, elprompt=prompter)
     
 def append_chat_mode(self, chat_mode):
-    if chat_mode == "imagen":
-        return f'{config.chat_mode["info"][chat_mode]["prompt_start"]}'
+    language = config.lang[self.lang]["info"]["name"]
+    if chat_mode in ["imagen", "translate"]:
+        return f'{config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)}'
     elif chat_mode != "nada":
-        language = config.lang[self.lang]["info"]["name"]
         prompter = config.chat_mode["info"][chat_mode]["prompt_start"].format(language=language)
         if chat_mode != "translate":
             return get_injectprompt(language, prompter)
