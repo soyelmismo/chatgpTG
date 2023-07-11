@@ -31,6 +31,7 @@ async def task():
     global img_temp_malas
     test=False
     while True:
+        from bot.src.tasks.apis_check_idler import variable_minutes
         try:
             img_temp_vivas = []
             img_temp_malas = []
@@ -52,4 +53,4 @@ async def task():
             img_malas = list(img_temp_malas)
         except asyncio.CancelledError:
             break
-        await sleep(config.apischeck_minutes * 60)
+        await sleep(variable_minutes * 60)

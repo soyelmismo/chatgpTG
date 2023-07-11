@@ -60,6 +60,7 @@ async def task():
     global temp_malas
     test=False
     while True:
+        from bot.src.tasks.apis_check_idler import variable_minutes
         logger.info("🔍🔌🌐🔄")
         try:
             temp_vivas = []
@@ -83,4 +84,4 @@ async def task():
             malas = list(temp_malas)
         except asyncio.CancelledError:
             break
-        await sleep(config.apischeck_minutes * 60)
+        await sleep(variable_minutes * 60)

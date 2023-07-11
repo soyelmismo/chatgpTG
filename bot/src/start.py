@@ -16,13 +16,14 @@ from .handlers.commands import (
 start, help, retry, new, cancel, chat_mode, model,
 api, img, lang, status, reset, search, props, istyle, iratio, imodel)
 from .handlers.callbacks import imagine
-from .tasks import apis_chat, apis_image, cache
+from .tasks import apis_chat, apis_image, cache, apis_check_idler
 from .utils import config
 from .utils.proxies import bb, asyncio
 
 async def post_init(application: Application):
     bb(cache.task())
     if config.disable_apis_checkers != True:
+        bb(apis_check_idler.task())
         bb(apis_chat.task())
         bb(apis_image.task())
     else:
