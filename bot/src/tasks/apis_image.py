@@ -20,7 +20,7 @@ async def checar_api(nombre_api):
         else:
             img_temp_malas.append(nombre_api)
     except Exception as e:
-        logger.error(f'{config.lang[config.pred_lang]["metagen"]["image_api"]}: {nombre_api}, {respuesta}, {e}')
+        logger.error(f'{config.lang[config.pred_lang]["metagen"]["image_api"]}: {nombre_api} ❌')
         img_temp_malas.append(nombre_api)
 
 async def task():

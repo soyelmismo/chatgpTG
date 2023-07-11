@@ -23,7 +23,19 @@ class ChatGPT:
     async def create(cls, chat, lang="es", model="gpt-3.5-turbo"):
         self = ChatGPT(chat, lang, model)
         self.api = proxies.api_cache[self.chat.id][0] if self.chat.id in proxies.api_cache else await proxies.db.get_chat_attribute(self.chat, f'{constant_db_api}')
+        self.chat_info = await self._get_chat_info()
         return self
+
+    async def _get_chat_info(self):
+        chat_info = ""
+        name = (self.chat.first_name if self.chat.first_name else
+                self.chat.title if self.chat.title else "")
+        if name: chat_info += f'{name}, '
+        username = self.chat.username if self.chat.username else ""
+        if username: chat_info += f'@{username}, '
+        id = self.chat.id
+        if id: chat_info += f'{id}'
+        return chat_info
 
     async def send_message(self, _message, chat_mode="assistant"):
         while self.answer is None:
@@ -48,7 +60,7 @@ class ChatGPT:
                 "messages": messages,
                 "_message": _message
             }
-            logger.info(f'📨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + 🧠 {proxies.config.model["info"][self.model]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
+            logger.info(f'📨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + 🧠 {proxies.config.model["info"][self.model]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
             proxies.last_apis_interaction = proxies.udatetime.now()
@@ -73,14 +85,14 @@ class ChatGPT:
 
     async def transcribe(self, audio_file):
         try:
-            logger.info(f'🎤 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
+            logger.info(f'🎤 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             proxies.last_apis_interaction = proxies.udatetime.now()
             return await make_transcription.write(self, audio_file)
         except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
     async def imagen(self, prompt, current_api, style, ratio, model, seed=None, negative=None):
         try:
-            logger.info(f'🎨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
+            logger.info(f'🎨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             images, seed = await make_image.gen(self, prompt, current_api, style, ratio, model, seed, negative)
             proxies.last_apis_interaction = proxies.udatetime.now()
             return images, seed
@@ -90,7 +102,7 @@ class ChatGPT:
     async def busqueduck(self, query):
         try:
             from bot.src.apis.duckduckgo import search
-            logger.info(f'🔎 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat.username if self.chat.username else self.chat.id}')
+            logger.info(f'🔎 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             formatted_results_backend, formatted_results_string = await search(self, query)
             proxies.last_apis_interaction = proxies.udatetime.now()
             return formatted_results_backend, formatted_results_string

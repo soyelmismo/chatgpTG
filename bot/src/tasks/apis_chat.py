@@ -41,7 +41,7 @@ async def checar_api(nombre_api):
             return respuesta
         return ["No"]
     except Exception as e:
-        logger.error(f'{config.lang[config.pred_lang]["metagen"]["api"]}: {nombre_api}, {respuesta}, {e}')
+        logger.error(f'{config.lang[config.pred_lang]["metagen"]["api"]}: {nombre_api} ❌')
         temp_malas.append(nombre_api)
 
 async def checar_respuesta(nombre_api, respuesta):
@@ -64,7 +64,7 @@ async def task():
         logger.info("🔍🔌🌐🔄")
         try:
             temp_vivas = []
-            temp_malas
+            temp_malas = []
             if test != True:
                 for nombre_api in vivas:
                     respuesta = await checar_api(nombre_api)
