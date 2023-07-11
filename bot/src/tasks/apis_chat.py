@@ -24,6 +24,7 @@ async def checar_api(nombre_api):
     pseudo_self.diccionario["max_tokens"] = 800
     _message = "say pong"
     chat_mode = "nada"
+    pseudo_self.chat_mode = "nada"
     messages, prompt = (await mms(self=pseudo_self, _message=_message, chat_mode=chat_mode), None) if pseudo_self.model not in config.model["text_completions"] else (None, await mpm(self=pseudo_self, _message="say pong", chat_mode=chat_mode))
     kwargs = {
         "prompt": prompt,

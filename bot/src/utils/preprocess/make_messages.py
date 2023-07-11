@@ -82,7 +82,6 @@ async def handle(self, _message="", dialog_messages=[], chat_mode="nada"):
         messages = append_user_bot_messages(messages, dialog_messages)
         messages = continue_or_append_latest_message(_message, messages)
         messages = [message for message in messages if message["content"]]
-        print(messages)
         return messages
     except Exception as e:
         e = f'_generate_prompt_messages: {e}'

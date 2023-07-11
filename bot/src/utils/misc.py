@@ -32,18 +32,18 @@ async def update_dialog_messages(chat, new_dialog_message=None):
     return advertencia, dialog_messages, int(tokencount)
 
 async def ver_modelo_get_tokens(chat=None, model=None, api=None):
-    from .proxies import db, model_cache
-    if not model:
-        model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')
-        model_cache[chat.id] = (model, now())
+    try:
+        from .proxies import db, model_cache
+        if not model:
+            model = model_cache[chat.id][0] if model_cache.get(chat.id) else await db.get_chat_attribute(chat, f'{constant_db_model}')
+            model_cache[chat.id] = (model, now())
 
-    from bot.src.utils.config import model as modelist, api as apilist
-    if api and apilist["info"][api].get("api_max_tokens"):
-            max_tokens = apilist["info"][api]["api_max_tokens"]
-            return max_tokens
-    max_tokens = int(modelist["info"][model]["max_tokens"])
+        from bot.src.utils.config import model as modelist, api as apilist
+        if api and apilist["info"][api].get("api_max_tokens"):
+            return int(apilist["info"][api]["api_max_tokens"])
 
-    return max_tokens
+        return int(modelist["info"][model]["max_tokens"])
+    except Exception as e: raise ValueError(f'<ver_modelo_get_tokens> {e}')
 
 async def api_check_text_maker(type: str = None, vivas: set = None, temp_vivas: set = None, temp_malas: set = None):
     from bot.src.utils import config

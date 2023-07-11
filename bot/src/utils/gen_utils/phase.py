@@ -53,7 +53,7 @@ class ChatGPT:
                 yield status, self.answer
 
             self.answer = await self._postprocess_answer()
-            
+
         except Exception as e: raise BufferError(f'_prepare_request: {e}')
 
     async def _handle_invalid_request_error(self, error, dialog_messages):

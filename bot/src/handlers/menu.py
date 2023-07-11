@@ -112,9 +112,13 @@ async def get_imaginepy_text(chat, lang):
 
 async def get_image_api_text(chat, lang):
     try:
-        styleactual = await db.get_chat_attribute(chat, constants.constant_db_image_api_styles)
-        textoprimero = """{actual}: {styleactual}"""
-        return f"{textoprimero.format(actual=config.lang[lang]['info']['actual'], styleactual=styleactual)}"
+        retr = [constants.constant_db_image_api, constants.constant_db_image_api_styles]
+        data = await db.get_chat_attributes_dict(chat, retr)
+        current_key = data[constants.constant_db_image_api]
+        styleactual = data[constants.constant_db_image_api_styles]
+        api_name = await get_option_name("image_api", None, lang, current_key)
+        textoprimero = """{actual}: {api_name} / {styleactual}"""
+        return f"{textoprimero.format(actual=config.lang[lang]['info']['actual'], api_name=api_name, styleactual=styleactual)}"
     except Exception as e:
         raise ValueError(f'<get_image_api_text> {e}')
 

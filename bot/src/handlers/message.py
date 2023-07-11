@@ -61,14 +61,20 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
         await parametros(chat, lang, update)
         raw_msg, _message = await process_message(update, context, chat, _message)
         await process_urls(raw_msg, chat, lang, update)
-        chat_mode = (chat_mode_cache.get(chat.id)[0] if chat.id in chat_mode_cache else
-                    await db.get_chat_attribute(chat, f'{constant_db_chat_mode}'))
-        chat_mode_cache[chat.id] = (chat_mode, now())
-        if chat.id in interaction_cache:
+        if chat.id in chat_mode_cache and chat.id in interaction_cache and chat.id in model_cache:
+            chat_mode = chat_mode_cache.get(chat.id)[0]
+            current_model = model_cache[chat.id][0]
             last_interaction = interaction_cache[chat.id][1]
         else:
-            last_interaction = await db.get_chat_attribute(chat, "last_interaction")
+            db_args = [constant_db_chat_mode, "last_interaction", constant_db_model]
+            db_call = await db.get_chat_attributes_dict(chat, db_args)
             
+            chat_mode = db_call[constant_db_chat_mode]
+            last_interaction = db_call["last_interaction"]
+            current_model = db_call[constant_db_model]
+
+        chat_mode_cache[chat.id] = (chat_mode, now())
+        model_cache[chat.id] = (current_model, now())
         if isinstance(last_interaction, str):
             last_interaction = from_string(last_interaction)
 
@@ -80,11 +86,7 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             else:
                 await new.handle(update, context)
                 await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["timeout_ask_false"].format(chatmode=config.chat_mode["info"][chat_mode]["name"][lang])}', parse_mode=ParseMode.HTML)
-        if chat.id in model_cache:
-            current_model = model_cache[chat.id][0]
-        else:
-            current_model = await db.get_chat_attribute(chat, f'{constant_db_model}')
-            model_cache[chat.id] = (current_model, now())
+
         await tasks.releasemaphore(chat=chat)
         task = bb(gen(update, context, _message, chat, lang, chat_mode, current_model, msgid))
         await tasks.handle(chat, task)

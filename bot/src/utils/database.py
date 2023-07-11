@@ -260,3 +260,14 @@ class Database:
             current_dialog_id = chat["current_dialog_id"]
             await self.dialogs.delete_many({"chat_id": chat["_id"], "_id": {"$ne": current_dialog_id}})
             
+    async def get_chat_attributes_dict(self, chat, keys: list):
+        await self.chat_exists(chat, raise_exception=True)
+    
+        if self.use_json:
+            chat_dict = {key: self.data["chats"][str(chat.id)].get(key, None) for key in keys}
+        else:
+            projection = {key: 1 for key in keys}
+            chat_dict = await self.chats.find_one({"_id": str(chat.id)}, projection=projection)
+    
+        return chat_dict
+                

@@ -121,7 +121,6 @@ async def last_config(self, kwargs):
     if kwargs["messages"] != None:
         self.diccionario.update({"messages": kwargs["messages"], "model": self.model})
         if usar_funciones and chat_mode["info"][self.chat_mode].get("use_functions", "True").lower() != "false":
-            print("usando funciones")
             self.diccionario["functions"] = functions_data
             self.diccionario["function_call"] = "auto"
         fn = openai.ChatCompletion.acreate
