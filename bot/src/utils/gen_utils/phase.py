@@ -92,7 +92,7 @@ class ChatGPT:
     
     async def imagen(self, prompt, current_api, style, ratio, model, seed=None, negative=None):
         try:
-            logger.info(f'🎨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
+            logger.info(f'🎨 / 🔌 {proxies.config.api["info"][current_api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             images, seed = await make_image.gen(self, prompt, current_api, style, ratio, model, seed, negative)
             proxies.last_apis_interaction = proxies.udatetime.now()
             return images, seed
