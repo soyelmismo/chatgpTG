@@ -1,5 +1,5 @@
 from bot.src.start import Update, CallbackContext
-from bot.src.utils.constants import constant_db_tokens
+from bot.src.utils.constants import constant_db_tokens, Style, stablehorde_models
 async def handle(update: Update, context: CallbackContext, paraprops=None):
     try:
         from bot.src.utils.proxies import obtener_contextos as oc, parametros, db, config
@@ -24,9 +24,10 @@ async def handle(update: Update, context: CallbackContext, paraprops=None):
         nombrechatmode=config.chat_mode["info"][mododechat_actual]["name"][lang]
         tokens=config.lang[lang]["metagen"]["tokens"]
         textoprimer="""🔌 {api}: {nombreapi}\n🧠 {modelo}: {nombremodelo}\n💬 {chatmode}: {nombrechatmode}\n💰 {tokens}: {tokens_actual} / {modeltokens}\n\n🌅 {apimagen}: {apimageactual}\n🎨 {apimagenestilo}: {imagineactual}"""
-        if checked_image_api =="imaginepy": textoprimer += "\n{imaginestyle}: {imagineactual}\n{imaginemodel}: {checked_imaginepy_models}"
-        text = f'{textoprimer.format(imaginemodel=imaginemodel, checked_imaginepy_models=checked_imaginepy_models, api=api, nombreapi=nombreapi,modelo=modelo,nombremodelo=nombremodelo, tokensmax=tokensmax,modeltokens=modeltokens,chatmode=chatmode, nombrechatmode=nombrechatmode,tokens=tokens, tokens_actual=tokens_actual,apimagen=apimagen, apimageactual=nombreapimagen,apimagenestilo=apimagenestilo,imaginestyle=imaginestyle, imagineactual=checked_imaginepy_styles)}'
-    
+        
+        text = f'{textoprimer.format(imaginemodel=imaginemodel, checked_imaginepy_models=checked_imaginepy_models, api=api, nombreapi=nombreapi,modelo=modelo,nombremodelo=nombremodelo, tokensmax=tokensmax,modeltokens=modeltokens,chatmode=chatmode, nombrechatmode=nombrechatmode,tokens=tokens, tokens_actual=tokens_actual,apimagen=apimagen, apimageactual=nombreapimagen,apimagenestilo=apimagenestilo,imaginestyle=imaginestyle, imagineactual=Style[checked_imaginepy_styles].value[1])}'
+        if checked_image_api =="stablehorde": text += f'\n🪡 {modelo}: {stablehorde_models.get(int(checked_imaginepy_models), "Error")}'
+
         if paraprops: return text
         await update.effective_chat.send_message(text)
     except Exception as e:

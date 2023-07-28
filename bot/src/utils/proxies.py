@@ -20,7 +20,7 @@ last_apis_interaction = udatetime.now()
 #cache testing
 cache_index = ["lang_cache", "chat_mode_cache", "api_cache", "model_cache",
                "menu_cache", "interaction_cache", "image_api_cache", "image_api_styles_cache",
-               "image_styles_cache"]
+               "image_styles_cache", "stablehorde_models_cache"]
 lang_cache = {}
 chat_mode_cache = {}
 api_cache = {}
@@ -30,6 +30,7 @@ image_styles_cache = {}
 imaginepy_ratios_cache = {}
 imaginepy_styles_cache = {}
 imaginepy_models_cache = {}
+stablehorde_models_cache = {}
 model_cache = {}
 menu_cache = {}
 interaction_cache = {}

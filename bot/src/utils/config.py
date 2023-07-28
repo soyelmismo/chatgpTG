@@ -50,6 +50,8 @@ custom_imaginepy_url = env.get('IMAGINE_URL', [None])[0]
 
 proxy_raw = env.get('API_TUNNEL', [None])[0]
 apisproxy = {proxy_raw.split("://")[0] + "://": proxy_raw} if proxy_raw is not None else None
+if apisproxy:
+    apisproxy = next(iter(apisproxy.values()))
 
 basepath = Path(__file__).resolve().parents[3]
 # set config paths

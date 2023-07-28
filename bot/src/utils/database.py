@@ -7,7 +7,7 @@ from pymongo.errors import DuplicateKeyError
 from motor.motor_asyncio import AsyncIOMotorClient
 from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
                         constant_db_lang, constant_db_tokens, constant_db_image_api,
-                        image_api_styles, constant_db_image_api_styles)
+                        image_api_styles, constant_db_image_api_styles, constant_db_stablehorde_models, stablehorde_models)
 from pathlib import Path
 
 def is_datetime(obj):
@@ -90,7 +90,7 @@ class Database:
                     constant_db_image_api_styles: image_api_styles[0],
                     #constant_db_imaginepy_styles: imaginepy_styles[0],
                     #constant_db_imaginepy_ratios: imaginepy_ratios[0],
-                    #constant_db_imaginepy_models: imaginepy_models[0],
+                    constant_db_stablehorde_models: "0",
                 }
                 self.save_data_to_json("chats")
             else:
@@ -106,7 +106,7 @@ class Database:
                     constant_db_image_api_styles: image_api_styles[0],
                     #constant_db_imaginepy_styles: imaginepy_styles[0],
                     #constant_db_imaginepy_ratios: imaginepy_ratios[0],
-                    #constant_db_imaginepy_models: imaginepy_models[0],
+                    constant_db_stablehorde_models: "0",
                 }
                 try:
                     await self.chats.insert_one(chat_dict)
@@ -164,12 +164,14 @@ class Database:
         #initial_imaginepy_style = imaginepy_styles[0]
         #initial_imaginepy_ratio = imaginepy_ratios[0]
         #initial_imaginepy_model = imaginepy_models[0]
+        initial_stablehorde_model = "0"
         if self.use_json: 
             self.data["chats"][str(chat.id)][constant_db_chat_mode] = initial_chat_mode
             self.data["chats"][str(chat.id)][constant_db_model] = initial_model
             self.data["chats"][str(chat.id)][constant_db_api] = initial_api
             self.data["chats"][str(chat.id)][constant_db_image_api] = initial_image
             self.data["chats"][str(chat.id)][constant_db_image_api_styles] = initial_image_style
+            self.data["chats"][str(chat.id)][constant_db_stablehorde_models] = initial_stablehorde_model
             #self.data["chats"][str(chat.id)][constant_db_imaginepy_styles] = initial_imaginepy_style
             #self.data["chats"][str(chat.id)][constant_db_imaginepy_ratios] = initial_imaginepy_ratio
             #self.data["chats"][str(chat.id)][constant_db_imaginepy_models] = initial_imaginepy_model
@@ -181,6 +183,7 @@ class Database:
             await self.set_chat_attribute(chat, constant_db_api, initial_api)
             await self.set_chat_attribute(chat, constant_db_image_api, initial_image)
             await self.set_chat_attribute(chat, constant_db_image_api_styles, initial_image_style)
+            await self.set_chat_attribute(chat, constant_db_stablehorde_models, initial_stablehorde_model)
             #await self.set_chat_attribute(chat, constant_db_imaginepy_styles, initial_imaginepy_style)
             #await self.set_chat_attribute(chat, constant_db_imaginepy_ratios, initial_imaginepy_ratio)
             #await self.set_chat_attribute(chat, constant_db_imaginepy_models, initial_imaginepy_model)

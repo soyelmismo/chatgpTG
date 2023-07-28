@@ -90,12 +90,12 @@ class ChatGPT:
             return await make_transcription.write(self, audio_file)
         except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
-    async def imagen(self, prompt, current_api, style, ratio, model, seed=None, negative=None):
+    async def imagen(self, prompt, model, current_api, style, ratio, seed=None, negative=None):
         try:
             logger.info(f'🎨 / 🔌 {proxies.config.api["info"][current_api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
-            images, seed = await make_image.gen(self, prompt, current_api, style, ratio, model, seed, negative)
+            images, seed, model = await make_image.gen(self, prompt, model, current_api, style, ratio, seed, negative)
             proxies.last_apis_interaction = proxies.udatetime.now()
-            return images, seed
+            return images, seed, model
         except Exception as e:
             raise RuntimeError(f"phase.imagen > {current_api}: {e}")
 

@@ -27,8 +27,8 @@
     "advertencia": "Warning",
     "imaginepy_styles": "Style",
     "imaginepy_ratios": "Ratio",
-    "imaginepy_actual_style": "Current style of Imagine.py",
-    "imaginepy_actual_model": "Current model of Imagine.py"
+    "imaginepy_actual_style": "Current style of StableHorde",
+    "imaginepy_actual_model": "Current model of StableHorde"
   },
   "apicheck": {
     "inicio": "API check executed",
@@ -80,9 +80,9 @@
     "reset_api": "The API you selected is not available, so it has been changed to '{new}'",
     "reset_model": "Your current model is not compatible with the API, so the model has been automatically changed to '{new}'.",
     "reset_image_styles": "Your current image style is not available. Therefore, it has been automatically changed to {new}.",
-    "reset_imaginepy_styles": "Your current Imagine.py style is not available. Therefore, it has been automatically changed to {new}.",
-    "reset_imaginepy_ratios": "Your current Imagine.py ratio is not available. Therefore, it has been automatically changed to {new}.",
-    "reset_imaginepy_models": "Your current Imagine.py model is not available. So it has been automatically changed to {new}.",
+    "reset_imaginepy_styles": "Your current StableHorde style is not available. Therefore, it has been automatically changed to {new}.",
+    "reset_imaginepy_ratios": "Your current StableHorde ratio is not available. Therefore, it has been automatically changed to {new}.",
+    "reset_imaginepy_models": "Your current StableHorde model is not available. So it has been automatically changed to {new}.",
     "genimagen_rejected": "🥲 Your request does not comply with OpenAI's usage policies...",
     "genimagen_other": "🥲 An error occurred while processing your request. Please try again later...",
     "genimagen_badrequest": "🥲 An error occurred in the request. Please check the format and content of your message...",

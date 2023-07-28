@@ -27,8 +27,8 @@
     "advertencia": "Advertencia",
     "imaginepy_styles": "Estilo",
     "imaginepy_ratios": "Ratio",
-    "imaginepy_actual_style": "Estilo actual de Imagine.py",
-    "imaginepy_actual_model": "Modelo actual de Imagine.py"
+    "imaginepy_actual_style": "Estilo actual de StableHorde",
+    "imaginepy_actual_model": "Modelo actual de StableHorde"
   },
   "apicheck": {
     "inicio": "Se ejecutó chequeo de APIs",
@@ -80,9 +80,9 @@
     "reset_api": "Tu API seleccionada no está disponible, por lo que se ha cambiado a '{new}'",
     "reset_model": "Tu modelo actual no es compatible con la API, por lo que se ha cambiado el modelo automáticamente a '{new}'.",
     "reset_image_styles": "Tu estilo actual de imágenes no está disponible. Por lo tanto, se ha cambiado automáticamente a {new}.",
-    "reset_imaginepy_styles": "Tu estilo actual de Imagine.py no está disponible. Por lo tanto, se ha cambiado automáticamente a {new}.",
-    "reset_imaginepy_ratios": "Tu ratio actual de Imagine.py no está disponible. Por lo que se ha cambiado automáticamente a {new}.",
-    "reset_imaginepy_models": "Tu modelo actual de Imagine.py no está disponible. Por lo que se ha cambiado automáticamente a {new}.",
+    "reset_imaginepy_styles": "Tu estilo actual de StableHorde no está disponible. Por lo tanto, se ha cambiado automáticamente a {new}.",
+    "reset_imaginepy_ratios": "Tu ratio actual de StableHorde no está disponible. Por lo que se ha cambiado automáticamente a {new}.",
+    "reset_imaginepy_models": "Tu modelo actual de StableHorde no está disponible. Por lo que se ha cambiado automáticamente a {new}.",
     "genimagen_rejected": "🥲 Tu solicitud no cumple con las políticas de uso de OpenAI...",
     "genimagen_other": "🥲 Ha ocurrido un error al procesar tu solicitud. Por favor, intenta de nuevo más tarde...",
     "genimagen_badrequest": "🥲 Ha ocurrido un error en la solicitud. Por favor, verifica el formato y contenido de tu mensaje...",

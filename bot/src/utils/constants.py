@@ -15,14 +15,14 @@ constant_db_image_api_styles = "current_image_api_style"
 constant_db_imaginepy_styles = "current_imaginepy_style"
 constant_db_imaginepy_ratios = "current_imaginepy_ratio"
 constant_db_imaginepy_models = "current_imaginepy_model"
+constant_db_stablehorde_models = "current_stablehorde_model"
 
 constant_db_api = "current_api"
 constant_db_lang = "current_lang"
 constant_db_tokens = "current_max_tokens"
 continue_key = "Renounce€Countless€Unrivaled2€Banter"
 
-from bot.src.apis.imagine import Style
-image_api_styles = [style.name for style in Style]
+from bot.src.apis.imagine import image_api_styles, Style
 
 #imaginepy_styles = [style.name for style in Style]
 #imaginepy_ratios = [ratio.name for ratio in Ratio]
@@ -30,5 +30,8 @@ image_api_styles = [style.name for style in Style]
 imaginepy_styles = None
 imaginepy_ratios = None
 imaginepy_models = None
+
+from bot.src.apis.stablehorde import stablehorde_models
+
 ERRFUNC = "Error retrieving function."
 FUNCNOARG = "No se encontraron argumentos de busqueda. por favor pidele al usuario qué quiere buscar."

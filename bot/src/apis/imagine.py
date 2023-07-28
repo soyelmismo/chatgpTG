@@ -230,3 +230,17 @@ class Style(Enum):
                   ", lava elements, fantasy, molten rock, heat, blistering. A fierce composition with lava elements, molten rock and heat waves surrounding, highly detailed and realistic, cinematic lighting")
     WATERHEALER = (28, "Waterbender", "EXPERIMENTAL",
                    ", healing elements, fantasy, water, rejuvenation, restorative. A soothing composition with healing elements, glowing water and soothing vibes surrounding, highly detailed and realistic, cinematic lighting")
+
+image_api_styles = [style.name for style in Style]
+
+class Ratio(Enum):
+    R_1X1 = (640, 640, "1:1")
+    R_4X3 = (640, 480, "4:3")
+    R_3X2 = (640, 320, "3:2")
+    R_2X3 = (320, 640, "2:3")
+    R_16X9 = (640, 360, "16:9")
+    R_9X16 = (360, 640, "9:16")
+    R_5X4 = (640, 512, "5:4")
+    R_4X5 = (512, 640, "4:5")
+    R_3X1 = (640, 192, "3:1")
+    R_3X4 = (480, 640, "3:4")

@@ -24,7 +24,7 @@ async def _make_api_call(self, **kwargs):
             break # Si la llamada a la API fue exitosa, salimos del bucle
         except (aiohttp.client_exceptions.ClientConnectionError, asyncio.exceptions.TimeoutError, asyncio.TimeoutError): None
         except Exception as e:
-            if attempt < config.max_retries: await asyncio.sleep(1.75)
+            if attempt < config.max_retries: await asyncio.sleep(2)
             else: # Si hemos alcanzado el máximo número de reintentos, lanzamos la excepción
                 #yield "error", f'{config.lang[self.lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}'
                 raise ConnectionError(f'_make_api_call. {config.lang[config.pred_lang]["errores"]["reintentos_alcanzados"].format(reintentos=config.max_retries)}: {e}')

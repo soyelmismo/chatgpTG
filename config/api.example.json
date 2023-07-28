@@ -5,6 +5,7 @@
         "churchless"
     ],
     "available_image_api": [
+        "stablehorde",
         "openai"
     ],
     "available_transcript": [
@@ -82,8 +83,8 @@
                 "gpt-3.5-turbo"
             ]
         },
-        "imaginepy": {
-            "name": "Imagine.py",
+        "stablehorde": {
+            "name": "StableHorde",
             "description": {
                 "es": "Convierte palabras en arte con diferentes estilos y ajustes creativos en una biblioteca en constante crecimiento.",
                 "ar": "حوّل الكلمات إلى فن مع أنماط وإعدادات إبداعية مختلفة في مكتبة متزايدة باستمرار.",
@@ -96,7 +97,8 @@
                 "pt": "Transforme palavras em arte com diferentes estilos e ajustes criativos em uma biblioteca em constante crescimento.",
                 "it": "Trasforma le parole in arte con diversi stili e regolazioni creative in una biblioteca in costante crescita.",
                 "nl": "Verander woorden in kunst met verschillende stijlen en creatieve aanpassingen in een voortdurend groeiende bibliotheek."
-            }
+            },
+            "key": "0000000000"
         }
     }
 }

@@ -89,5 +89,11 @@
             "imaginepy_ratios",
             "imaginepy_models"
         ]
+    },
+    "stablehorde": {
+        "available_options": [
+            "stablehorde_models",
+            "image_api_styles"
+        ]
     }
 }

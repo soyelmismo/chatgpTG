@@ -1,7 +1,9 @@
+import secrets
 from types import SimpleNamespace
 from bot.src.utils import config
 from bot.src.utils.gen_utils.make_image import gen as imagen
 from bot.src.utils.constants import logger
+from bot.src.apis.stablehorde import Models
 
 img_vivas = config.api["available_image_api"]
 img_malas = []
@@ -12,15 +14,20 @@ async def checar_api(nombre_api):
     global img_temp_malas
     pseudo_self = SimpleNamespace()
     pseudo_self.proxies = config.apisproxy
-    respuesta = ""
     try:
-        image_urls, _ = await imagen(pseudo_self, "a beautiful EGG", nombre_api, "NO_STYLE", None, None, None, None)
+        if nombre_api == "stablehorde":
+            from bot.src.utils.constants import stablehorde_models, models_sh
+            models_sh = Models.get_models(proxy = pseudo_self.proxies)
+            stablehorde_models = {index: model_instance.model_name for index, model_instance in models_sh.items()}
+            model = "stable_diffusion"
+        else: model = None
+        image_urls, _ = await imagen(pseudo_self, "a beautiful EGG", nombre_api, "NO_STYLE", None, model, None, None)
         if image_urls:
             img_temp_vivas.append(nombre_api)
         else:
             img_temp_malas.append(nombre_api)
     except Exception as e:
-        logger.error(f'{config.lang[config.pred_lang]["metagen"]["image_api"]}: {nombre_api} ❌')
+        logger.error(f'{config.lang[config.pred_lang]["metagen"]["image_api"]}: {nombre_api} {e} ❌')
         img_temp_malas.append(nombre_api)
 
 async def task():

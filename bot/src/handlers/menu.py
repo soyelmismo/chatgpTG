@@ -7,9 +7,10 @@ from bot.src.utils import constants
 
 async def get(menu_type, update: Update, context: CallbackContext, chat, page_index):
     try:
+        option_name, current_key = None, None
         _, lang = await oc(update)
         menu_type_dict = await get_menu_type_dict(menu_type)
-        if menu_type in ["props", "imaginepy", "image_api_styles"]:
+        if menu_type in ["props", "imaginepy", "image_api_styles", "stablehorde"]:
             current_key = None
         else:
             current_key = await get_current_key(menu_type, chat)
@@ -27,18 +28,22 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
 
 type_dict = {
     "props": config.props,
-    "image_api_styles": constants.image_api_styles,
     "imaginepy": config.props,
     "imaginepy_styles": constants.imaginepy_styles,
     "imaginepy_ratios": constants.imaginepy_ratios,
     "imaginepy_models": constants.imaginepy_models,
 }
+
 async def get_menu_type_dict(menu_type: str):
     try:
         if menu_type == "image_api":
             return config.api
         if menu_type == "image_api_styles":
             return constants.image_api_styles
+        if menu_type == "stablehorde":
+            return config.props
+        if menu_type == "stablehorde_models":
+            return constants.stablehorde_models
         return type_dict.get(menu_type, getattr(config, menu_type))
     except Exception as e:
         raise ValueError(f'<get_menu_type_dict> {e}')
@@ -60,7 +65,7 @@ async def get_name_from_info_dict(**kwargs): return kwargs["menu_type_dict"]["in
 
 async def get_name_from_info_dict_with_lang(**kwargs): return kwargs["menu_type_dict"]["info"][kwargs["current_key"]]["name"][kwargs["lang"]]
 
-async def get_name_from_image_api_styles(**kwargs): return constants.image_api_styles[constants.image_api_styles.index(kwargs["current_key"])]
+async def get_name_from_image_api_styles(**kwargs): return constants.Style[kwargs["current_key"]].value[1]
 
 async def get_name_from_imaginepy_styles(**kwargs): return constants.imaginepy_styles[constants.imaginepy_styles.index(kwargs["current_key"])]
 
@@ -68,16 +73,21 @@ async def get_name_from_imaginepy_ratios(**kwargs): return constants.imaginepy_r
 
 async def get_name_from_imaginepy_models(**kwargs): return constants.imaginepy_models[constants.imaginepy_models.index(kwargs["current_key"])]
 
+async def get_name_from_stablehorde_models(**kwargs): return constants.stablehorde_models.get(int(kwargs["current_key"]))
+
+
 async def get_name_from_lang(**kwargs): return kwargs["menu_type_dict"][kwargs["lang"]]["info"]["name"]
 
 menu_type_to_function = {
     "props": None,
     "imaginepy": None,
+    "stablehorde": None,
     "api": get_name_from_info_dict,
     "model": get_name_from_info_dict,
     "imaginepy_styles": get_name_from_imaginepy_styles,
     "imaginepy_ratios": get_name_from_imaginepy_ratios,
     "imaginepy_models": get_name_from_imaginepy_models,
+    "stablehorde_models": get_name_from_stablehorde_models,
     "chat_mode": get_name_from_info_dict_with_lang,
     "lang": get_name_from_lang,
     "image_api": get_name_from_info_dict,
@@ -86,6 +96,8 @@ menu_type_to_function = {
 
 async def get_option_name(menu_type, menu_type_dict, lang, current_key):
     try:
+        if menu_type == "stablehorde_models": return current_key
+
         kwargs = {
             "menu_type_dict": config.api if menu_type == "image_api" else menu_type_dict,
             "current_key": current_key,
@@ -110,14 +122,16 @@ async def get_imaginepy_text(chat, lang):
     except Exception as e:
         raise ValueError(f'<get_imaginepy_text> {e}')
 
-async def get_image_api_text(chat, lang):
+async def get_image_api_text(chat, lang, stablehorde=None):
     try:
-        retr = [constants.constant_db_image_api, constants.constant_db_image_api_styles]
+        retr = [constants.constant_db_image_api, constants.constant_db_image_api_styles, constants.constant_db_stablehorde_models]
         data = await db.get_chat_attributes_dict(chat, retr)
         current_key = data[constants.constant_db_image_api]
-        styleactual = data[constants.constant_db_image_api_styles]
+        styleactual = constants.Style[data[constants.constant_db_image_api_styles]].value[1]
         api_name = await get_option_name("image_api", None, lang, current_key)
         textoprimero = """{actual}: {api_name} / {styleactual}"""
+        if stablehorde:
+            textoprimero += f"\n{config.lang[lang]['metagen']['modelo']}: {constants.stablehorde_models.get(int(data[constants.constant_db_stablehorde_models]))}"
         return f"{textoprimero.format(actual=config.lang[lang]['info']['actual'], api_name=api_name, styleactual=styleactual)}"
     except Exception as e:
         raise ValueError(f'<get_image_api_text> {e}')
@@ -136,6 +150,8 @@ async def get_text(update, context, chat, lang, menu_type, menu_type_dict, optio
             texto = await get_image_api_text(chat, lang)
         if menu_type in ["imaginepy", "imaginepy_styles", "imaginepy_ratios", "imaginepy_models"]:
             texto = await get_imaginepy_text(chat, lang)
+        if menu_type in ["stablehorde", "stablehorde_models"]:
+            texto = await get_image_api_text(chat, lang, stablehorde=True)
         elif current_key:
             texto = await get_current_key_text(menu_type, menu_type_dict, option_name, current_key, lang)
         elif menu_type == "props":
@@ -156,10 +172,13 @@ async def get_menu_item_keys(menu_type, chat, lang, update):
         "image_api": img_vivas,
         "image_api_styles": constants.image_api_styles,
         "imaginepy": config.props["imaginepy"]["available_options"],
+        "stablehorde": config.props["stablehorde"]["available_options"],
         "imaginepy_styles": constants.imaginepy_styles,
         "imaginepy_ratios": constants.imaginepy_ratios,
         "imaginepy_models": constants.imaginepy_models,
+        "stablehorde_models": constants.stablehorde_models,
     }
+
     try:
         if menu_type == "model":
             _, api_actual, _, _, _, _, _ = await parametros(chat, lang, update)
@@ -182,6 +201,7 @@ async def get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang):
         else:
             from itertools import islice
             per_page = config.itemspage
+            if menu_type in ["stablehorde_models", "image_api_styles"]: per_page = per_page * 2
             page_keys = list(islice(item_keys, page_index * per_page, (page_index + 1) * per_page))
             import math
             num_rows = math.ceil(len(page_keys) / config.columnpage)
@@ -204,11 +224,9 @@ async def gen_keyboard_data(page_keys, func, menu_type, page_index, **kwargs):
     try:
         for index, current_key in enumerate(page_keys):
             kwargs["current_key"] = current_key
-
-            name = await func(**kwargs) 
-
+            name = await func(**kwargs)
             callback_data = f"set_{menu_type}|{current_key}|{page_index}|{menu_type}"
-            keyboard_data.append((index, name, callback_data))
+            keyboard_data.append((index, str(name), callback_data))
         return keyboard_data
     except Exception as e:
         raise ValueError(f'<gen_keyboard_data> {e}')
@@ -232,8 +250,10 @@ async def get_name_from_lang_info(**kwargs): return kwargs["menu_type_dict"]['in
 async def get_name_of_lang(**kwargs):
     return config.lang[kwargs['current_key']]['info']['name']
 async def get_name_from_metagen(**kwargs):
-    if kwargs["current_key"] == "imaginepy_models":
+    if kwargs["current_key"] in ["imaginepy_models", "stablehorde_models"]:
         return config.lang[kwargs["lang"]]["metagen"]["modelo"]
+    if kwargs["current_key"] in ["image_api_styles"]:
+        return config.lang[kwargs["lang"]]["metagen"]["imaginepy_styles"]
     return config.lang[kwargs["lang"]]["metagen"][kwargs["current_key"]]
 
 menu_type_to_function = {
@@ -245,13 +265,14 @@ menu_type_to_function = {
     "props": get_name_from_info_dict_with_lang,
     "lang": get_name_of_lang,
     "imaginepy": get_name_from_metagen,
+    "stablehorde": get_name_from_metagen,
     "imaginepy_styles": get_name_from_imaginepy_styles,
     "imaginepy_ratios": get_name_from_imaginepy_ratios,
-    "imaginepy_models": get_name_from_imaginepy_models
+    "imaginepy_models": get_name_from_imaginepy_models,
+    "stablehorde_models": get_name_from_stablehorde_models
 }
 #async def get_item_name(menu_type, menu_type_dict, current_key, lang):
 async def get_item_name(menu_type):
-
     try:
         return menu_type_to_function.get(menu_type)
     except Exception as e: raise KeyError(f"get_item_name: {e}")

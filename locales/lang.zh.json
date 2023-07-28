@@ -27,8 +27,8 @@
     "advertencia": "警告",
     "imaginepy_styles": "风格",
     "imaginepy_ratios": "比率",
-    "imaginepy_actual_style": "Imagine.py的当前样式",
-    "imaginepy_actual_model": "Imagine.py的当前模型"
+    "imaginepy_actual_style": "StableHorde的当前样式",
+    "imaginepy_actual_model": "StableHorde的当前模型"
   },
   "apicheck": {
     "inicio": "执行API检查",
@@ -80,9 +80,9 @@
     "reset_api": "您选择的API不可用，因此已更改为 '{new}'",
     "reset_model": "您当前的模型与API不兼容，因此模型已自动更改为'{new}'。",
     "reset_image_styles": "您当前的图像样式不可用。因此，它已自动更改为{new}。",
-    "reset_imaginepy_styles": "您当前的Imagine.py样式不可用。因此，它已自动更改为{new}。",
-    "reset_imaginepy_ratios": "您当前的Imagine.py比率不可用。因此，它已自动更改为{new}。",
-    "reset_imaginepy_models": "您当前的Imagine.py模型不可用。因此，它已自动更改为{new}。",
+    "reset_imaginepy_styles": "您当前的StableHorde样式不可用。因此，它已自动更改为{new}。",
+    "reset_imaginepy_ratios": "您当前的StableHorde比率不可用。因此，它已自动更改为{new}。",
+    "reset_imaginepy_models": "您当前的StableHorde模型不可用。因此，它已自动更改为{new}。",
     "genimagen_rejected": "🥲 您的请求不符合OpenAI的使用政策...",
     "genimagen_other": "🥲 处理您的请求时发生错误。请稍后再试...",
     "genimagen_badrequest": "🥲 请求发生错误。请检查您的消息的格式和内容...",

@@ -24,9 +24,8 @@ async def admin_selecciones(update, context, seleccion, is_from_callback):
     from_callback = await is_this_shit_callback(is_from_callback)
     if seleccion == "paginillas":
         if from_callback:
-            if from_callback in config.props["imaginepy"]["available_options"]: menu_type = "imaginepy"
-            elif from_callback == "imaginepy": menu_type = "image_api"
-            elif from_callback == "image_api_styles": menu_type = "image_api"
+            if from_callback in ["stablehorde_models"]: menu_type = "stablehorde"
+            elif from_callback in ["image_api_styles", "stablehorde"]: menu_type = "image_api"
             elif from_callback in config.props["available_props"]: menu_type = "props"
         else: menu_type = "props"  # Actualizamos menu_
     elif seleccion == "reset":

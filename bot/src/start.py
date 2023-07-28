@@ -15,7 +15,7 @@ from .handlers import message, voice, ocr_image, document, timeout, error
 from .handlers.commands import (
 start, help, retry, new, cancel, chat_mode, model,
 api, img, lang, status, reset, search, props, istyle, iratio, imodel)
-from .handlers.callbacks import imagine
+from .handlers.callbacks import stablehorde
 from .tasks import apis_chat, apis_image, cache, apis_check_idler
 from .utils import config
 from .utils.proxies import bb, asyncio
@@ -110,7 +110,7 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
     CallbackQueryHandler(img.options_callback, pattern=mcbc),
     CallbackQueryHandler(img.options_set, pattern="^set_image_api"),
     CallbackQueryHandler(img.options_set, pattern="^set_image_api_styles"),
-    CallbackQueryHandler(imagine.set, pattern="^set_imaginepy"),
+    CallbackQueryHandler(stablehorde.set, pattern="^set_stablehorde"),
     ]
     
     if config.switch_voice == True:
@@ -126,10 +126,8 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
         add_this.append(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))
         add_this.append(CommandHandler("istyle", istyle.image_style, filters=(user_filter | chat_filter)))
         add_this.append(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
-        if "imaginepy" in apis_image.img_vivas:
-            add_this.append(CommandHandler("istyle", istyle.imagine, filters=(user_filter | chat_filter)))
-            add_this.append(CommandHandler("iratio", iratio.imagine, filters=(user_filter | chat_filter)))
-            add_this.append(CommandHandler("imodel", imodel.imagine, filters=(user_filter | chat_filter)))
+        if "stablehorde" in apis_image.img_vivas:
+            add_this.append(CommandHandler("imodel", imodel.stablehorde, filters=(user_filter | chat_filter)))
     if config.switch_search == True:
         add_this.append(CommandHandler("search", search.wrapper, filters=(user_filter | chat_filter)))
     

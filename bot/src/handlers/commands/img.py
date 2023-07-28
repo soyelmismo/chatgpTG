@@ -8,7 +8,7 @@ from bot.src.utils import config
 from bot.src.utils.proxies import debe_continuar, obtener_contextos as oc, bb, db, interaction_cache, config, telegram, ParseMode, ChatAction, parametros, menusnotready, errorpredlang
 from bot.src.handlers import semaphore as tasks
 from bot.src.handlers.error import mini_handle as handle_errors
-from bot.src.utils.constants import logger
+from bot.src.utils.constants import logger, Style
 #algunos mensajes de error
 rmnf = "Replied message not found"
 
@@ -80,7 +80,8 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
             else:
                 seed = int(seed)
             seed = abs(seed)
-            seed %= 10**16
+            seed %= 10**10
+            seed = str(seed)
         if 'avoid:' in prompt:
             prompt_parts = prompt.split('avoid:')
             prompt = prompt_parts[0].strip()
@@ -88,7 +89,7 @@ async def get_prompt(update: Update, context: CallbackContext, chattype, _messag
         if not prompt:
             await chattype.reply_text(f'{config.lang[lang]["mensajes"]["genimagen_notext"]}', parse_mode=ParseMode.HTML)
             return None, None, None
-        return str(prompt), seed, avoid
+        return prompt, seed, avoid
     except Exception as e:
         raise ValueError(f'get_prompt > {e}')
 
@@ -98,11 +99,16 @@ async def get_image_urls(chattype, chat, lang, update, prompt, seed=None, negati
         ratio = None
         model = None
         _, _, _, current_api, style, ratio, model = await parametros(chat, lang, update)
+
         insta = await ChatGPT.create(chat)
         for attempt in range(1, (config.max_retries) + 1):
             try:
                 await chattype.chat.send_action(ChatAction.UPLOAD_PHOTO)
-                image_urls, seed = await asyncio.wait_for(insta.imagen(prompt, current_api, style, ratio, model, seed, negative), timeout=60)
+                #message = await update.effective_chat.send_message(text=f'{config.lang[lang]["mensajes"]["fotos_ya_expiraron"]}', reply_to_message_id=update.effective_message.message_id)
+                timeout = 60
+                if current_api == "stablehorde":
+                    timeout = timeout * 25
+                image_urls, seed, model = await asyncio.wait_for(insta.imagen(prompt, model, current_api, style, ratio, seed, negative), timeout=timeout)
                 return image_urls, current_api, seed, style, ratio, model
             except Exception as e:
                 if isinstance(e, asyncio.TimeoutError): None
@@ -117,20 +123,24 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
     try:
         image_group = []
         document_group = []
-        if current_api == "imaginepy":
-            caption = f'✏️ "<strong><code>{prompt}</code></strong>"'
+        
+        caption = f'✏️ "<strong><code>{prompt}</code></strong>"'
+        if current_api == "stablehorde":
             if negative != None:
                 caption += f'\n❌ "<code>{negative}</code>"'
-            caption += f'\n\n🌱 <code>{seed}</code>\n🎨 <strong>{style}</strong>\n🧵<strong>{model}</strong>\n📐 <strong>{ratio}</strong>'
-            image_urls.seek(0)  # Ensure we're at the start of the file
-            image = InputMediaPhoto(image_urls)
-            image_group.append(image)
-            image_urls.seek(0)
-            document = InputMediaDocument(image_urls, filename="imagen.png")
-            document_group.append(document)
-        else:
-            for i, image_url in enumerate(image_urls):
-                caption = f'✏️ "<strong><code>{prompt}</code></strong>"\n\n🧵 <strong>{config.api["info"][current_api]["name"]}</strong>\n🎨 <strong>{style}</strong>'
+            caption += f'\n\n🌱 <code>{seed}</code>\n🧠 <strong>{model}</strong>\n'
+        if not seed:
+            caption += '\n\n'
+        caption += f'🧵 <strong>{config.api["info"][current_api]["name"]}</strong>\n🎨 <strong>{Style[style].value[1]}</strong>'
+        for i, image_url in enumerate(image_urls):
+            if current_api == "stablehorde":
+                image_url.seek(0)  # Ensure we're at the start of the file
+                image = InputMediaPhoto(image_url)
+                image_group.append(image)
+                image_url.seek(0)
+                document = InputMediaDocument(image_url, filename=image_url.name)
+                document_group.append(document)
+            else:
                 image = InputMediaPhoto(image_url)
                 image_group.append(image)
                 document = InputMediaDocument(image_url, filename=f"imagen_{i}.png")
@@ -227,9 +237,9 @@ async def options_set(update: Update, context: CallbackContext):
     chat, _ = await oc(update)
     query, propsmenu, seleccion, page_index, _ = await hh(update)
     menu_type="image_api"
-    if seleccion == "imaginepy":
-        menu_type="imaginepy"
-    if seleccion != "image_api":
+    if seleccion == "stablehorde":
+        menu_type="stablehorde"
+    elif seleccion != "image_api":
         menu_type="image_api_styles"
     if seleccion in img_vivas and (image_api_cache.get(chat.id) is None or image_api_cache.get(chat.id)[0] != seleccion):
         image_api_cache[chat.id] = (seleccion, now())

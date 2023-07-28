@@ -113,6 +113,7 @@ async def gen(update, context, _message, chat, lang, chat_mode, current_model, m
             if "Can't parse entities" in str(e):
                 await context.bot.edit_message_text(telegram.helpers.escape_markdown(answer, version=1), chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, disable_web_page_preview=True, reply_markup={"inline_keyboard": keyboard}, parse_mode=parse_mode)
             else:
+                await mensaje_error_reintento(context, chat, lang, placeholder_message, answer, e)
                 logger.error(f'<message_gen> {errorpredlang}: {e}')
         # Liberar semáforo
         await tasks.releasemaphore(chat=chat)
@@ -154,7 +155,7 @@ async def stream_message(update, context, chat, lang, current_model, _message, c
             prev_answer = answer
         return _message, answer
     except Exception as e:
-        await mensaje_error_reintento(context, chat, lang, placeholder_message, answer)
+        await mensaje_error_reintento(context, chat, lang, placeholder_message, answer, e)
         raise RuntimeError(f'stream_message > {e}')
 
 async def actions(update, context):
@@ -189,12 +190,13 @@ async def process_urls(raw_msg, chat, lang, update):
 
 # Funciones auxiliares
 
-async def mensaje_error_reintento(context, chat, lang, placeholder_message, answer=""):
+async def mensaje_error_reintento(context, chat, lang, placeholder_message, answer="", e=""):
     try:
+        _, answer = await check_empty_messages(answer=answer)
         keyboard = []
         keyboard.append([])
         keyboard[0].append({"text": "🔄", "callback_data": "actions|retry"})
-        await context.bot.edit_message_text(f'{answer}\n\n{config.lang[lang]["errores"]["error_inesperado"]}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
+        await context.bot.edit_message_text(f'{answer}\n\n{config.lang[lang]["errores"]["error_inesperado"]}\n\n {e}', chat_id=placeholder_message.chat.id, message_id=placeholder_message.message_id, reply_markup={"inline_keyboard": keyboard})
         await tasks.releasemaphore(chat)
     except Exception as e:
         raise RuntimeError(f'<mensaje_error_reintento> {errorpredlang}: {e}')
