@@ -1,5 +1,5 @@
 from bot.src.start import Update, CallbackContext
-from udatetime import now
+from datetime import datetime
 from . import semaphore as tasks
 from tempfile import TemporaryDirectory
 from pathlib import Path
@@ -24,11 +24,11 @@ async def handle(chat, lang, update, context):
                 if doc[2]==True:
                     text = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{text}'
 
-                new_dialog_message = {"documento": f"{document.file_name} -> content: {doc[0]}", "date": now()}
+                new_dialog_message = {"documento": f"{document.file_name} -> content: {doc[0]}", "date": datetime.now()}
                 await update_dialog_messages(chat, new_dialog_message)
 
-                interaction_cache[chat.id] = ("visto", now())
-                await db.set_chat_attribute(chat, "last_interaction", now())
+                interaction_cache[chat.id] = ("visto", datetime.now())
+                await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         else:
             text = config.lang[lang]["errores"]["document_size_limit"].replace("{file_size_mb}", f"{file_size_mb:.2f}").replace("{file_max_size}", str(config.file_max_size))
     except Exception as e:

@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  chatgptg:
+    container_name: chatgptg
+    stdin_open: true
+    tty: true
+    command: python3 -m bot
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+# check https://gg.resisto.rodeo/yo/chatgpTG/src/branch/main/docs/variables for more
+      - WITHOUT_MONGODB=True
+      - TELEGRAM_TOKEN=6101.....
+#    volumes:
+#      - /route/my_config_dir:/config:ro
+#      - /route/my_code_dir:/bot:ro
+#      - /route/my_database_dir:/database:rw

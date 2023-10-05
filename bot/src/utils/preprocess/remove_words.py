@@ -3,7 +3,7 @@ from bot.src.utils.constants import logger
 from langdetect import detect_langs
 from nltk import download, set_proxy
 if config.proxy_raw is not None:
-    print(f"Proxy: {config.proxy_raw}")
+    logger.info(f"Proxy: {config.proxy_raw}")
     set_proxy(config.proxy_raw)
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize

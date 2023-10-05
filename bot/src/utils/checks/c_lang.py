@@ -1,4 +1,4 @@
-from udatetime import now
+from datetime import datetime
 from bot.src.utils.constants import constant_db_lang
 async def check(update, chat=None):
     if not chat:
@@ -13,5 +13,5 @@ async def check(update, chat=None):
         lang = update.effective_user.language_code
     else:
         lang = str(config.pred_lang)
-    lang_cache[chat.id] = (lang, now())
+    lang_cache[chat.id] = (lang, datetime.now())
     return lang

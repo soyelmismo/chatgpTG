@@ -1,6 +1,6 @@
 import openai
 from ujson import loads
-from udatetime import now
+from datetime import datetime
 from bot.src.utils.config import api, proxy_raw, usar_funciones, chat_mode
 
 if usar_funciones:
@@ -76,7 +76,7 @@ async def process_arguments_and_generate_response(self, function_name, fn, argum
 
 async def procesar_nuevos_datos(self, function_name, arguments, kwargs):
     function_response = await imported_functions[function_name](self, **arguments)
-    new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": now()}
+    new_dialog_message = {'function': f'{function_name}', "func_cont": f'{function_response}', "date": datetime.now()}
     from bot.src.utils.misc import update_dialog_messages
     from bot.src.utils.preprocess import count_tokens, make_messages
     await update_dialog_messages(self.chat, new_dialog_message)

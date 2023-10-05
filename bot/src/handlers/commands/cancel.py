@@ -1,4 +1,4 @@
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers import semaphore as tasks
 async def handle(update: Update, context: CallbackContext):
@@ -18,5 +18,5 @@ async def handle(update: Update, context: CallbackContext):
         if task is not None:
             task.cancel()
             await tasks.releasemaphore(chat)
-            interaction_cache[chat.id] = ("visto", now())
-            await db.set_chat_attribute(chat, "last_interaction", now())
+            interaction_cache[chat.id] = ("visto", datetime.now())
+            await db.set_chat_attribute(chat, "last_interaction", datetime.now())

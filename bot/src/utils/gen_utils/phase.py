@@ -63,7 +63,7 @@ class ChatGPT:
             logger.info(f'📨 / 🔌 {proxies.config.api["info"][self.api]["name"]} + 🧠 {proxies.config.model["info"][self.model]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             async for status, self.answer in _make_api_call(self, **kwargs):
                 yield status, self.answer
-            proxies.last_apis_interaction = proxies.udatetime.now()
+            proxies.last_apis_interaction = proxies.datetime.datetime.now()
             self.answer = await self._postprocess_answer()
 
         except Exception as e: raise BufferError(f'_prepare_request: {e}')
@@ -86,7 +86,7 @@ class ChatGPT:
     async def transcribe(self, audio_file):
         try:
             logger.info(f'🎤 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
-            proxies.last_apis_interaction = proxies.udatetime.now()
+            proxies.last_apis_interaction = proxies.datetime.datetime.now()
             return await make_transcription.write(self, audio_file)
         except Exception as e: raise RuntimeError(f"phase.transcribe > {e}")
     
@@ -94,7 +94,7 @@ class ChatGPT:
         try:
             logger.info(f'🎨 / 🔌 {proxies.config.api["info"][current_api]["name"]} + {style} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             images, seed, model = await make_image.gen(self, prompt, model, current_api, style, ratio, seed, negative)
-            proxies.last_apis_interaction = proxies.udatetime.now()
+            proxies.last_apis_interaction = proxies.datetime.datetime.now()
             return images, seed, model
         except Exception as e:
             raise RuntimeError(f"phase.imagen > {current_api}: {e}")
@@ -104,6 +104,6 @@ class ChatGPT:
             from bot.src.apis.duckduckgo import search
             logger.info(f'🔎 / 🔌 {proxies.config.api["info"][self.api]["name"]} • {proxies.config.lang[self.lang]["info"]["name"]} • 👤 {self.chat_info}')
             formatted_results_backend, formatted_results_string = await search(self, query)
-            proxies.last_apis_interaction = proxies.udatetime.now()
+            proxies.last_apis_interaction = proxies.datetime.datetime.now()
             return formatted_results_backend, formatted_results_string
         except Exception as e: raise RuntimeError(f"phase.busqueduck > {e}")

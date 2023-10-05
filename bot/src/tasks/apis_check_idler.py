@@ -1,5 +1,5 @@
 import asyncio
-from udatetime import now
+from datetime import datetime
 from bot.src.utils.constants import logger
 from bot.src.utils.config import apischeck_minutes as constant_minutes
 
@@ -12,7 +12,7 @@ async def task():
         try:
             from bot.src.utils.config import apischeck_minutes as variable_minutes
             from bot.src.utils.proxies import last_apis_interaction
-            if (now() - last_apis_interaction).seconds > (constant_minutes * 60) - 9:
+            if (datetime.now() - last_apis_interaction).seconds > (constant_minutes * 60) - 9:
                 if not msg:
                     logger.info("IDLER ON")
                     msg = True

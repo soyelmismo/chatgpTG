@@ -1,5 +1,5 @@
 from bot.src.tasks.apis_image import img_vivas
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from telegram import InputMediaDocument, InputMediaPhoto
 from bot.src.utils.gen_utils.phase import ChatGPT
@@ -147,8 +147,8 @@ async def send_image_group(update, context, lang, chat, image_urls, chattype, cu
                 document_group.append(document)
         mensaje_group_id = update.effective_message.message_id
         await create_document_group(update, context, lang, image_group, document_group, mensaje_group_id, chattype, caption)
-        interaction_cache[chat.id] = ("visto", now())
-        await db.set_chat_attribute(chat, "last_interaction", now())
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except Exception as e:
         if "referenced before assignment" in str(e):
             await chattype.reply_text(f'{config.lang[lang]["errores"]["genimagen_badrequest"]}', parse_mode=ParseMode.HTML)
@@ -242,11 +242,11 @@ async def options_set(update: Update, context: CallbackContext):
     elif seleccion != "image_api":
         menu_type="image_api_styles"
     if seleccion in img_vivas and (image_api_cache.get(chat.id) is None or image_api_cache.get(chat.id)[0] != seleccion):
-        image_api_cache[chat.id] = (seleccion, now())
+        image_api_cache[chat.id] = (seleccion, datetime.now())
         await db.set_chat_attribute(chat, f'{constant_db_image_api}', seleccion)
     elif propsmenu == "set_image_api_styles":
         menu_type = "image_api_styles"
         if seleccion != "paginillas":
-            image_api_styles_cache[chat.id] = (seleccion, now())
+            image_api_styles_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_image_api_styles}', seleccion)
     await rr(query, update, context, page_index, menu_type=menu_type, chat=chat)

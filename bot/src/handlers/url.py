@@ -1,5 +1,5 @@
 from bot.src.utils.misc import clean_text, update_dialog_messages
-from udatetime import now
+from datetime import datetime
 headers = {
     "User-Agent": "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/113.0 Firefox/113.0"
 }
@@ -37,14 +37,14 @@ async def handle(chat, lang, update, urls):
             doc, _, advertencia = await clean_text(doc, chat)
             if advertencia==True:
                 textomensaje = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{textomensaje if textomensaje else ""}'
-            new_dialog_message = {"url": f"{url} -> content: {doc}", "date": now()}
+            new_dialog_message = {"url": f"{url} -> content: {doc}", "date": datetime.now()}
             await update_dialog_messages(chat, new_dialog_message)
         except ValueError as e:
             if "lenghtexceed" in str(e):
                 textomensaje = f'{config.lang[lang]["errores"]["url_size_limit"]}: {e}'
             else: textomensaje = f'{config.lang[lang]["errores"]["error"]}: {e}'
-    interaction_cache[chat.id] = ("visto", now())
-    await db.set_chat_attribute(chat, "last_interaction", now())
+    interaction_cache[chat.id] = ("visto", datetime.now())
+    await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     return textomensaje
 async def wrapper(raw_msg):
     urls = []

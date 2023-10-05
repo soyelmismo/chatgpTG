@@ -1,4 +1,4 @@
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 from bot.src.utils.proxies import obtener_contextos as oc, config, db, imaginepy_ratios_cache, imaginepy_styles_cache, imaginepy_models_cache,ParseMode,errorpredlang,menusnotready
@@ -25,16 +25,16 @@ async def admin_selecciones(propsmenu, seleccion, chat):
     if propsmenu == "set_imaginepy_ratios":
         menu_type = "imaginepy_ratios"
         if seleccion != "paginillas":
-            imaginepy_ratios_cache[chat.id] = (seleccion, now())
+            imaginepy_ratios_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_imaginepy_ratios}', seleccion)
     elif propsmenu == "set_imaginepy_styles":
         menu_type = "imaginepy_styles"
         if seleccion != "paginillas":
-            imaginepy_styles_cache[chat.id] = (seleccion, now())
+            imaginepy_styles_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_imaginepy_styles}', seleccion)
     elif propsmenu == "set_imaginepy_models":
         menu_type = "imaginepy_models"
         if seleccion != "paginillas":
-            imaginepy_models_cache[chat.id] = (seleccion, now())
+            imaginepy_models_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_imaginepy_models}', seleccion)
     return menu_type

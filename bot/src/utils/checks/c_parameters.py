@@ -1,5 +1,5 @@
 from secrets import randbelow
-from udatetime import now
+from datetime import datetime
 from bot.src.utils.constants import (logger, constant_db_model, constant_db_chat_mode, constant_db_api,
                                      constant_db_image_api, constant_db_image_api_styles, image_api_styles, constant_db_imaginepy_ratios,
                                      constant_db_imaginepy_styles, imaginepy_ratios,
@@ -12,11 +12,7 @@ async def check_attribute(chat, available, cache, db_attribute, update, error_me
         aviso = None
         if stablehorde_workaround:
             currente = available.get(int(current), None)
-            #print("current og database", current)
             if not currente:
-                #print("valores", available)
-                #print("actual", current)
-                #print("se activó aviso")
                 aviso = True
         else:
             if current not in available:
@@ -24,12 +20,12 @@ async def check_attribute(chat, available, cache, db_attribute, update, error_me
 
         if aviso:
             current = available[randbelow(len(available))]
-            cache[chat.id] = (current, now())
+            cache[chat.id] = (current, datetime.now())
             await db.set_chat_attribute(chat, db_attribute, current)
             await update.effective_chat.send_message(error_message.format(new=current))
 
         if cache.get(chat.id) is None or cache.get(chat.id)[0] != current: 
-            cache[chat.id] = (current, now())
+            cache[chat.id] = (current, datetime.now())
         return current
     except Exception as e:
         logger.error(f'<parameters_check_attribute> {available} | {cache} | {db_attribute} <-- {e}')
@@ -47,7 +43,6 @@ async def check(chat, lang, update):
         constant_db_stablehorde_models
     ]
     atributos = await db.get_chat_attributes_dict(chat, db_attributes)
-    #print(f'{atributos}')
     checked_chat_mode = await check_attribute(
         chat, 
         config.chat_mode["available_chat_mode"], 
@@ -103,7 +98,6 @@ async def check(chat, lang, update):
         atributos,
         stablehorde_workaround = True
     )
-    #print(f"devuelve current modelo {checked_stablehorde_models}")
     return checked_chat_mode, checked_api, checked_model, checked_image_api, checked_image_styles, None, checked_stablehorde_models
 
 async def useless_atm(chat, lang, update):

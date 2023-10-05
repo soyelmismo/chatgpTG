@@ -1,4 +1,4 @@
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 from bot.src.utils.proxies import obtener_contextos as oc, config, db, stablehorde_models_cache,ParseMode,errorpredlang,menusnotready
@@ -25,11 +25,11 @@ async def admin_selecciones(propsmenu, seleccion, chat):
     if propsmenu == "set_stablehorde_models":
         menu_type = "stablehorde_models"
         if seleccion != "paginillas":
-            stablehorde_models_cache[chat.id] = (seleccion, now())
+            stablehorde_models_cache[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_stablehorde_models}', seleccion)
     elif propsmenu == "set_image_api_styles":
         menu_type = "image_api_styles"
         if seleccion != "paginillas":
-            constant_db_image_api_styles[chat.id] = (seleccion, now())
+            constant_db_image_api_styles[chat.id] = (seleccion, datetime.now())
             await db.set_chat_attribute(chat, f'{constant_db_image_api_styles}', seleccion)
     return menu_type

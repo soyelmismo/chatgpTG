@@ -1,4 +1,4 @@
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from bot.src.handlers.menu import handle as hh, get as gg, refresh as rr
 from bot.src.utils.constants import constant_db_model, logger
@@ -19,6 +19,6 @@ async def set(update: Update, context: CallbackContext):
     query, _, seleccion, page_index, _ = await hh(update)
     menu_type="model"
     if seleccion in config.model["available_model"] and (model_cache.get(chat.id) is None or model_cache.get(chat.id)[0] != seleccion):
-        model_cache[chat.id] = (seleccion, now())
+        model_cache[chat.id] = (seleccion, datetime.now())
         await db.set_chat_attribute(chat, f'{constant_db_model}', seleccion)
     await rr(query, update, context, page_index, menu_type=menu_type, chat=chat)

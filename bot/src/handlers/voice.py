@@ -1,5 +1,5 @@
 from subprocess import call
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from tempfile import TemporaryDirectory
 from pathlib import Path
@@ -39,8 +39,8 @@ async def handle(chat, lang, update, context):
 
             # Enviar respuesta            
             text = f"🎤 {transcribed_text}"
-            interaction_cache[chat.id] = ("visto", now())
-            await db.set_chat_attribute(chat, "last_interaction", now())
+            interaction_cache[chat.id] = ("visto", datetime.now())
+            await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         except Exception as e:
             logger.error(f'{__name__}: <transcribe_message_handle> {errorpredlang}: {e}')
             await tasks.releasemaphore(chat=chat)

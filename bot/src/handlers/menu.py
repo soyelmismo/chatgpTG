@@ -1,5 +1,5 @@
 from bot.src.start import Update, CallbackContext
-from udatetime import now
+from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from bot.src.utils import proxies
 from bot.src.utils.proxies import menu_cache, config, db, obtener_contextos as oc, parametros, interaction_cache, msg_no_mod, ParseMode, telegram, errorpredlang
@@ -24,7 +24,7 @@ async def get(menu_type, update: Update, context: CallbackContext, chat, page_in
         keyboard = await get_keyboard(item_keys, page_index, menu_type, menu_type_dict, lang)
         reply_markup = InlineKeyboardMarkup(keyboard)
         return text, reply_markup
-    except Exception as e: print(f'{__name__}: {errorpredlang}: <get_menu> <{menu_type}, {option_name}, {current_key}> {e}')
+    except Exception as e: constants.logger.error(f'{__name__}: {errorpredlang}: <get_menu> <{menu_type}, {option_name}, {current_key}> {e}')
 
 type_dict = {
     "props": config.props,
@@ -55,7 +55,7 @@ async def get_current_key(menu_type, chat):
         cache_variable = getattr(proxies, f"{menu_type}_cache")
         if chat.id in cache_variable: current_key = cache_variable[chat.id][0]
         else: current_key = await db.get_chat_attribute(chat, constant_value)
-        cache_variable[chat.id] = (current_key, now())
+        cache_variable[chat.id] = (current_key, datetime.now())
         return current_key
     except Exception as e:
         raise ValueError(f'<get_current_key> {e}')
@@ -310,8 +310,8 @@ async def refresh(query, update, context, page_index, menu_type, chat=None):
                 (menu_type, update, context, page_index))
         text, reply_markup = await get(*argus)
         await query.edit_message_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-        interaction_cache[chat.id] = ("visto", now())
-        await db.set_chat_attribute(chat, "last_interaction", now())
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        await db.set_chat_attribute(chat, "last_interaction", datetime.now())
     except telegram.error.BadRequest as e:
         if str(e).startswith(msg_no_mod): None
         else: raise ValueError(f'refresh: {e}')

@@ -15,7 +15,7 @@ from bot.src.utils.misc import update_dialog_messages
 from bot.src.utils.constants import constant_db_model, constant_db_chat_mode, continue_key
 
 from bot.src.handlers import semaphore as tasks
-from udatetime import now, from_string
+from datetime import datetime
 from . import url, timeout
 from .commands import new
 from .commands import img, cancel, retry
@@ -73,20 +73,19 @@ async def handle(chat, lang, update, context, _message=None, msgid=None):
             last_interaction = db_call["last_interaction"]
             current_model = db_call[constant_db_model]
 
-        chat_mode_cache[chat.id] = (chat_mode, now())
-        model_cache[chat.id] = (current_model, now())
+        chat_mode_cache[chat.id] = (chat_mode, datetime.now())
+        model_cache[chat.id] = (current_model, datetime.now())
         if isinstance(last_interaction, str):
-            last_interaction = from_string(last_interaction)
+            last_interaction = datetime.fromisoformat(last_interaction)
 
         dialog_messages = await db.get_dialog_messages(chat, dialog_id=None)
-        if (now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
+        if (datetime.now() - last_interaction).seconds > config.dialog_timeout and len(dialog_messages) > 0:
             if config.timeout_ask:
                 await timeout.ask(chat, lang, update, _message)
                 return
             else:
                 await new.handle(update, context)
                 await update.effective_chat.send_message(f'{config.lang[lang]["mensajes"]["timeout_ask_false"].format(chatmode=config.chat_mode["info"][chat_mode]["name"][lang])}', parse_mode=ParseMode.HTML)
-
         await tasks.releasemaphore(chat=chat)
         task = bb(gen(update, context, _message, chat, lang, chat_mode, current_model, msgid))
         await tasks.handle(chat, task)
@@ -125,9 +124,9 @@ async def gen(update, context, _message, chat, lang, chat_mode, current_model, m
     finally:
         _message, answer = await check_empty_messages(_message, answer)
         # Actualizar caché de interacciones y historial de diálogos del chat
-        interaction_cache[chat.id] = ("visto", now())
-        asyncio.create_task(db.set_chat_attribute(chat, "last_interaction", now()))
-        new_dialog_message = {"user": _message, "bot": answer, "date": now()}
+        interaction_cache[chat.id] = ("visto", datetime.now())
+        asyncio.create_task(db.set_chat_attribute(chat, "last_interaction", datetime.now()))
+        new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
         advertencia, _, _ = await update_dialog_messages(chat, new_dialog_message)
         asyncio.create_task(enviar_advertencia_si_necesario(advertencia, update, lang, reply_val))
         await tasks.releasemaphore(chat=chat)

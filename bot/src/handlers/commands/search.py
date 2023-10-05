@@ -1,4 +1,4 @@
-from udatetime import now
+from datetime import datetime
 from bot.src.start import Update, CallbackContext
 from bot.src.utils.gen_utils.phase import ChatGPT
 from bot.src.handlers.error import mini_handle as handle_errors
@@ -27,13 +27,13 @@ async def handle(chat, lang, update, context, _message=None):
             from bot.src.utils.misc import clean_text, update_dialog_messages, send_large_message
             formatted_results_backend, _, advertencia = await clean_text(doc=formatted_results_backend, chat=chat)
             resultadosbot="""{resultados}\n\n parameters[Now you have access to the Internet thanks to the previous searches,you will talk deeply about the search results in general,do not repeat the same search results text and structure,do not write urls,you need to write in the language: {language}]"""
-            new_dialog_message = {"search": resultadosbot.format(resultados=f'{formatted_results_backend}', language=f'{config.lang[lang]["info"]["name"]}'), "date": now()}
+            new_dialog_message = {"search": resultadosbot.format(resultados=f'{formatted_results_backend}', language=f'{config.lang[lang]["info"]["name"]}'), "date": datetime.now()}
             await update_dialog_messages(chat, new_dialog_message)
             if advertencia==True:
                 formatted_results_string = f'{config.lang[lang]["metagen"]["advertencia"]}: {config.lang[lang]["errores"]["advertencia_tokens_excedidos"]}\n\n{formatted_results_string}'
             await send_large_message(formatted_results_string, update)
-            interaction_cache[chat.id] = ("visto", now())
-            await db.set_chat_attribute(chat, "last_interaction", now())
+            interaction_cache[chat.id] = ("visto", datetime.now())
+            await db.set_chat_attribute(chat, "last_interaction", datetime.now())
         except telegram.error.BadRequest:
             text = f'{config.lang[lang]["errores"]["genimagen_badrequest"]}'
             await update.effective_chat.send_message(text, parse_mode=ParseMode.HTML)

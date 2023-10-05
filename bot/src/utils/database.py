@@ -2,7 +2,7 @@ from ujson import load, dump
 from typing import Optional, Any
 from uuid import uuid4
 from . import config
-from udatetime import now, now_to_string, to_string
+from datetime import datetime
 from pymongo.errors import DuplicateKeyError
 from motor.motor_asyncio import AsyncIOMotorClient
 from .constants import (constant_db_model, constant_db_chat_mode, constant_db_api,
@@ -56,7 +56,7 @@ class Database:
         elif isinstance(data, list):
             return [self.convert_datetime(item) for item in data]
         elif is_datetime(data):
-            return to_string(data)
+            return datetime.isoformat(data)
         else:
             return data
 
@@ -80,7 +80,7 @@ class Database:
         if not await self.chat_exists(chat):
             if self.use_json:
                 self.data["chats"][str(chat.id)] = {
-                    "last_interaction": now_to_string(),
+                    "last_interaction": datetime.now().isoformat(),
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],
@@ -96,7 +96,7 @@ class Database:
             else:
                 chat_dict = {
                     "_id": str(chat.id),
-                    "last_interaction": now(),
+                    "last_interaction": datetime.now(),
                     "current_dialog_id": None,
                     constant_db_lang: lang,
                     constant_db_chat_mode: config.chat_mode["available_chat_mode"][1],

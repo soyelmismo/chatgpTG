@@ -6,7 +6,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.constants import ParseMode, ChatAction
 import re
-import udatetime
+import datetime
 db = database.Database()
 bb = asyncio.create_task
 bcs = asyncio.ensure_future
@@ -15,7 +15,7 @@ sleep = asyncio.sleep
 chat_locks = {}
 chat_tasks = {}
 
-last_apis_interaction = udatetime.now()
+last_apis_interaction = datetime.datetime.now()
 
 #cache testing
 cache_index = ["lang_cache", "chat_mode_cache", "api_cache", "model_cache",
