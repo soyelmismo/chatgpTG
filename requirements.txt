@@ -1,5 +1,5 @@
 openai
-python-telegram-bot[rate-limiter]
+python-telegram-bot[rate-limiter]>=20.6
 PyPDF2
 pytesseract
 html2text

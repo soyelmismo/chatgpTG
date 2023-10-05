@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3.11.6-alpine3.18
 
 # Por alguna razón, si se elimina PYTHONUNBUFFERED, no se imprimen algunos mensajes de error o información relevante...
 ENV PYTHONUNBUFFERED=1
@@ -38,7 +38,7 @@ RUN apk update && \
         tesseract-ocr-data-ita \
         tesseract-ocr-data-nld && \
     pip3 install --no-cache-dir -r requirements.txt && \
-    apk del .build-deps && \
+    apk del .build-deps && apk del rustup && \
     rm -rf /var/cache/apk/*
 
 CMD ["python", "-m", "bot"]
