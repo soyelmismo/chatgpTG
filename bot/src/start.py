@@ -76,7 +76,7 @@ def get_chat_filter():
         chat = chat.strip()
         if chat[0] == "-" and chat[1:].isnumeric():
             chat_ids.append(int(chat))
-    return filters.Chat(chat_id=chat_ids) if config.chat_whitelist else filters.ALL
+    return filters.Chat(chat_id=chat_ids) if config.chat_whitelist else None
 
 async def add_handlers_parallel(application, user_filter, chat_filter):
     mcbc = "^get_menu"
