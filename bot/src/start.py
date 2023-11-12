@@ -70,32 +70,25 @@ def get_user_filter():
         else:
             usernames.append(user)
     return filters.User(username=usernames) | filters.User(user_id=user_ids) if config.user_whitelist else filters.ALL
-def get_chat_filter():
-    chat_ids = []
-    for chat in config.chat_whitelist:
-        chat = chat.strip()
-        if chat[0] == "-" and chat[1:].isnumeric():
-            chat_ids.append(int(chat))
-    return filters.Chat(chat_id=chat_ids) if config.chat_whitelist else None
 
-async def add_handlers_parallel(application, user_filter, chat_filter):
+async def add_handlers_parallel(application, user_filter):
     mcbc = "^get_menu"
     
     add_this = [
-    MessageHandler(filters.TEXT & ~filters.COMMAND & (user_filter | chat_filter), message.wrapper),
-    CommandHandler("start", start.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("help", help.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("helpgroupchat", help.group, filters=(user_filter | chat_filter)),
-    CommandHandler("retry", retry.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("new", new.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("cancel", cancel.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("chat_mode", chat_mode.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("model", model.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("status", status.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("reset", reset.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("api", api.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("props", props.handle, filters=(user_filter | chat_filter)),
-    CommandHandler("lang", lang.handle, filters=(user_filter | chat_filter)),
+    MessageHandler(filters.TEXT & ~filters.COMMAND & (user_filter), message.wrapper),
+    CommandHandler("start", start.handle, filters=(user_filter)),
+    CommandHandler("help", help.handle, filters=(user_filter)),
+    CommandHandler("helpgroupchat", help.group, filters=(user_filter)),
+    CommandHandler("retry", retry.handle, filters=(user_filter)),
+    CommandHandler("new", new.handle, filters=(user_filter)),
+    CommandHandler("cancel", cancel.handle, filters=(user_filter)),
+    CommandHandler("chat_mode", chat_mode.handle, filters=(user_filter)),
+    CommandHandler("model", model.handle, filters=(user_filter)),
+    CommandHandler("status", status.handle, filters=(user_filter)),
+    CommandHandler("reset", reset.handle, filters=(user_filter)),
+    CommandHandler("api", api.handle, filters=(user_filter)),
+    CommandHandler("props", props.handle, filters=(user_filter)),
+    CommandHandler("lang", lang.handle, filters=(user_filter)),
     CallbackQueryHandler(lang.set, pattern="^set_lang"),
     CallbackQueryHandler(timeout.answer, pattern="^new_dialog"),
     CallbackQueryHandler(message.actions, pattern="^action"),
@@ -114,22 +107,22 @@ async def add_handlers_parallel(application, user_filter, chat_filter):
     ]
     
     if config.switch_voice == True:
-        add_this.append(MessageHandler(filters.AUDIO & (user_filter | chat_filter), voice.wrapper))
-        add_this.append(MessageHandler(filters.VOICE & (user_filter | chat_filter), voice.wrapper))
+        add_this.append(MessageHandler(filters.AUDIO & (user_filter), voice.wrapper))
+        add_this.append(MessageHandler(filters.VOICE & (user_filter), voice.wrapper))
     if config.switch_ocr == True:
-        add_this.append(MessageHandler(filters.PHOTO & (user_filter | chat_filter), ocr_image.wrapper))
+        add_this.append(MessageHandler(filters.PHOTO & (user_filter), ocr_image.wrapper))
     if config.switch_docs == True:
         docfilter = (filters.Document.FileExtension("pdf") | filters.Document.FileExtension("lrc") | filters.Document.FileExtension("json"))
-        add_this.append(MessageHandler(docfilter & (user_filter | chat_filter), document.wrapper))
-        add_this.append(MessageHandler(filters.Document.Category('text/') & (user_filter | chat_filter), document.wrapper))
+        add_this.append(MessageHandler(docfilter & (user_filter), document.wrapper))
+        add_this.append(MessageHandler(filters.Document.Category('text/') & (user_filter), document.wrapper))
     if config.switch_imgs == True:
-        add_this.append(CommandHandler("img", img.wrapper, filters=(user_filter | chat_filter)))
-        add_this.append(CommandHandler("istyle", istyle.image_style, filters=(user_filter | chat_filter)))
+        add_this.append(CommandHandler("img", img.wrapper, filters=(user_filter)))
+        add_this.append(CommandHandler("istyle", istyle.image_style, filters=(user_filter)))
         add_this.append(CallbackQueryHandler(img.callback, pattern="^imgdownload"))
         if "stablehorde" in apis_image.img_vivas:
-            add_this.append(CommandHandler("imodel", imodel.stablehorde, filters=(user_filter | chat_filter)))
+            add_this.append(CommandHandler("imodel", imodel.stablehorde, filters=(user_filter)))
     if config.switch_search == True:
-        add_this.append(CommandHandler("search", search.wrapper, filters=(user_filter | chat_filter)))
+        add_this.append(CommandHandler("search", search.wrapper, filters=(user_filter)))
     
     
     add_handler_tasks = [
@@ -148,20 +141,18 @@ def run_parallel_tasks():
         # Ejecutar las tres funciones en paralelo
         application_future = executor.submit(build_application)
         user_filter_future = executor.submit(get_user_filter)
-        chat_filter_future = executor.submit(get_chat_filter)
 
         # Obtener los resultados de las funciones
         application = application_future.result()
         user_filter = user_filter_future.result()
-        chat_filter = chat_filter_future.result()
 
-    return application, user_filter, chat_filter
+    return application, user_filter
 
 def run_bot() -> None:
-    application, user_filter, chat_filter = run_parallel_tasks()
+    application, user_filter = run_parallel_tasks()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(add_handlers_parallel(application, user_filter, chat_filter))
+    loop.run_until_complete(add_handlers_parallel(application, user_filter))
     application.add_error_handler(error)
     loop.run_until_complete(application.initialize())
     loop.run_until_complete(application.run_polling())

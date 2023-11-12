@@ -13,7 +13,7 @@ The bot's menu can be configured with the following options:
 
 ### User and Chat Whitelist
 
-You can specify a whitelist of users and chats that are allowed to interact with the bot. The whitelist should be provided as a list of user or chat IDs in the `USER_WHITELIST` and `CHAT_WHITELIST` variables, respectively.
+You can specify a whitelist of users and chats that are allowed to interact with the bot. The whitelist should be provided as a list of user or chat IDs in the `USER_WHITELIST` variable, respectively.
 
 ### Database Configuration
 

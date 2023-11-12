@@ -13,7 +13,7 @@ Het menu van de bot kan worden geconfigureerd met de volgende opties:
 
 ### Whitelist voor gebruikers en chats
 
-Je kunt een whitelist van gebruikers en chats specificeren die toegestaan zijn om met de bot te communiceren. De whitelist moet worden opgegeven als een lijst met gebruikers- of chat-ID's in de variabelen `USER_WHITELIST` en `CHAT_WHITELIST`.
+Je kunt een whitelist van gebruikers en chats specificeren die toegestaan zijn om met de bot te communiceren. De whitelist moet worden opgegeven als een lijst met gebruikers- of chat-ID's in de variabelen `USER_WHITELIST`.
 
 ### Databaseconfiguratie
 

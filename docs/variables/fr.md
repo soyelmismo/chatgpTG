@@ -13,7 +13,7 @@ Le menu du bot peut être configuré avec les options suivantes :
 
 ### Liste blanche des utilisateurs et des discussions
 
-Vous pouvez spécifier une liste blanche des utilisateurs et des discussions autorisés à interagir avec le bot. La liste blanche doit être fournie sous la forme d'une liste d'identifiants d'utilisateurs ou de discussions dans les variables `USER_WHITELIST` et `CHAT_WHITELIST`, respectivement.
+Vous pouvez spécifier une liste blanche des utilisateurs et des discussions autorisés à interagir avec le bot. La liste blanche doit être fournie sous la forme d'une liste d'identifiants d'utilisateurs ou de discussions dans le variable `USER_WHITELIST`, respectivement.
 
 ### Configuration de la base de données
 

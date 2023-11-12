@@ -11,7 +11,6 @@ itemspage = int(env.get('MAX_ITEMS_PER_PAGE', [10])[0])
 columnpage = int(env.get('MAX_COLUMNS_PER_PAGE', [2])[0])
 
 user_whitelist = env.get('USER_WHITELIST', [])
-chat_whitelist = env.get('CHAT_WHITELIST', [])
 json_database = bool(env.get('WITHOUT_MONGODB', ['False'])[0].lower() == 'true')
 dialog_timeout = int(env.get('DIALOG_TIMEOUT', [7200])[0])
 n_images = int(env.get('OUTPUT_IMAGES', [4])[0])

@@ -13,7 +13,7 @@ El menú del bot se puede configurar con las siguientes opciones:
 
 ### Lista blanca de usuarios y chats
 
-Puedes especificar una lista blanca de usuarios y chats que tienen permitido interactuar con el bot. La lista blanca debe proporcionarse como una lista de IDs de usuario o chat en las variables `USER_WHITELIST` y `CHAT_WHITELIST`, respectivamente.
+Puedes especificar una lista blanca de usuarios y chats que tienen permitido interactuar con el bot. La lista blanca debe proporcionarse como una lista de IDs de usuario o chat en la variable `USER_WHITELIST`, respectivamente.
 
 ### Configuración de la base de datos
 
